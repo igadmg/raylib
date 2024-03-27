@@ -45,7 +45,7 @@ int main(void)
 
     Vector3 mapPosition = { -16.0f, 0.0f, -8.0f };          // Set model position
 
-    UnloadImage(image);     // Unload cubesmap image from RAM, already uploaded to VRAM
+    UnloadImage(&image);     // Unload cubesmap image from RAM, already uploaded to VRAM
 
     SetTargetFPS(60);                   // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -84,9 +84,9 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadTexture(cubicmap);    // Unload cubicmap texture
-    UnloadTexture(texture);     // Unload map texture
-    UnloadModel(model);         // Unload map model
+    UnloadTexture(&cubicmap);    // Unload cubicmap texture
+    UnloadTexture(&texture);     // Unload map texture
+    UnloadModel(&model);         // Unload map model
 
     CloseWindow();              // Close window and OpenGL context
     //--------------------------------------------------------------------------------------

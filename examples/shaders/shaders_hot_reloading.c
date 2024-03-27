@@ -84,7 +84,7 @@ int main(void)
 
                 if (updatedShader.id != rlGetShaderIdDefault())      // It was correctly loaded
                 {
-                    UnloadShader(shader);
+                    UnloadShader(&shader);
                     shader = updatedShader;
 
                     // Get shader locations for required uniforms
@@ -126,7 +126,7 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadShader(shader);           // Unload shader
+    UnloadShader(&shader);           // Unload shader
 
     CloseWindow();                  // Close window and OpenGL context
     //--------------------------------------------------------------------------------------

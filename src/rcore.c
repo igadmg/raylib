@@ -1308,10 +1308,10 @@ Shader LoadShaderFromMemory(const char *vsCode, const char *fsCode)
 }
 
 // Check if a shader is ready
-bool IsShaderReady(Shader shader)
+bool IsShaderReady(Shader *shader)
 {
-    return ((shader.id > 0) &&          // Validate shader id (loaded successfully)
-            (shader.locs != NULL));     // Validate memory has been allocated for default shader locations
+    return ((shader->id > 0) &&          // Validate shader id (loaded successfully)
+            (shader->locs != NULL));     // Validate memory has been allocated for default shader locations
 
     // The following locations are tried to be set automatically (locs[i] >= 0),
     // any of them can be checked for validation but the only mandatory one is, afaik, SHADER_LOC_VERTEX_POSITION
@@ -1340,14 +1340,15 @@ bool IsShaderReady(Shader shader)
 }
 
 // Unload shader from GPU memory (VRAM)
-void UnloadShader(Shader shader)
+void UnloadShader(Shader *shader)
 {
-    if (shader.id != rlGetShaderIdDefault())
+    if (shader->id != rlGetShaderIdDefault())
     {
-        rlUnloadShaderProgram(shader.id);
+        rlUnloadShaderProgram(shader->id);
 
         // NOTE: If shader loading failed, it should be 0
-        RL_FREE(shader.locs);
+        RL_FREE(shader->locs);
+        shader->locs = NULL;
     }
 }
 
@@ -1799,7 +1800,7 @@ void TakeScreenshot(const char *fileName)
 
     char path[512] = { 0 };
     strcpy(path, TextFormat("%s/%s", CORE.Storage.basePath, GetFileName(fileName)));
-    
+
     ExportImage(image, path);           // WARNING: Module required: rtextures
     RL_FREE(imgData);
 
@@ -1955,7 +1956,7 @@ const char *GetFileName(const char *filePath)
 const char *GetFileNameWithoutExt(const char *filePath)
 {
     #define MAX_FILENAME_LENGTH     256
-    
+
     static char fileName[MAX_FILENAME_LENGTH] = { 0 };
     memset(fileName, 0, MAX_FILENAME_LENGTH);
 
@@ -1963,7 +1964,7 @@ const char *GetFileNameWithoutExt(const char *filePath)
     {
         strcpy(fileName, GetFileName(filePath)); // Get filename.ext without path
         int size = (int)strlen(fileName); // Get size in bytes
-        
+
         for (int i = size; i > 0; i--) // Reverse search '.'
         {
             if (fileName[i] == '.')
@@ -1974,7 +1975,7 @@ const char *GetFileNameWithoutExt(const char *filePath)
             }
         }
     }
-    
+
     return fileName;
 }
 
@@ -2501,10 +2502,10 @@ AutomationEventList LoadAutomationEventList(const char *fileName)
 }
 
 // Unload automation events list from file
-void UnloadAutomationEventList(AutomationEventList list)
+void UnloadAutomationEventList(AutomationEventList *list)
 {
 #if defined(SUPPORT_AUTOMATION_EVENTS)
-    RL_FREE(list.events);
+    RL_FREE_NULL(list->events);
 #endif
 }
 

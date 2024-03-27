@@ -136,9 +136,9 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadModel(model);     // Unload the model
-    UnloadModel(cube);      // Unload the model
-    UnloadShader(shader);   // Unload shader
+    UnloadModel(&model);     // Unload the model
+    UnloadModel(&cube);      // Unload the model
+    UnloadShader(&shader);   // Unload shader
 
     CloseWindow();          // Close window and OpenGL context
     //--------------------------------------------------------------------------------------

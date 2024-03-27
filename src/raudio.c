@@ -200,7 +200,10 @@ typedef struct tagBITMAPINFOHEADER {
         #define RL_REALLOC(ptr,sz)      realloc(ptr,sz)
     #endif
     #ifndef RL_FREE
-        #define RL_FREE(ptr)            free(ptr); ptr = NULL
+        #define RL_FREE(ptr)            free(ptr)
+    #endif
+    #ifndef RL_FREE_NULL
+        #define RL_FREE_NULL(ptr)       RL_FREE(ptr); ptr = NULL
     #endif
 #endif
 
@@ -868,13 +871,13 @@ Wave LoadWaveFromMemory(const char *fileType, const unsigned char *fileData, int
 }
 
 // Checks if wave data is ready
-bool IsWaveReady(Wave wave)
+bool IsWaveReady(Wave *wave)
 {
-    return ((wave.data != NULL) &&      // Validate wave data available
-            (wave.frameCount > 0) &&    // Validate frame count
-            (wave.sampleRate > 0) &&    // Validate sample rate is supported
-            (wave.sampleSize > 0) &&    // Validate sample size is supported
-            (wave.channels > 0));       // Validate number of channels supported
+    return ((wave->data != NULL) &&      // Validate wave data available
+            (wave->frameCount > 0) &&    // Validate frame count
+            (wave->sampleRate > 0) &&    // Validate sample rate is supported
+            (wave->sampleSize > 0) &&    // Validate sample size is supported
+            (wave->channels > 0));       // Validate number of channels supported
 }
 
 // Load sound from file
@@ -885,7 +888,7 @@ Sound LoadSound(const char *fileName)
 
     Sound sound = LoadSoundFromWave(wave);
 
-    UnloadWave(wave);       // Sound is loaded, we can unload wave
+    UnloadWave(&wave);       // Sound is loaded, we can unload wave
 
     return sound;
 }
@@ -965,37 +968,38 @@ Sound LoadSoundAlias(Sound source)
 
 
 // Checks if a sound is ready
-bool IsSoundReady(Sound sound)
+bool IsSoundReady(Sound *sound)
 {
-    return ((sound.frameCount > 0) &&           // Validate frame count
-            (sound.stream.buffer != NULL) &&    // Validate stream buffer
-            (sound.stream.sampleRate > 0) &&    // Validate sample rate is supported
-            (sound.stream.sampleSize > 0) &&    // Validate sample size is supported
-            (sound.stream.channels > 0));       // Validate number of channels supported
+    return ((sound->frameCount > 0) &&           // Validate frame count
+            (sound->stream.buffer != NULL) &&    // Validate stream buffer
+            (sound->stream.sampleRate > 0) &&    // Validate sample rate is supported
+            (sound->stream.sampleSize > 0) &&    // Validate sample size is supported
+            (sound->stream.channels > 0));       // Validate number of channels supported
 }
 
 // Unload wave data
-void UnloadWave(Wave wave)
+void UnloadWave(Wave *wave)
 {
-    RL_FREE(wave.data);
+    RL_FREE_NULL(wave->data);
     //TRACELOG(LOG_INFO, "WAVE: Unloaded wave data from RAM");
 }
 
 // Unload sound
-void UnloadSound(Sound sound)
+void UnloadSound(Sound *sound)
 {
-    UnloadAudioBuffer(sound.stream.buffer);
+    UnloadAudioBuffer(sound->stream.buffer);
+    sound->stream.buffer = NULL;
     //TRACELOG(LOG_INFO, "SOUND: Unloaded sound data from RAM");
 }
 
-void UnloadSoundAlias(Sound alias)
+void UnloadSoundAlias(Sound *alias)
 {
     // Untrack and unload just the sound buffer, not the sample data, it is shared with the source for the alias
-    if (alias.stream.buffer != NULL)
+    if (alias->stream.buffer != NULL)
     {
-        ma_data_converter_uninit(&alias.stream.buffer->converter, NULL);
-        UntrackAudioBuffer(alias.stream.buffer);
-        RL_FREE(alias.stream.buffer);
+        ma_data_converter_uninit(&alias->stream.buffer->converter, NULL);
+        UntrackAudioBuffer(alias->stream.buffer);
+        RL_FREE_NULL(alias->stream.buffer);
     }
 }
 
@@ -1686,44 +1690,45 @@ Music LoadMusicStreamFromMemory(const char *fileType, const unsigned char *data,
 }
 
 // Checks if a music stream is ready
-bool IsMusicReady(Music music)
+bool IsMusicReady(Music *music)
 {
-    return ((music.ctxData != NULL) &&          // Validate context loaded
-            (music.frameCount > 0) &&           // Validate audio frame count
-            (music.stream.sampleRate > 0) &&    // Validate sample rate is supported
-            (music.stream.sampleSize > 0) &&    // Validate sample size is supported
-            (music.stream.channels > 0));       // Validate number of channels supported
+    return ((music->ctxData != NULL) &&          // Validate context loaded
+            (music->frameCount > 0) &&           // Validate audio frame count
+            (music->stream.sampleRate > 0) &&    // Validate sample rate is supported
+            (music->stream.sampleSize > 0) &&    // Validate sample size is supported
+            (music->stream.channels > 0));       // Validate number of channels supported
 }
 
 // Unload music stream
-void UnloadMusicStream(Music music)
+void UnloadMusicStream(Music *music)
 {
-    UnloadAudioStream(music.stream);
+    UnloadAudioStream(&music->stream);
 
-    if (music.ctxData != NULL)
+    if (music->ctxData != NULL)
     {
         if (false) { }
 #if defined(SUPPORT_FILEFORMAT_WAV)
-        else if (music.ctxType == MUSIC_AUDIO_WAV) drwav_uninit((drwav *)music.ctxData);
+        else if (music->ctxType == MUSIC_AUDIO_WAV) drwav_uninit((drwav *)music->ctxData);
 #endif
 #if defined(SUPPORT_FILEFORMAT_OGG)
-        else if (music.ctxType == MUSIC_AUDIO_OGG) stb_vorbis_close((stb_vorbis *)music.ctxData);
+        else if (music->ctxType == MUSIC_AUDIO_OGG) stb_vorbis_close((stb_vorbis *)music->ctxData);
 #endif
 #if defined(SUPPORT_FILEFORMAT_MP3)
-        else if (music.ctxType == MUSIC_AUDIO_MP3) { drmp3_uninit((drmp3 *)music.ctxData); RL_FREE(music.ctxData); }
+        else if (music->ctxType == MUSIC_AUDIO_MP3) { drmp3_uninit((drmp3 *)music->ctxData); RL_FREE(music->ctxData); }
 #endif
 #if defined(SUPPORT_FILEFORMAT_QOA)
-        else if (music.ctxType == MUSIC_AUDIO_QOA) qoaplay_close((qoaplay_desc *)music.ctxData);
+        else if (music->ctxType == MUSIC_AUDIO_QOA) qoaplay_close((qoaplay_desc *)music->ctxData);
 #endif
 #if defined(SUPPORT_FILEFORMAT_FLAC)
-        else if (music.ctxType == MUSIC_AUDIO_FLAC) drflac_free((drflac *)music.ctxData, NULL);
+        else if (music->ctxType == MUSIC_AUDIO_FLAC) drflac_free((drflac *)music->ctxData, NULL);
 #endif
 #if defined(SUPPORT_FILEFORMAT_XM)
-        else if (music.ctxType == MUSIC_MODULE_XM) jar_xm_free_context((jar_xm_context_t *)music.ctxData);
+        else if (music->ctxType == MUSIC_MODULE_XM) jar_xm_free_context((jar_xm_context_t *)music->ctxData);
 #endif
 #if defined(SUPPORT_FILEFORMAT_MOD)
-        else if (music.ctxType == MUSIC_MODULE_MOD) { jar_mod_unload((jar_mod_context_t *)music.ctxData); RL_FREE(music.ctxData); }
+        else if (music->ctxType == MUSIC_MODULE_MOD) { jar_mod_unload((jar_mod_context_t *)music->ctxData); RL_FREE(music->ctxData); }
 #endif
+        music->ctxData = NULL;
     }
 }
 
@@ -2083,18 +2088,19 @@ AudioStream LoadAudioStream(unsigned int sampleRate, unsigned int sampleSize, un
 }
 
 // Checks if an audio stream is ready
-bool IsAudioStreamReady(AudioStream stream)
+bool IsAudioStreamReady(AudioStream *stream)
 {
-    return ((stream.buffer != NULL) &&    // Validate stream buffer
-            (stream.sampleRate > 0) &&    // Validate sample rate is supported
-            (stream.sampleSize > 0) &&    // Validate sample size is supported
-            (stream.channels > 0));       // Validate number of channels supported
+    return ((stream->buffer != NULL) &&    // Validate stream buffer
+            (stream->sampleRate > 0) &&    // Validate sample rate is supported
+            (stream->sampleSize > 0) &&    // Validate sample size is supported
+            (stream->channels > 0));       // Validate number of channels supported
 }
 
 // Unload audio stream and free memory
-void UnloadAudioStream(AudioStream stream)
+void UnloadAudioStream(AudioStream *stream)
 {
-    UnloadAudioBuffer(stream.buffer);
+    UnloadAudioBuffer(stream->buffer);
+    stream->buffer = NULL;
 
     TRACELOG(LOG_INFO, "STREAM: Unloaded audio stream data from RAM");
 }

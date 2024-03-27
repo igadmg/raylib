@@ -236,8 +236,8 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadModel(tower);         // Unload model
-    UnloadTexture(texture);     // Unload texture
+    UnloadModel(&tower);         // Unload model
+    UnloadTexture(&texture);     // Unload texture
 
     CloseWindow();              // Close window and OpenGL context
     //--------------------------------------------------------------------------------------

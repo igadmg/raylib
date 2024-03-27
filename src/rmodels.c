@@ -1098,13 +1098,13 @@ Model LoadModelFromMesh(Mesh mesh)
 }
 
 // Check if a model is ready
-bool IsModelReady(Model model)
+bool IsModelReady(Model *model)
 {
-    return ((model.meshes != NULL) &&           // Validate model contains some mesh
-            (model.materials != NULL) &&        // Validate model contains some material (at least default one)
-            (model.meshMaterial != NULL) &&     // Validate mesh-material linkage
-            (model.meshCount > 0) &&            // Validate mesh count
-            (model.materialCount > 0));         // Validate material count
+    return ((model->meshes != NULL) &&           // Validate model contains some mesh
+            (model->materials != NULL) &&        // Validate model contains some material (at least default one)
+            (model->meshMaterial != NULL) &&     // Validate mesh-material linkage
+            (model->meshCount > 0) &&            // Validate mesh count
+            (model->materialCount > 0));         // Validate material count
 
     // NOTE: This is a very general model validation, many elements could be validated from a model...
 }
@@ -1112,25 +1112,25 @@ bool IsModelReady(Model model)
 // Unload model (meshes/materials) from memory (RAM and/or VRAM)
 // NOTE: This function takes care of all model elements, for a detailed control
 // over them, use UnloadMesh() and UnloadMaterial()
-void UnloadModel(Model model)
+void UnloadModel(Model* model)
 {
     // Unload meshes
-    for (int i = 0; i < model.meshCount; i++) UnloadMesh(model.meshes[i]);
+    for (int i = 0; i < model->meshCount; i++) UnloadMesh(&model->meshes[i]);
 
     // Unload materials maps
     // NOTE: As the user could be sharing shaders and textures between models,
     // we don't unload the material but just free its maps,
     // the user is responsible for freeing models shaders and textures
-    for (int i = 0; i < model.materialCount; i++) RL_FREE(model.materials[i].maps);
+    for (int i = 0; i < model->materialCount; i++) RL_FREE(model->materials[i].maps);
 
     // Unload arrays
-    RL_FREE(model.meshes);
-    RL_FREE(model.materials);
-    RL_FREE(model.meshMaterial);
+    RL_FREE_NULL(model->meshes);
+    RL_FREE_NULL(model->materials);
+    RL_FREE_NULL(model->meshMaterial);
 
     // Unload animation data
-    RL_FREE(model.bones);
-    RL_FREE(model.bindPose);
+    RL_FREE_NULL(model->bones);
+    RL_FREE_NULL(model->bindPose);
 
     TRACELOG(LOG_INFO, "MODEL: Unloaded model (and meshes) from RAM and VRAM");
 }
@@ -1742,26 +1742,26 @@ void DrawMeshInstanced(Mesh mesh, Material material, const Matrix *transforms, i
 }
 
 // Unload mesh from memory (RAM and VRAM)
-void UnloadMesh(Mesh mesh)
+void UnloadMesh(Mesh *mesh)
 {
     // Unload rlgl mesh vboId data
-    rlUnloadVertexArray(mesh.vaoId);
+    rlUnloadVertexArray(mesh->vaoId);
 
-    if (mesh.vboId != NULL) for (int i = 0; i < MAX_MESH_VERTEX_BUFFERS; i++) rlUnloadVertexBuffer(mesh.vboId[i]);
-    RL_FREE(mesh.vboId);
+    if (mesh->vboId != NULL) for (int i = 0; i < MAX_MESH_VERTEX_BUFFERS; i++) rlUnloadVertexBuffer(mesh->vboId[i]);
+    RL_FREE_NULL(mesh->vboId);
 
-    RL_FREE(mesh.vertices);
-    RL_FREE(mesh.texcoords);
-    RL_FREE(mesh.normals);
-    RL_FREE(mesh.colors);
-    RL_FREE(mesh.tangents);
-    RL_FREE(mesh.texcoords2);
-    RL_FREE(mesh.indices);
+    RL_FREE_NULL(mesh->vertices);
+    RL_FREE_NULL(mesh->texcoords);
+    RL_FREE_NULL(mesh->normals);
+    RL_FREE_NULL(mesh->colors);
+    RL_FREE_NULL(mesh->tangents);
+    RL_FREE_NULL(mesh->texcoords2);
+    RL_FREE_NULL(mesh->indices);
 
-    RL_FREE(mesh.animVertices);
-    RL_FREE(mesh.animNormals);
-    RL_FREE(mesh.boneWeights);
-    RL_FREE(mesh.boneIds);
+    RL_FREE_NULL(mesh->animVertices);
+    RL_FREE_NULL(mesh->animNormals);
+    RL_FREE_NULL(mesh->boneWeights);
+    RL_FREE_NULL(mesh->boneIds);
 }
 
 // Export mesh data to file
@@ -2027,28 +2027,29 @@ Material LoadMaterialDefault(void)
 }
 
 // Check if a material is ready
-bool IsMaterialReady(Material material)
+bool IsMaterialReady(Material *material)
 {
-    return ((material.maps != NULL) &&      // Validate material contain some map
-            (material.shader.id > 0));      // Validate material shader is valid
+    return ((material->maps != NULL) &&      // Validate material contain some map
+            (material->shader.id > 0));      // Validate material shader is valid
 }
 
 // Unload material from memory
-void UnloadMaterial(Material material)
+void UnloadMaterial(Material *material)
 {
     // Unload material shader (avoid unloading default shader, managed by raylib)
-    if (material.shader.id != rlGetShaderIdDefault()) UnloadShader(material.shader);
+    if (material->shader.id != rlGetShaderIdDefault()) UnloadShader(&material->shader);
+    material->shader.id = rlGetShaderIdDefault();
 
     // Unload loaded texture maps (avoid unloading default texture, managed by raylib)
-    if (material.maps != NULL)
+    if (material->maps != NULL)
     {
         for (int i = 0; i < MAX_MATERIAL_MAPS; i++)
         {
-            if (material.maps[i].texture.id != rlGetTextureIdDefault()) rlUnloadTexture(material.maps[i].texture.id);
+            if (material->maps[i].texture.id != rlGetTextureIdDefault()) rlUnloadTexture(material->maps[i].texture.id);
         }
     }
 
-    RL_FREE(material.maps);
+    RL_FREE_NULL(material->maps);
 }
 
 // Set texture for a material map type (MATERIAL_MAP_DIFFUSE, MATERIAL_MAP_SPECULAR...)
@@ -2189,17 +2190,17 @@ void UpdateModelAnimation(Model model, ModelAnimation anim, int frame)
 // Unload animation array data
 void UnloadModelAnimations(ModelAnimation *animations, int animCount)
 {
-    for (int i = 0; i < animCount; i++) UnloadModelAnimation(animations[i]);
+    for (int i = 0; i < animCount; i++) UnloadModelAnimation(&animations[i]);
     RL_FREE(animations);
 }
 
 // Unload animation data
-void UnloadModelAnimation(ModelAnimation anim)
+void UnloadModelAnimation(ModelAnimation *anim)
 {
-    for (int i = 0; i < anim.frameCount; i++) RL_FREE(anim.framePoses[i]);
+    for (int i = 0; i < anim->frameCount; i++) RL_FREE(anim->framePoses[i]);
 
-    RL_FREE(anim.bones);
-    RL_FREE(anim.framePoses);
+    RL_FREE_NULL(anim->bones);
+    RL_FREE_NULL(anim->framePoses);
 }
 
 // Check model animation skeleton match
@@ -4962,7 +4963,7 @@ static Model LoadGLTF(const char *fileName)
                     if (imAlbedo.data != NULL)
                     {
                         model.materials[j].maps[MATERIAL_MAP_ALBEDO].texture = LoadTextureFromImage(imAlbedo);
-                        UnloadImage(imAlbedo);
+                        UnloadImage(&imAlbedo);
                     }
                 }
                 // Load base color factor (tint)
@@ -4978,7 +4979,7 @@ static Model LoadGLTF(const char *fileName)
                     if (imMetallicRoughness.data != NULL)
                     {
                         model.materials[j].maps[MATERIAL_MAP_ROUGHNESS].texture = LoadTextureFromImage(imMetallicRoughness);
-                        UnloadImage(imMetallicRoughness);
+                        UnloadImage(&imMetallicRoughness);
                     }
 
                     // Load metallic/roughness material properties
@@ -4996,7 +4997,7 @@ static Model LoadGLTF(const char *fileName)
                     if (imNormal.data != NULL)
                     {
                         model.materials[j].maps[MATERIAL_MAP_NORMAL].texture = LoadTextureFromImage(imNormal);
-                        UnloadImage(imNormal);
+                        UnloadImage(&imNormal);
                     }
                 }
 
@@ -5007,7 +5008,7 @@ static Model LoadGLTF(const char *fileName)
                     if (imOcclusion.data != NULL)
                     {
                         model.materials[j].maps[MATERIAL_MAP_OCCLUSION].texture = LoadTextureFromImage(imOcclusion);
-                        UnloadImage(imOcclusion);
+                        UnloadImage(&imOcclusion);
                     }
                 }
 
@@ -5018,7 +5019,7 @@ static Model LoadGLTF(const char *fileName)
                     if (imEmissive.data != NULL)
                     {
                         model.materials[j].maps[MATERIAL_MAP_EMISSION].texture = LoadTextureFromImage(imEmissive);
-                        UnloadImage(imEmissive);
+                        UnloadImage(&imEmissive);
                     }
 
                     // Load emissive color factor
@@ -5804,7 +5805,7 @@ static Model LoadM3D(const char *fileName)
                 // If no map is provided, or we have colors defined, we allocate storage for vertex colors
                 // M3D specs only consider vertex colors if no material is provided, however raylib uses both and mixes the colors
                 if ((mi == M3D_UNDEF) || vcolor) model.meshes[k].colors = RL_CALLOC(model.meshes[k].vertexCount*4, sizeof(unsigned char));
-                
+
                 // If no map is provided and we allocated vertex colors, set them to white
                 if ((mi == M3D_UNDEF) && (model.meshes[k].colors != NULL))
                 {
@@ -6076,7 +6077,7 @@ static ModelAnimation *LoadModelAnimationsM3D(const char *fileName, int *animCou
             animations[a].framePoses = RL_MALLOC(animations[a].frameCount*sizeof(Transform *));
             strncpy(animations[a].name, m3d->action[a].name, sizeof(animations[a].name));
             animations[a].name[sizeof(animations[a].name) - 1] = '\0';
-            
+
             TRACELOG(LOG_INFO, "MODEL: [%s] animation #%i: %i msec, %i frames", fileName, a, m3d->action[a].durationmsec, animations[a].frameCount);
 
             for (i = 0; i < (int)m3d->numbone; i++)

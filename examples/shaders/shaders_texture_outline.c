@@ -92,8 +92,8 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadTexture(texture);
-    UnloadShader(shdrOutline);
+    UnloadTexture(&texture);
+    UnloadShader(&shdrOutline);
 
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------

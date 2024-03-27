@@ -217,8 +217,8 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadTexture(texRay);
-    UnloadShader(shdrSpot);
+    UnloadTexture(&texRay);
+    UnloadShader(&shdrSpot);
 
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------

@@ -297,7 +297,7 @@ extern void LoadFontDefault(void)
         defaultFont.glyphs[i].image = ImageFromImage(imFont, defaultFont.recs[i]);
     }
 
-    UnloadImage(imFont);
+    UnloadImage(&imFont);
 
     defaultFont.baseSize = (int)defaultFont.recs[0].height;
 
@@ -307,10 +307,10 @@ extern void LoadFontDefault(void)
 // Unload raylib default font
 extern void UnloadFontDefault(void)
 {
-    for (int i = 0; i < defaultFont.glyphCount; i++) UnloadImage(defaultFont.glyphs[i].image);
-    UnloadTexture(defaultFont.texture);
-    RL_FREE(defaultFont.glyphs);
-    RL_FREE(defaultFont.recs);
+    for (int i = 0; i < defaultFont.glyphCount; i++) UnloadImage(&defaultFont.glyphs[i].image);
+    UnloadTexture(&defaultFont.texture);
+    RL_FREE_NULL(defaultFont.glyphs);
+    RL_FREE_NULL(defaultFont.recs);
 }
 #endif      // SUPPORT_DEFAULT_FONT
 
@@ -359,7 +359,7 @@ Font LoadFont(const char *fileName)
     {
         Image image = LoadImage(fileName);
         if (image.data != NULL) font = LoadFontFromImage(image, MAGENTA, FONT_TTF_DEFAULT_FIRST_CHAR);
-        UnloadImage(image);
+        UnloadImage(&image);
     }
 
     if (font.texture.id == 0)
@@ -517,7 +517,7 @@ Font LoadFontFromImage(Image image, Color key, int firstChar)
         font.glyphs[i].image = ImageFromImage(fontClear, tempCharRecs[i]);
     }
 
-    UnloadImage(fontClear);     // Unload processed image once converted to texture
+    UnloadImage(&fontClear);     // Unload processed image once converted to texture
 
     font.baseSize = (int)font.recs[0].height;
 
@@ -566,11 +566,11 @@ Font LoadFontFromMemory(const char *fileType, const unsigned char *fileData, int
         // Update glyphs[i].image to use alpha, required to be used on ImageDrawText()
         for (int i = 0; i < font.glyphCount; i++)
         {
-            UnloadImage(font.glyphs[i].image);
+            UnloadImage(&font.glyphs[i].image);
             font.glyphs[i].image = ImageFromImage(atlas, font.recs[i]);
         }
 
-        UnloadImage(atlas);
+        UnloadImage(&atlas);
 
         TRACELOG(LOG_INFO, "FONT: Data loaded successfully (%i pixel size | %i glyphs)", font.baseSize, font.glyphCount);
     }
@@ -583,13 +583,13 @@ Font LoadFontFromMemory(const char *fileType, const unsigned char *fileData, int
 }
 
 // Check if a font is ready
-bool IsFontReady(Font font)
+bool IsFontReady(Font *font)
 {
-    return ((font.texture.id > 0) &&    // Validate OpenGL id fot font texture atlas
-            (font.baseSize > 0) &&      // Validate font size
-            (font.glyphCount > 0) &&    // Validate font contains some glyph
-            (font.recs != NULL) &&      // Validate font recs defining glyphs on texture atlas
-            (font.glyphs != NULL));     // Validate glyph data is loaded
+    return ((font->texture.id > 0) &&    // Validate OpenGL id fot font texture atlas
+            (font->baseSize > 0) &&      // Validate font size
+            (font->glyphCount > 0) &&    // Validate font contains some glyph
+            (font->recs != NULL) &&      // Validate font recs defining glyphs on texture atlas
+            (font->glyphs != NULL));     // Validate glyph data is loaded
 
     // NOTE: Further validations could be done to verify if recs count and glyphs count
     // match glyphCount and to verify that data contained is valid (glyphs values, metrics...)
@@ -938,21 +938,22 @@ void UnloadFontData(GlyphInfo *glyphs, int glyphCount)
 {
     if (glyphs != NULL)
     {
-        for (int i = 0; i < glyphCount; i++) UnloadImage(glyphs[i].image);
+        for (int i = 0; i < glyphCount; i++) UnloadImage(&glyphs[i].image);
 
         RL_FREE(glyphs);
     }
 }
 
 // Unload Font from GPU memory (VRAM)
-void UnloadFont(Font font)
+void UnloadFont(Font *font)
 {
     // NOTE: Make sure font is not default font (fallback)
-    if (font.texture.id != GetFontDefault().texture.id)
+    if (font->texture.id != GetFontDefault().texture.id)
     {
-        UnloadFontData(font.glyphs, font.glyphCount);
-        UnloadTexture(font.texture);
-        RL_FREE(font.recs);
+        UnloadFontData(font->glyphs, font->glyphCount);
+        UnloadTexture(&font->texture);
+        font->glyphs = NULL;
+        RL_FREE_NULL(font->recs);
 
         TRACELOGD("FONT: Unloaded font data from RAM and VRAM");
     }
@@ -1099,7 +1100,7 @@ bool ExportFontAsCode(Font font, const char *fileName)
     byteCount += sprintf(txtData + byteCount, "    return font;\n");
     byteCount += sprintf(txtData + byteCount, "}\n");
 
-    UnloadImage(image);
+    UnloadImage(&image);
 
     // NOTE: Text data size exported is determined by '\0' (NULL) character
     success = SaveFileText(fileName, txtData);
@@ -2183,13 +2184,13 @@ static Font LoadBMFont(const char *fileName)
                 ((unsigned char *)(imFontAlpha.data))[p + 1] = ((unsigned char *)imFonts[i].data)[pi];
             }
 
-            UnloadImage(imFonts[i]);
+            UnloadImage(&imFonts[i]);
             imFonts[i] = imFontAlpha;
         }
     }
 
     Image fullFont = imFonts[0];
-    for (int i = 1; i < pageCount; i++) UnloadImage(imFonts[i]);
+    for (int i = 1; i < pageCount; i++) UnloadImage(&imFonts[i]);
 
     // If multiple atlas, then merge atlas
     // NOTE: WARNING: This process could be really slow!
@@ -2243,12 +2244,12 @@ static Font LoadBMFont(const char *fileName)
         else TRACELOG(LOG_WARNING, "FONT: [%s] Some characters data not correctly provided", fileName);
     }
 
-    UnloadImage(fullFont);
+    UnloadImage(&fullFont);
     UnloadFileText(fileText);
 
     if (font.texture.id == 0)
     {
-        UnloadFont(font);
+        UnloadFont(&font);
         font = GetFontDefault();
         TRACELOG(LOG_WARNING, "FONT: [%s] Failed to load texture, reverted to default font", fileName);
     }

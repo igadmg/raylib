@@ -87,14 +87,14 @@ RLAPI void UnloadVrStereoConfig(VrStereoConfig config);           // Unload VR s
 // NOTE: Shader functionality is not available on OpenGL 1.1
 RLAPI Shader LoadShader(const char *vsFileName, const char *fsFileName);   // Load shader from files and bind default locations
 RLAPI Shader LoadShaderFromMemory(const char *vsCode, const char *fsCode); // Load shader from code strings and bind default locations
-RLAPI bool IsShaderReady(Shader shader);                                   // Check if a shader is ready
+RLAPI bool IsShaderReady(Shader *shader);                                  // Check if a shader is ready
 RLAPI int GetShaderLocation(Shader shader, const char *uniformName);       // Get shader uniform location
 RLAPI int GetShaderLocationAttrib(Shader shader, const char *attribName);  // Get shader attribute location
 RLAPI void SetShaderValue(Shader shader, int locIndex, const void *value, int uniformType);               // Set shader uniform value
 RLAPI void SetShaderValueV(Shader shader, int locIndex, const void *value, int uniformType, int count);   // Set shader uniform value vector
 RLAPI void SetShaderValueMatrix(Shader shader, int locIndex, Matrix mat);         // Set shader uniform value (matrix 4x4)
 RLAPI void SetShaderValueTexture(Shader shader, int locIndex, Texture2D texture); // Set shader uniform value for texture (sampler2d)
-RLAPI void UnloadShader(Shader shader);                                    // Unload shader from GPU memory (VRAM)
+RLAPI void UnloadShader(Shader *shader);                                    // Unload shader from GPU memory (VRAM)
 
 // Screen-space-related functions
 RLAPI Ray GetMouseRay(Vector2 mousePosition, Camera camera);      // Get a ray trace from mouse position
@@ -345,8 +345,8 @@ RLAPI Image LoadImageAnim(const char *fileName, int *frames);                   
 RLAPI Image LoadImageFromMemory(const char *fileType, const unsigned char *fileData, int dataSize);      // Load image from memory buffer, fileType refers to extension: i.e. '.png'
 RLAPI Image LoadImageFromTexture(Texture2D texture);                                                     // Load image from GPU texture data
 RLAPI Image LoadImageFromScreen(void);                                                                   // Load image from screen buffer and (screenshot)
-RLAPI bool IsImageReady(Image image);                                                                    // Check if an image is ready
-RLAPI void UnloadImage(Image image);                                                                     // Unload image from CPU memory (RAM)
+RLAPI bool IsImageReady(Image *image);                                                                   // Check if an image is ready
+RLAPI void UnloadImage(Image *image);                                                                    // Unload image from CPU memory (RAM)
 RLAPI bool ExportImage(Image image, const char *fileName);                                               // Export image data to file, returns true on success
 RLAPI unsigned char *ExportImageToMemory(Image image, const char *fileType, int *fileSize);              // Export image to memory buffer
 RLAPI bool ExportImageAsCode(Image image, const char *fileName);                                         // Export image as code file defining an array of bytes, returns true on success
@@ -424,10 +424,10 @@ RLAPI Texture2D LoadTexture(const char *fileName);                              
 RLAPI Texture2D LoadTextureFromImage(Image image);                                                       // Load texture from image data
 RLAPI TextureCubemap LoadTextureCubemap(Image image, int layout);                                        // Load cubemap from image, multiple image cubemap layouts supported
 RLAPI RenderTexture2D LoadRenderTexture(int width, int height);                                          // Load texture for rendering (framebuffer)
-RLAPI bool IsTextureReady(Texture2D texture);                                                            // Check if a texture is ready
-RLAPI void UnloadTexture(Texture2D texture);                                                             // Unload texture from GPU memory (VRAM)
-RLAPI bool IsRenderTextureReady(RenderTexture2D target);                                                 // Check if a render texture is ready
-RLAPI void UnloadRenderTexture(RenderTexture2D target);                                                  // Unload render texture from GPU memory (VRAM)
+RLAPI bool IsTextureReady(Texture2D *texture);                                                           // Check if a texture is ready
+RLAPI void UnloadTexture(Texture2D *texture);                                                            // Unload texture from GPU memory (VRAM)
+RLAPI bool IsRenderTextureReady(RenderTexture2D *target);                                                // Check if a render texture is ready
+RLAPI void UnloadRenderTexture(RenderTexture2D *target);                                                 // Unload render texture from GPU memory (VRAM)
 RLAPI void UpdateTexture(Texture2D texture, const void *pixels);                                         // Update GPU texture with new data
 RLAPI void UpdateTextureRec(Texture2D texture, Rectangle rec, const void *pixels);                       // Update GPU texture rectangle with new data
 
@@ -471,11 +471,11 @@ RLAPI Font LoadFont(const char *fileName);                                      
 RLAPI Font LoadFontEx(const char *fileName, int fontSize, int *codepoints, int codepointCount);  // Load font from file with extended parameters, use NULL for codepoints and 0 for codepointCount to load the default character set
 RLAPI Font LoadFontFromImage(Image image, Color key, int firstChar);                        // Load font from Image (XNA style)
 RLAPI Font LoadFontFromMemory(const char *fileType, const unsigned char *fileData, int dataSize, int fontSize, int *codepoints, int codepointCount); // Load font from memory buffer, fileType refers to extension: i.e. '.ttf'
-RLAPI bool IsFontReady(Font font);                                                          // Check if a font is ready
+RLAPI bool IsFontReady(Font *font);                                                         // Check if a font is ready
 RLAPI GlyphInfo *LoadFontData(const unsigned char *fileData, int dataSize, int fontSize, int *codepoints, int codepointCount, int type); // Load font data for further use
 RLAPI Image GenImageFontAtlas(const GlyphInfo *glyphs, Rectangle **glyphRecs, int glyphCount, int fontSize, int padding, int packMethod); // Generate image font atlas using chars info
 RLAPI void UnloadFontData(GlyphInfo *glyphs, int glyphCount);                               // Unload font chars info data (RAM)
-RLAPI void UnloadFont(Font font);                                                           // Unload font from GPU memory (VRAM)
+RLAPI void UnloadFont(Font *font);                                                          // Unload font from GPU memory (VRAM)
 RLAPI bool ExportFontAsCode(Font font, const char *fileName);                               // Export font as code file, returns true on success
 
 // Text drawing functions
@@ -557,8 +557,8 @@ RLAPI void DrawGrid(int slices, float spacing);                                 
 // Model management functions
 RLAPI Model LoadModel(const char *fileName);                                                // Load model from files (meshes and materials)
 RLAPI Model LoadModelFromMesh(Mesh mesh);                                                   // Load model from generated mesh (default material)
-RLAPI bool IsModelReady(Model model);                                                       // Check if a model is ready
-RLAPI void UnloadModel(Model model);                                                        // Unload model (including meshes) from memory (RAM and/or VRAM)
+RLAPI bool IsModelReady(Model *model);                                                      // Check if a model is ready
+RLAPI void UnloadModel(Model *model);                                                       // Unload model (including meshes) from memory (RAM and/or VRAM)
 RLAPI BoundingBox GetModelBoundingBox(Model model);                                         // Compute model bounding box limits (considers all meshes)
 
 // Model drawing functions
@@ -574,7 +574,7 @@ RLAPI void DrawBillboardPro(Camera camera, Texture2D texture, Rectangle source, 
 // Mesh management functions
 RLAPI void UploadMesh(Mesh *mesh, bool dynamic);                                            // Upload mesh vertex data in GPU and provide VAO/VBO ids
 RLAPI void UpdateMeshBuffer(Mesh mesh, int index, const void *data, int dataSize, int offset); // Update mesh vertex data in GPU for a specific buffer index
-RLAPI void UnloadMesh(Mesh mesh);                                                           // Unload mesh data from CPU and GPU
+RLAPI void UnloadMesh(Mesh *mesh);                                                           // Unload mesh data from CPU and GPU
 RLAPI void DrawMesh(Mesh mesh, Material material, Matrix transform);                        // Draw a 3d mesh with material and transform
 RLAPI void DrawMeshInstanced(Mesh mesh, Material material, const Matrix *transforms, int instances); // Draw multiple mesh instances with material and different transforms
 RLAPI bool ExportMesh(Mesh mesh, const char *fileName);                                     // Export mesh data to file, returns true on success
@@ -597,15 +597,15 @@ RLAPI Mesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize);                   
 // Material loading/unloading functions
 RLAPI Material *LoadMaterials(const char *fileName, int *materialCount);                    // Load materials from model file
 RLAPI Material LoadMaterialDefault(void);                                                   // Load default material (Supports: DIFFUSE, SPECULAR, NORMAL maps)
-RLAPI bool IsMaterialReady(Material material);                                              // Check if a material is ready
-RLAPI void UnloadMaterial(Material material);                                               // Unload material from GPU memory (VRAM)
+RLAPI bool IsMaterialReady(Material *material);                                             // Check if a material is ready
+RLAPI void UnloadMaterial(Material *material);                                              // Unload material from GPU memory (VRAM)
 RLAPI void SetMaterialTexture(Material *material, int mapType, Texture2D texture);          // Set texture for a material map type (MATERIAL_MAP_DIFFUSE, MATERIAL_MAP_SPECULAR...)
 RLAPI void SetModelMeshMaterial(Model *model, int meshId, int materialId);                  // Set material for a mesh
 
 // Model animations loading/unloading functions
 RLAPI ModelAnimation *LoadModelAnimations(const char *fileName, int *animCount);            // Load model animations from file
 RLAPI void UpdateModelAnimation(Model model, ModelAnimation anim, int frame);               // Update model animation pose
-RLAPI void UnloadModelAnimation(ModelAnimation anim);                                       // Unload animation data
+RLAPI void UnloadModelAnimation(ModelAnimation *anim);                                       // Unload animation data
 RLAPI void UnloadModelAnimations(ModelAnimation *animations, int animCount);                // Unload animation array data
 RLAPI bool IsModelAnimationValid(Model model, ModelAnimation anim);                         // Check model animation skeleton match
 
@@ -634,15 +634,15 @@ RLAPI float GetMasterVolume(void);                                    // Get mas
 // Wave/Sound loading/unloading functions
 RLAPI Wave LoadWave(const char *fileName);                            // Load wave data from file
 RLAPI Wave LoadWaveFromMemory(const char *fileType, const unsigned char *fileData, int dataSize); // Load wave from memory buffer, fileType refers to extension: i.e. '.wav'
-RLAPI bool IsWaveReady(Wave wave);                                    // Checks if wave data is ready
+RLAPI bool IsWaveReady(Wave *wave);                                   // Checks if wave data is ready
 RLAPI Sound LoadSound(const char *fileName);                          // Load sound from file
 RLAPI Sound LoadSoundFromWave(Wave wave);                             // Load sound from wave data
 RLAPI Sound LoadSoundAlias(Sound source);                             // Create a new sound that shares the same sample data as the source sound, does not own the sound data
-RLAPI bool IsSoundReady(Sound sound);                                 // Checks if a sound is ready
+RLAPI bool IsSoundReady(Sound *sound);                                // Checks if a sound is ready
 RLAPI void UpdateSound(Sound sound, const void *data, int sampleCount); // Update sound buffer with new data
-RLAPI void UnloadWave(Wave wave);                                     // Unload wave data
-RLAPI void UnloadSound(Sound sound);                                  // Unload sound
-RLAPI void UnloadSoundAlias(Sound alias);                             // Unload a sound alias (does not deallocate sample data)
+RLAPI void UnloadWave(Wave *wave);                                    // Unload wave data
+RLAPI void UnloadSound(Sound *sound);                                 // Unload sound
+RLAPI void UnloadSoundAlias(Sound *alias);                            // Unload a sound alias (does not deallocate sample data)
 RLAPI bool ExportWave(Wave wave, const char *fileName);               // Export wave data to file, returns true on success
 RLAPI bool ExportWaveAsCode(Wave wave, const char *fileName);         // Export wave sample data to code (.h), returns true on success
 
@@ -664,8 +664,8 @@ RLAPI void UnloadWaveSamples(float *samples);                         // Unload 
 // Music management functions
 RLAPI Music LoadMusicStream(const char *fileName);                    // Load music stream from file
 RLAPI Music LoadMusicStreamFromMemory(const char *fileType, const unsigned char *data, int dataSize); // Load music stream from data
-RLAPI bool IsMusicReady(Music music);                                 // Checks if a music stream is ready
-RLAPI void UnloadMusicStream(Music music);                            // Unload music stream
+RLAPI bool IsMusicReady(Music *music);                                // Checks if a music stream is ready
+RLAPI void UnloadMusicStream(Music *music);                           // Unload music stream
 RLAPI void PlayMusicStream(Music music);                              // Start music playing
 RLAPI bool IsMusicStreamPlaying(Music music);                         // Check if music is playing
 RLAPI void UpdateMusicStream(Music music);                            // Updates buffers for music streaming
@@ -681,8 +681,8 @@ RLAPI float GetMusicTimePlayed(Music music);                          // Get cur
 
 // AudioStream management functions
 RLAPI AudioStream LoadAudioStream(unsigned int sampleRate, unsigned int sampleSize, unsigned int channels); // Load audio stream (to stream raw audio pcm data)
-RLAPI bool IsAudioStreamReady(AudioStream stream);                    // Checks if an audio stream is ready
-RLAPI void UnloadAudioStream(AudioStream stream);                     // Unload audio stream and free memory
+RLAPI bool IsAudioStreamReady(AudioStream *stream);                   // Checks if an audio stream is ready
+RLAPI void UnloadAudioStream(AudioStream *stream);                    // Unload audio stream and free memory
 RLAPI void UpdateAudioStream(AudioStream stream, const void *data, int frameCount); // Update audio stream buffers with data
 RLAPI bool IsAudioStreamProcessed(AudioStream stream);                // Check if any audio stream buffers requires refill
 RLAPI void PlayAudioStream(AudioStream stream);                       // Play audio stream

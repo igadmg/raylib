@@ -94,7 +94,7 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadModel(model);         // Unload model and meshes/material
+    UnloadModel(&model);         // Unload model and meshes/material
 
     CloseWindow();              // Close window and OpenGL context
     //--------------------------------------------------------------------------------------

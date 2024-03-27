@@ -558,7 +558,7 @@ Image LoadImageFromMemory(const char *fileType, const unsigned char *fileData, i
             else
             {
                 TRACELOG(LOG_WARNING, "IMAGE: HDR file format not supported");
-                UnloadImage(image);
+                UnloadImage(&image);
             }
         }
 #endif
@@ -678,6 +678,39 @@ Image LoadImageFromTexture(Texture2D texture)
     return image;
 }
 
+// Load image from GPU texture data
+// NOTE: Compressed texture formats not supported
+Image ReloadImageFromTexture(Texture2D texture, Image image)
+{
+    if (texture.format < PIXELFORMAT_COMPRESSED_DXT1_RGB)
+    {
+        if (image.data == NULL)
+            image.data = rlReadTexturePixels(texture.id, texture.width, texture.height, texture.format);
+        else
+            image.data = rlReadTexturePixelsMemory(texture.id, texture.width, texture.height, texture.format, image.data);
+
+        if (image.data != NULL)
+        {
+            image.width = texture.width;
+            image.height = texture.height;
+            image.format = texture.format;
+            image.mipmaps = 1;
+
+#if defined(GRAPHICS_API_OPENGL_ES2)
+            // NOTE: Data retrieved on OpenGL ES 2.0 should be RGBA,
+            // coming from FBO color buffer attachment, but it seems
+            // original texture format is retrieved on RPI...
+            image.format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
+#endif
+            TRACELOG(LOG_INFO, "TEXTURE: [ID %i] Pixel data retrieved successfully", texture.id);
+        }
+        else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve pixel data", texture.id);
+    }
+    else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve compressed pixel data", texture.id);
+
+    return image;
+}
+
 // Load image from screen buffer and (screenshot)
 Image LoadImageFromScreen(void)
 {
@@ -694,19 +727,19 @@ Image LoadImageFromScreen(void)
 }
 
 // Check if an image is ready
-bool IsImageReady(Image image)
+bool IsImageReady(Image *image)
 {
-    return ((image.data != NULL) &&     // Validate pixel data available
-            (image.width > 0) &&
-            (image.height > 0) &&       // Validate image size
-            (image.format > 0) &&       // Validate image format
-            (image.mipmaps > 0));       // Validate image mipmaps (at least 1 for basic mipmap level)
+    return ((image->data != NULL) &&     // Validate pixel data available
+            (image->width > 0) &&
+            (image->height > 0) &&       // Validate image size
+            (image->format > 0) &&       // Validate image format
+            (image->mipmaps > 0));       // Validate image mipmaps (at least 1 for basic mipmap level)
 }
 
 // Unload image from CPU memory (RAM)
-void UnloadImage(Image image)
+void UnloadImage(Image *image)
 {
-    RL_FREE(image.data);
+    RL_FREE_NULL(image->data);
 }
 
 // Export image data to file
@@ -1954,7 +1987,7 @@ void ImageAlphaMask(Image *image, Image alphaMask)
             }
         }
 
-        UnloadImage(mask);
+        UnloadImage(&mask);
     }
 }
 
@@ -2328,7 +2361,7 @@ void ImageMipmaps(Image *image)
             mipSize = GetPixelDataSize(mipWidth, mipHeight, image->format);
         }
 
-        UnloadImage(imCopy);
+        UnloadImage(&imCopy);
     }
     else TRACELOG(LOG_WARNING, "IMAGE: Mipmaps already available");
 }
@@ -3722,7 +3755,7 @@ void ImageDraw(Image *dst, Image src, Rectangle srcRec, Rectangle dstRec, Color 
             pDstBase += strideDst;
         }
 
-        if (useSrcMod) UnloadImage(srcMod);     // Unload source modified image
+        if (useSrcMod) UnloadImage(&srcMod);     // Unload source modified image
     }
 }
 
@@ -3750,7 +3783,7 @@ void ImageDrawTextEx(Image *dst, Font font, const char *text, Vector2 position, 
 
     ImageDraw(dst, imText, srcRec, dstRec, WHITE);
 
-    UnloadImage(imText);
+    UnloadImage(&imText);
 }
 
 //------------------------------------------------------------------------------------
@@ -3766,7 +3799,7 @@ Texture2D LoadTexture(const char *fileName)
     if (image.data != NULL)
     {
         texture = LoadTextureFromImage(image);
-        UnloadImage(image);
+        UnloadImage(&image);
     }
 
     return texture;
@@ -3884,7 +3917,7 @@ TextureCubemap LoadTextureCubemap(Image image, int layout)
         }
         else TRACELOG(LOG_WARNING, "IMAGE: Failed to load cubemap image");
 
-        UnloadImage(faces);
+        UnloadImage(&faces);
     }
     else TRACELOG(LOG_WARNING, "IMAGE: Failed to detect cubemap image layout");
 
@@ -3932,50 +3965,53 @@ RenderTexture2D LoadRenderTexture(int width, int height)
 }
 
 // Check if a texture is ready
-bool IsTextureReady(Texture2D texture)
+bool IsTextureReady(Texture2D *texture)
 {
     // TODO: Validate maximum texture size supported by GPU?
 
-    return ((texture.id > 0) &&         // Validate OpenGL id
-            (texture.width > 0) &&
-            (texture.height > 0) &&     // Validate texture size
-            (texture.format > 0) &&     // Validate texture pixel format
-            (texture.mipmaps > 0));     // Validate texture mipmaps (at least 1 for basic mipmap level)
+    return ((texture->id > 0) &&         // Validate OpenGL id
+            (texture->width > 0) &&
+            (texture->height > 0) &&     // Validate texture size
+            (texture->format > 0) &&     // Validate texture pixel format
+            (texture->mipmaps > 0));     // Validate texture mipmaps (at least 1 for basic mipmap level)
 }
 
 // Unload texture from GPU memory (VRAM)
-void UnloadTexture(Texture2D texture)
+void UnloadTexture(Texture2D *texture)
 {
-    if (texture.id > 0)
+    if (texture->id > 0)
     {
-        rlUnloadTexture(texture.id);
+        rlUnloadTexture(texture->id);
 
-        TRACELOG(LOG_INFO, "TEXTURE: [ID %i] Unloaded texture data from VRAM (GPU)", texture.id);
+        TRACELOG(LOG_INFO, "TEXTURE: [ID %i] Unloaded texture data from VRAM (GPU)", texture->id);
+        texture->id = 0;
     }
 }
 
 // Check if a render texture is ready
-bool IsRenderTextureReady(RenderTexture2D target)
+bool IsRenderTextureReady(RenderTexture2D *target)
 {
-    return ((target.id > 0) &&                  // Validate OpenGL id
-            IsTextureReady(target.depth) &&     // Validate FBO depth texture/renderbuffer
-            IsTextureReady(target.texture));    // Validate FBO texture
+    return ((target->id > 0) &&                  // Validate OpenGL id
+            IsTextureReady(&target->depth) &&     // Validate FBO depth texture/renderbuffer
+            IsTextureReady(&target->texture));    // Validate FBO texture
 }
 
 // Unload render texture from GPU memory (VRAM)
-void UnloadRenderTexture(RenderTexture2D target)
+void UnloadRenderTexture(RenderTexture2D *target)
 {
-    if (target.id > 0)
+    if (target->id > 0)
     {
-        if (target.texture.id > 0)
+        if (target->texture.id > 0)
         {
             // Color texture attached to FBO is deleted
-            rlUnloadTexture(target.texture.id);
+            rlUnloadTexture(target->texture.id);
+            target->texture.id = 0;
         }
 
         // NOTE: Depth texture/renderbuffer is automatically
         // queried and deleted before deleting framebuffer
-        rlUnloadFramebuffer(target.id);
+        rlUnloadFramebuffer(target->id);
+        target->id = 0;
     }
 }
 

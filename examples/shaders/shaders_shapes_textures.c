@@ -111,8 +111,8 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadShader(shader);       // Unload shader
-    UnloadTexture(fudesumi);    // Unload texture
+    UnloadShader(&shader);       // Unload shader
+    UnloadTexture(&fudesumi);    // Unload texture
 
     CloseWindow();              // Close window and OpenGL context
     //--------------------------------------------------------------------------------------

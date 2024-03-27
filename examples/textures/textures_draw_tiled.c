@@ -163,7 +163,7 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadTexture(texPattern);        // Unload texture
+    UnloadTexture(&texPattern);        // Unload texture
 
     CloseWindow();              // Close window and OpenGL context
     //--------------------------------------------------------------------------------------

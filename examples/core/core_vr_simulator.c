@@ -140,8 +140,8 @@ int main(void)
     //--------------------------------------------------------------------------------------
     UnloadVrStereoConfig(config);   // Unload stereo config
 
-    UnloadRenderTexture(target);    // Unload stereo render fbo
-    UnloadShader(distortion);       // Unload distortion shader
+    UnloadRenderTexture(&target);    // Unload stereo render fbo
+    UnloadShader(&distortion);       // Unload distortion shader
 
     CloseWindow();                  // Close window and OpenGL context
     //--------------------------------------------------------------------------------------

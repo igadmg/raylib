@@ -113,7 +113,7 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadModel(model);     // Unload model data
+    UnloadModel(&model);     // Unload model data
 
     CloseWindow();          // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
