@@ -133,7 +133,7 @@
     #define RL_REALLOC(ptr,sz)  realloc(ptr,sz)
 #endif
 #ifndef RL_FREE
-    #define RL_FREE(ptr)        free(ptr)
+    #define RL_FREE(ptr)        free(ptr); ptr = NULL
 #endif
 
 // NOTE: MSVC C++ compiler does not support compound literals (C99 feature)
