@@ -59,9 +59,9 @@ int main(void)
 
     Image imOrigin = LoadImage("resources/parrots.png");   // Loaded in CPU memory (RAM)
     ImageFormat(&imOrigin, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);         // Format image to RGBA 32bit (required for texture update) <-- ISSUE
-    Texture2D texture = LoadTextureFromImage(imOrigin);    // Image converted to texture, GPU memory (VRAM)
+    Texture2D texture = LoadTextureFromImage(&imOrigin);    // Image converted to texture, GPU memory (VRAM)
 
-    Image imCopy = ImageCopy(imOrigin);
+    Image imCopy = ImageCopy(&imOrigin);
 
     int currentProcess = NONE;
     bool textureReload = false;
@@ -115,7 +115,7 @@ int main(void)
         if (textureReload)
         {
             UnloadImage(&imCopy);                // Unload image-copy data
-            imCopy = ImageCopy(imOrigin);     // Restore image-copy from image-origin
+            imCopy = ImageCopy(&imOrigin);     // Restore image-copy from image-origin
 
             // NOTE: Image processing is a costly CPU process to be done every frame,
             // If image processing is required in a frame-basis, it should be done

@@ -1090,6 +1090,7 @@ RLAPI void OpenURL(const char *url);                              // Open URL wi
 // NOTE: Following functions implemented in module [utils]
 //------------------------------------------------------------------
 RLAPI void TraceLog(int logLevel, const char *text, ...);         // Show trace log messages (LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR...)
+RLAPI int GetTraceLogLevel();                                     // Get the current threshold (minimum) log level
 RLAPI void SetTraceLogLevel(int logLevel);                        // Set the current threshold (minimum) log level
 RLAPI void *MemAlloc(unsigned int size);                          // Internal memory allocator
 RLAPI void *MemRealloc(void *ptr, unsigned int size);             // Internal memory reallocator
@@ -1310,8 +1311,8 @@ RLAPI Image LoadImageSvg(const char *fileNameOrString, int width, int height);  
 RLAPI Image LoadImageAnim(const char *fileName, int *frames);                                            // Load image sequence from file (frames appended to image.data)
 RLAPI Image LoadImageAnimFromMemory(const char *fileType, const unsigned char *fileData, int dataSize, int *frames); // Load image sequence from memory buffer
 RLAPI Image LoadImageFromMemory(const char *fileType, const unsigned char *fileData, int dataSize);      // Load image from memory buffer, fileType refers to extension: i.e. '.png'
-RLAPI Image LoadImageFromTexture(Texture2D texture);                                                     // Load image from GPU texture data
-RLAPI Image ReloadImageFromTexture(Texture2D texture, Image image);                                      // Load image from GPU texture data, reuse previous image memory
+RLAPI Image LoadImageFromTexture(Texture2D *texture);                                                    // Load image from GPU texture data
+RLAPI Image *ReloadImageFromTexture(Texture2D *texture, Image *image);                                   // Load image from GPU texture data, reuse previous image memory
 RLAPI Image LoadImageFromScreen(void);                                                                   // Load image from screen buffer and (screenshot)
 RLAPI bool IsImageReady(Image *image);                                                                   // Check if an image is ready
 RLAPI void UnloadImage(Image *image);                                                                    // Unload image from CPU memory (RAM)
@@ -1331,8 +1332,8 @@ RLAPI Image GenImageCellular(int width, int height, int tileSize);              
 RLAPI Image GenImageText(int width, int height, const char *text);                                       // Generate image: grayscale image from text data
 
 // Image manipulation functions
-RLAPI Image ImageCopy(Image image);                                                                      // Create an image duplicate (useful for transformations)
-RLAPI Image ImageFromImage(Image image, Rectangle rec);                                                  // Create an image from another image piece
+RLAPI Image ImageCopy(Image *image);                                                                     // Create an image duplicate (useful for transformations)
+RLAPI Image ImageFromImage(Image *image, Rectangle rec);                                                 // Create an image from another image piece
 RLAPI Image ImageText(const char *text, int fontSize, Color color);                                      // Create an image from text (default font)
 RLAPI Image ImageTextEx(Font font, const char *text, float fontSize, float spacing, Color tint);         // Create an image from text (custom sprite font)
 RLAPI void ImageFormat(Image *image, int newFormat);                                                     // Convert image data to desired format
@@ -1343,7 +1344,7 @@ RLAPI void ImageAlphaClear(Image *image, Color color, float threshold);         
 RLAPI void ImageAlphaMask(Image *image, Image alphaMask);                                                // Apply alpha mask to image
 RLAPI void ImageAlphaPremultiply(Image *image);                                                          // Premultiply alpha channel
 RLAPI void ImageBlurGaussian(Image *image, int blurSize);                                                // Apply Gaussian blur using a box blur approximation
-RLAPI void ImageKernelConvolution(Image *image, float* kernel, int kernelSize);                         // Apply Custom Square image convolution kernel
+RLAPI void ImageKernelConvolution(Image *image, float* kernel, int kernelSize);                          // Apply Custom Square image convolution kernel
 RLAPI void ImageResize(Image *image, int newWidth, int newHeight);                                       // Resize image (Bicubic scaling algorithm)
 RLAPI void ImageResizeNN(Image *image, int newWidth,int newHeight);                                      // Resize image (Nearest-Neighbor scaling algorithm)
 RLAPI void ImageResizeCanvas(Image *image, int newWidth, int newHeight, int offsetX, int offsetY, Color fill);  // Resize canvas and fill with color
@@ -1389,8 +1390,9 @@ RLAPI void ImageDrawTextEx(Image *dst, Font font, const char *text, Vector2 posi
 // Texture loading functions
 // NOTE: These functions require GPU access
 RLAPI Texture2D LoadTexture(const char *fileName);                                                       // Load texture from file into GPU memory (VRAM)
-RLAPI Texture2D LoadTextureFromImage(Image image);                                                       // Load texture from image data
-RLAPI TextureCubemap LoadTextureCubemap(Image image, int layout);                                        // Load cubemap from image, multiple image cubemap layouts supported
+RLAPI Texture2D LoadTextureFromImage(Image *image);                                                      // Load texture from image data
+RLAPI Texture2D *ReloadTextureFromImage(Image *image, Texture2D *texture);                               // Load texture from image data, reuse previous texture
+RLAPI TextureCubemap LoadTextureCubemap(Image *image, int layout);                                       // Load cubemap from image, multiple image cubemap layouts supported
 RLAPI RenderTexture2D LoadRenderTexture(int width, int height);                                          // Load texture for rendering (framebuffer)
 RLAPI bool IsTextureReady(Texture2D *texture);                                                           // Check if a texture is ready
 RLAPI void UnloadTexture(Texture2D *texture);                                                            // Unload texture from GPU memory (VRAM)

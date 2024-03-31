@@ -3161,6 +3161,156 @@ unsigned int rlLoadTexture(const void *data, int width, int height, int format, 
     return id;
 }
 
+//-----------------------------------------------------------------------------------------
+// Convert image data to OpenGL texture (returns OpenGL valid Id)
+unsigned int rlReloadTexture(unsigned int id, const void *data, int width, int height, int format, int mipmapCount)
+{
+    glBindTexture(GL_TEXTURE_2D, 0);    // Free any old binding
+
+    // Check texture format support by OpenGL 1.1 (compressed textures not supported)
+#if defined(GRAPHICS_API_OPENGL_11)
+    if (format >= RL_PIXELFORMAT_COMPRESSED_DXT1_RGB)
+    {
+        TRACELOG(RL_LOG_WARNING, "GL: OpenGL 1.1 does not support GPU compressed texture formats");
+        return id;
+    }
+#else
+    if ((!RLGL.ExtSupported.texCompDXT) && ((format == RL_PIXELFORMAT_COMPRESSED_DXT1_RGB) || (format == RL_PIXELFORMAT_COMPRESSED_DXT1_RGBA) ||
+        (format == RL_PIXELFORMAT_COMPRESSED_DXT3_RGBA) || (format == RL_PIXELFORMAT_COMPRESSED_DXT5_RGBA)))
+    {
+        TRACELOG(RL_LOG_WARNING, "GL: DXT compressed texture format not supported");
+        return id;
+    }
+#if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
+    if ((!RLGL.ExtSupported.texCompETC1) && (format == RL_PIXELFORMAT_COMPRESSED_ETC1_RGB))
+    {
+        TRACELOG(RL_LOG_WARNING, "GL: ETC1 compressed texture format not supported");
+        return id;
+    }
+
+    if ((!RLGL.ExtSupported.texCompETC2) && ((format == RL_PIXELFORMAT_COMPRESSED_ETC2_RGB) || (format == RL_PIXELFORMAT_COMPRESSED_ETC2_EAC_RGBA)))
+    {
+        TRACELOG(RL_LOG_WARNING, "GL: ETC2 compressed texture format not supported");
+        return id;
+    }
+
+    if ((!RLGL.ExtSupported.texCompPVRT) && ((format == RL_PIXELFORMAT_COMPRESSED_PVRT_RGB) || (format == RL_PIXELFORMAT_COMPRESSED_PVRT_RGBA)))
+    {
+        TRACELOG(RL_LOG_WARNING, "GL: PVRT compressed texture format not supported");
+        return id;
+    }
+
+    if ((!RLGL.ExtSupported.texCompASTC) && ((format == RL_PIXELFORMAT_COMPRESSED_ASTC_4x4_RGBA) || (format == RL_PIXELFORMAT_COMPRESSED_ASTC_8x8_RGBA)))
+    {
+        TRACELOG(RL_LOG_WARNING, "GL: ASTC compressed texture format not supported");
+        return id;
+    }
+#endif
+#endif  // GRAPHICS_API_OPENGL_11
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    glBindTexture(GL_TEXTURE_2D, id);
+
+    int mipWidth = width;
+    int mipHeight = height;
+    int mipOffset = 0;          // Mipmap data offset, only used for tracelog
+
+    // NOTE: Added pointer math separately from function to avoid UBSAN complaining
+    unsigned char *dataPtr = NULL;
+    if (data != NULL) dataPtr = (unsigned char *)data;
+
+    // Load the different mipmap levels
+    for (int i = 0; i < mipmapCount; i++)
+    {
+        unsigned int mipSize = rlGetPixelDataSize(mipWidth, mipHeight, format);
+
+        unsigned int glInternalFormat, glFormat, glType;
+        rlGetGlTextureFormats(format, &glInternalFormat, &glFormat, &glType);
+
+        TRACELOGD("TEXTURE: Load mipmap level %i (%i x %i), size: %i, offset: %i", i, mipWidth, mipHeight, mipSize, mipOffset);
+
+        if (glInternalFormat != 0)
+        {
+            if (format < RL_PIXELFORMAT_COMPRESSED_DXT1_RGB) glTexSubImage2D(GL_TEXTURE_2D, i, 0, 0, mipWidth, mipHeight, glFormat, glType, dataPtr);
+#if !defined(GRAPHICS_API_OPENGL_11)
+            else glCompressedTexSubImage2D(GL_TEXTURE_2D, i, 0, 0, mipWidth, mipHeight, glFormat, mipSize, dataPtr);
+#endif
+
+#if defined(GRAPHICS_API_OPENGL_33)
+            if (format == RL_PIXELFORMAT_UNCOMPRESSED_GRAYSCALE)
+            {
+                GLint swizzleMask[] = { GL_RED, GL_RED, GL_RED, GL_ONE };
+                glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+            }
+            else if (format == RL_PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA)
+            {
+#if defined(GRAPHICS_API_OPENGL_21)
+                GLint swizzleMask[] = { GL_RED, GL_RED, GL_RED, GL_ALPHA };
+#elif defined(GRAPHICS_API_OPENGL_33)
+                GLint swizzleMask[] = { GL_RED, GL_RED, GL_RED, GL_GREEN };
+#endif
+                glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzleMask);
+            }
+#endif
+        }
+
+        mipWidth /= 2;
+        mipHeight /= 2;
+        mipOffset += mipSize;       // Increment offset position to next mipmap
+        if (data != NULL) dataPtr += mipSize;         // Increment data pointer to next mipmap
+
+        // Security check for NPOT textures
+        if (mipWidth < 1) mipWidth = 1;
+        if (mipHeight < 1) mipHeight = 1;
+    }
+
+    // Texture parameters configuration
+    // NOTE: glTexParameteri does NOT affect texture uploading, just the way it's used
+#if defined(GRAPHICS_API_OPENGL_ES2)
+    // NOTE: OpenGL ES 2.0 with no GL_OES_texture_npot support (i.e. WebGL) has limited NPOT support, so CLAMP_TO_EDGE must be used
+    if (RLGL.ExtSupported.texNPOT)
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);       // Set texture to repeat on x-axis
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);       // Set texture to repeat on y-axis
+    }
+    else
+    {
+        // NOTE: If using negative texture coordinates (LoadOBJ()), it does not work!
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);       // Set texture to clamp on x-axis
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);       // Set texture to clamp on y-axis
+    }
+#else
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);       // Set texture to repeat on x-axis
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);       // Set texture to repeat on y-axis
+#endif
+
+    // Magnification and minification filters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // Alternative: GL_LINEAR
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);  // Alternative: GL_LINEAR
+
+#if defined(GRAPHICS_API_OPENGL_33)
+    if (mipmapCount > 1)
+    {
+        // Activate Trilinear filtering if mipmaps are available
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    }
+#endif
+
+    // At this point we have the texture loaded in GPU and texture parameters configured
+
+    // NOTE: If mipmaps were not in data, they are not generated automatically
+
+    // Unbind current texture
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    if (id > 0) TRACELOG(RL_LOG_INFO, "TEXTURE: [ID %i] Texture loaded successfully (%ix%i | %s | %i mipmaps)", id, width, height, rlGetPixelFormatName(format), mipmapCount);
+    else TRACELOG(RL_LOG_WARNING, "TEXTURE: Failed to load texture");
+
+    return id;
+}
+
 // Load depth texture/renderbuffer (to be attached to fbo)
 // WARNING: OpenGL ES 2.0 requires GL_OES_depth_texture and WebGL requires WEBGL_depth_texture extensions
 unsigned int rlLoadTextureDepth(int width, int height, bool useRenderBuffer)

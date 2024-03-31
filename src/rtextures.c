@@ -648,19 +648,19 @@ Image LoadImageFromMemory(const char *fileType, const unsigned char *fileData, i
 
 // Load image from GPU texture data
 // NOTE: Compressed texture formats not supported
-Image LoadImageFromTexture(Texture2D texture)
+Image LoadImageFromTexture(Texture2D *texture)
 {
     Image image = { 0 };
 
-    if (texture.format < PIXELFORMAT_COMPRESSED_DXT1_RGB)
+    if (texture->format < PIXELFORMAT_COMPRESSED_DXT1_RGB)
     {
-        image.data = rlReadTexturePixels(texture.id, texture.width, texture.height, texture.format);
+        image.data = rlReadTexturePixels(texture->id, texture->width, texture->height, texture->format);
 
         if (image.data != NULL)
         {
-            image.width = texture.width;
-            image.height = texture.height;
-            image.format = texture.format;
+            image.width = texture->width;
+            image.height = texture->height;
+            image.format = texture->format;
             image.mipmaps = 1;
 
 #if defined(GRAPHICS_API_OPENGL_ES2)
@@ -669,44 +669,44 @@ Image LoadImageFromTexture(Texture2D texture)
             // original texture format is retrieved on RPI...
             image.format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
 #endif
-            TRACELOG(LOG_INFO, "TEXTURE: [ID %i] Pixel data retrieved successfully", texture.id);
+            TRACELOG(LOG_INFO, "TEXTURE: [ID %i] Pixel data retrieved successfully", texture->id);
         }
-        else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve pixel data", texture.id);
+        else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve pixel data", texture->id);
     }
-    else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve compressed pixel data", texture.id);
+    else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve compressed pixel data", texture->id);
 
     return image;
 }
 
 // Load image from GPU texture data
 // NOTE: Compressed texture formats not supported
-Image ReloadImageFromTexture(Texture2D texture, Image image)
+Image *ReloadImageFromTexture(Texture2D *texture, Image *image)
 {
-    if (texture.format < PIXELFORMAT_COMPRESSED_DXT1_RGB)
+    if (texture->format < PIXELFORMAT_COMPRESSED_DXT1_RGB)
     {
-        if (image.data == NULL)
-            image.data = rlReadTexturePixels(texture.id, texture.width, texture.height, texture.format);
+        if (image->data == NULL)
+            image->data = rlReadTexturePixels(texture->id, texture->width, texture->height, texture->format);
         else
-            image.data = rlReadTexturePixelsMemory(texture.id, texture.width, texture.height, texture.format, image.data);
+            image->data = rlReadTexturePixelsMemory(texture->id, texture->width, texture->height, texture->format, image->data);
 
-        if (image.data != NULL)
+        if (image->data != NULL)
         {
-            image.width = texture.width;
-            image.height = texture.height;
-            image.format = texture.format;
-            image.mipmaps = 1;
+            image->width = texture->width;
+            image->height = texture->height;
+            image->format = texture->format;
+            image->mipmaps = 1;
 
 #if defined(GRAPHICS_API_OPENGL_ES2)
             // NOTE: Data retrieved on OpenGL ES 2.0 should be RGBA,
             // coming from FBO color buffer attachment, but it seems
             // original texture format is retrieved on RPI...
-            image.format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
+            image->format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
 #endif
-            TRACELOG(LOG_INFO, "TEXTURE: [ID %i] Pixel data retrieved successfully", texture.id);
+            TRACELOG(LOG_INFO, "TEXTURE: [ID %i] Pixel data retrieved successfully", texture->id);
         }
-        else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve pixel data", texture.id);
+        else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve pixel data", texture->id);
     }
-    else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve compressed pixel data", texture.id);
+    else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve compressed pixel data", texture->id);
 
     return image;
 }
@@ -1246,17 +1246,17 @@ Image GenImageText(int width, int height, const char *text)
 // Image manipulation functions
 //------------------------------------------------------------------------------------
 // Copy an image to a new image
-Image ImageCopy(Image image)
+Image ImageCopy(Image *image)
 {
     Image newImage = { 0 };
 
-    int width = image.width;
-    int height = image.height;
+    int width = image->width;
+    int height = image->height;
     int size = 0;
 
-    for (int i = 0; i < image.mipmaps; i++)
+    for (int i = 0; i < image->mipmaps; i++)
     {
-        size += GetPixelDataSize(width, height, image.format);
+        size += GetPixelDataSize(width, height, image->format);
 
         width /= 2;
         height /= 2;
@@ -1271,33 +1271,33 @@ Image ImageCopy(Image image)
     if (newImage.data != NULL)
     {
         // NOTE: Size must be provided in bytes
-        memcpy(newImage.data, image.data, size);
+        memcpy(newImage.data, image->data, size);
 
-        newImage.width = image.width;
-        newImage.height = image.height;
-        newImage.mipmaps = image.mipmaps;
-        newImage.format = image.format;
+        newImage.width = image->width;
+        newImage.height = image->height;
+        newImage.mipmaps = image->mipmaps;
+        newImage.format = image->format;
     }
 
     return newImage;
 }
 
 // Create an image from another image piece
-Image ImageFromImage(Image image, Rectangle rec)
+Image ImageFromImage(Image *image, Rectangle rec)
 {
     Image result = { 0 };
 
-    int bytesPerPixel = GetPixelDataSize(1, 1, image.format);
+    int bytesPerPixel = GetPixelDataSize(1, 1, image->format);
 
     result.width = (int)rec.width;
     result.height = (int)rec.height;
     result.data = RL_CALLOC((int)rec.width*(int)rec.height*bytesPerPixel, 1);
-    result.format = image.format;
+    result.format = image->format;
     result.mipmaps = 1;
 
     for (int y = 0; y < (int)rec.height; y++)
     {
-        memcpy(((unsigned char *)result.data) + y*(int)rec.width*bytesPerPixel, ((unsigned char *)image.data) + ((y + (int)rec.y)*image.width + (int)rec.x)*bytesPerPixel, (int)rec.width*bytesPerPixel);
+        memcpy(((unsigned char *)result.data) + y*(int)rec.width*bytesPerPixel, ((unsigned char *)image->data) + ((y + (int)rec.y)*image->width + (int)rec.x)*bytesPerPixel, (int)rec.width*bytesPerPixel);
     }
 
     return result;
@@ -1956,7 +1956,7 @@ void ImageAlphaMask(Image *image, Image alphaMask)
     else
     {
         // Force mask to be Grayscale
-        Image mask = ImageCopy(alphaMask);
+        Image mask = ImageCopy(&alphaMask);
         if (mask.format != PIXELFORMAT_UNCOMPRESSED_GRAYSCALE) ImageFormat(&mask, PIXELFORMAT_UNCOMPRESSED_GRAYSCALE);
 
         // In case image is only grayscale, we just add alpha channel
@@ -2339,7 +2339,7 @@ void ImageMipmaps(Image *image)
         mipWidth = image->width/2;
         mipHeight = image->height/2;
         mipSize = GetPixelDataSize(mipWidth, mipHeight, image->format);
-        Image imCopy = ImageCopy(*image);
+        Image imCopy = ImageCopy(image);
 
         for (int i = 1; i < mipCount; i++)
         {
@@ -3669,7 +3669,7 @@ void ImageDraw(Image *dst, Image src, Rectangle srcRec, Rectangle dstRec, Color 
         // In that case, we make a copy of source, and we apply all required transform
         if (((int)srcRec.width != (int)dstRec.width) || ((int)srcRec.height != (int)dstRec.height))
         {
-            srcMod = ImageFromImage(src, srcRec);   // Create image from another image
+            srcMod = ImageFromImage(&src, srcRec);   // Create image from another image
             ImageResize(&srcMod, (int)dstRec.width, (int)dstRec.height);   // Resize to destination rectangle
             srcRec = (Rectangle){ 0, 0, (float)srcMod.width, (float)srcMod.height };
 
@@ -3798,7 +3798,7 @@ Texture2D LoadTexture(const char *fileName)
 
     if (image.data != NULL)
     {
-        texture = LoadTextureFromImage(image);
+        texture = LoadTextureFromImage(&image);
         UnloadImage(&image);
     }
 
@@ -3807,51 +3807,78 @@ Texture2D LoadTexture(const char *fileName)
 
 // Load a texture from image data
 // NOTE: image is not unloaded, it must be done manually
-Texture2D LoadTextureFromImage(Image image)
+Texture2D LoadTextureFromImage(Image *image)
 {
     Texture2D texture = { 0 };
 
-    if ((image.width != 0) && (image.height != 0))
+    if ((image->width != 0) && (image->height != 0))
     {
-        texture.id = rlLoadTexture(image.data, image.width, image.height, image.format, image.mipmaps);
+        texture.id = rlLoadTexture(image->data, image->width, image->height, image->format, image->mipmaps);
     }
     else TRACELOG(LOG_WARNING, "IMAGE: Data is not valid to load texture");
 
-    texture.width = image.width;
-    texture.height = image.height;
-    texture.mipmaps = image.mipmaps;
-    texture.format = image.format;
+    texture.width = image->width;
+    texture.height = image->height;
+    texture.mipmaps = image->mipmaps;
+    texture.format = image->format;
+
+    return texture;
+}
+
+// Load a texture from image data
+// NOTE: image is not unloaded, it must be done manually
+Texture2D *ReloadTextureFromImage(Image *image, Texture2D *texture)
+{
+    if (texture->id == 0 ||
+        texture->width != image->width ||
+        texture->height != image->height ||
+        texture->mipmaps != image->mipmaps ||
+        texture->format != image->format)
+    {
+        return texture;
+    }
+
+    if ((image->width != 0) && (image->height != 0))
+    {
+        texture->id = rlReloadTexture(texture->id, image->data, image->width, image->height, image->format, image->mipmaps);
+    }
+    else TRACELOG(LOG_WARNING, "IMAGE: Data is not valid to load texture");
+
+    texture->width = image->width;
+    texture->height = image->height;
+    texture->mipmaps = image->mipmaps;
+    texture->format = image->format;
 
     return texture;
 }
 
 // Load cubemap from image, multiple image cubemap layouts supported
-TextureCubemap LoadTextureCubemap(Image image, int layout)
+TextureCubemap LoadTextureCubemap(Image *image, int layout)
 {
     TextureCubemap cubemap = { 0 };
 
     if (layout == CUBEMAP_LAYOUT_AUTO_DETECT)      // Try to automatically guess layout type
     {
         // Check image width/height to determine the type of cubemap provided
-        if (image.width > image.height)
+        if (image->width > image->height)
         {
-            if ((image.width/6) == image.height) { layout = CUBEMAP_LAYOUT_LINE_HORIZONTAL; cubemap.width = image.width/6; }
-            else if ((image.width/4) == (image.height/3)) { layout = CUBEMAP_LAYOUT_CROSS_FOUR_BY_THREE; cubemap.width = image.width/4; }
-            else if (image.width >= (int)((float)image.height*1.85f)) { layout = CUBEMAP_LAYOUT_PANORAMA; cubemap.width = image.width/4; }
+            if ((image->width/6) == image->height) { layout = CUBEMAP_LAYOUT_LINE_HORIZONTAL; cubemap.width = image->width/6; }
+            else if ((image->width/4) == (image->height/3)) { layout = CUBEMAP_LAYOUT_CROSS_FOUR_BY_THREE; cubemap.width = image->width/4; }
+            else if (image->width >= (int)((float)image->height*1.85f)) { layout = CUBEMAP_LAYOUT_PANORAMA; cubemap.width = image->width/4; }
         }
-        else if (image.height > image.width)
+        else if (image->height > image->width)
         {
-            if ((image.height/6) == image.width) { layout = CUBEMAP_LAYOUT_LINE_VERTICAL; cubemap.width = image.height/6; }
-            else if ((image.width/3) == (image.height/4)) { layout = CUBEMAP_LAYOUT_CROSS_THREE_BY_FOUR; cubemap.width = image.width/3; }
+            if ((image->height/6) == image->width) { layout = CUBEMAP_LAYOUT_LINE_VERTICAL; cubemap.width = image->height/6; }
+            else if ((image->width/3) == (image->height/4)) { layout = CUBEMAP_LAYOUT_CROSS_THREE_BY_FOUR; cubemap.width = image->width/3; }
         }
     }
     else
     {
-        if (layout == CUBEMAP_LAYOUT_LINE_VERTICAL) cubemap.width = image.height/6;
-        if (layout == CUBEMAP_LAYOUT_LINE_HORIZONTAL) cubemap.width = image.width/6;
-        if (layout == CUBEMAP_LAYOUT_CROSS_THREE_BY_FOUR) cubemap.width = image.width/3;
-        if (layout == CUBEMAP_LAYOUT_CROSS_FOUR_BY_THREE) cubemap.width = image.width/4;
-        if (layout == CUBEMAP_LAYOUT_PANORAMA) cubemap.width = image.width/4;
+        if (layout == CUBEMAP_LAYOUT_LINE_VERTICAL) cubemap.width = image->height/6;
+        if (layout == CUBEMAP_LAYOUT_LINE_HORIZONTAL) cubemap.width = image->width/6;
+        if (layout == CUBEMAP_LAYOUT_CROSS_THREE_BY_FOUR) cubemap.width = image->width/3;
+        if (layout == CUBEMAP_LAYOUT_CROSS_FOUR_BY_THREE) cubemap.width = image->width/4;
+        if (layout == CUBEMAP_LAYOUT_PANORAMA) cubemap.width = image->width/4;
     }
 
     cubemap.height = cubemap.width;
@@ -3899,11 +3926,11 @@ TextureCubemap LoadTextureCubemap(Image image, int layout)
 
             // Convert image data to 6 faces in a vertical column, that's the optimum layout for loading
             faces = GenImageColor(size, size*6, MAGENTA);
-            ImageFormat(&faces, image.format);
+            ImageFormat(&faces, image->format);
 
             // NOTE: Image formatting does not work with compressed textures
 
-            for (int i = 0; i < 6; i++) ImageDraw(&faces, image, faceRecs[i], (Rectangle){ 0, (float)size*i, (float)size, (float)size }, WHITE);
+            for (int i = 0; i < 6; i++) ImageDraw(&faces, *image, faceRecs[i], (Rectangle){ 0, (float)size*i, (float)size, (float)size }, WHITE);
         }
 
         // NOTE: Cubemap data is expected to be provided as 6 images in a single data array,
