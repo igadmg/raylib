@@ -1,4 +1,3 @@
-
 Defines found: 58
 
 Define 001: RAYLIB_H
@@ -286,7 +285,11 @@ Define 057: SHADER_LOC_MAP_SPECULAR
   Type: UNKNOWN
   Value: SHADER_LOC_MAP_METALNESS
   Description: 
+<<<<<<< HEAD
 Define 058: GetMouseRay
+=======
+Define 057: GetMouseRay
+>>>>>>> origin/master
   Name: GetMouseRay
   Type: UNKNOWN
   Value: GetScreenToWorldRay
@@ -4533,7 +4536,7 @@ Function 561: SetAudioStreamCallback() (2 input parameters)
 Function 562: AttachAudioStreamProcessor() (2 input parameters)
   Name: AttachAudioStreamProcessor
   Return type: void
-  Description: Attach audio stream processor to stream, receives the samples as <float>s
+  Description: Attach audio stream processor to stream, receives the samples as 'float'
   Param[1]: stream (type: AudioStream)
   Param[2]: processor (type: AudioCallback)
 Function 563: DetachAudioStreamProcessor() (2 input parameters)
@@ -4545,7 +4548,7 @@ Function 563: DetachAudioStreamProcessor() (2 input parameters)
 Function 564: AttachAudioMixedProcessor() (1 input parameters)
   Name: AttachAudioMixedProcessor
   Return type: void
-  Description: Attach audio stream processor to the entire audio pipeline, receives the samples as <float>s
+  Description: Attach audio stream processor to the entire audio pipeline, receives the samples as 'float'
   Param[1]: processor (type: AudioCallback)
 Function 565: DetachAudioMixedProcessor() (1 input parameters)
   Name: DetachAudioMixedProcessor
