@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="Windows-1252" ?>
 <raylibAPI>
-    <Defines count="56">
+    <Defines count="58">
         <Define name="RAYLIB_H" type="GUARD" value="" desc="" />
         <Define name="RAYLIB_VERSION_MAJOR" type="INT" value="5" desc="" />
         <Define name="RAYLIB_VERSION_MINOR" type="INT" value="1" desc="" />
@@ -15,6 +15,7 @@
         <Define name="RL_CALLOC(n,sz)" type="MACRO" value="calloc(n,sz)" desc="" />
         <Define name="RL_REALLOC(ptr,sz)" type="MACRO" value="realloc(ptr,sz)" desc="" />
         <Define name="RL_FREE(ptr)" type="MACRO" value="free(ptr)" desc="" />
+        <Define name="RL_FREE_NULL(ptr)" type="MACRO" value="RL_FREE(ptr); ptr = NULL" desc="" />
         <Define name="CLITERAL(type)" type="MACRO" value="type" desc="" />
         <Define name="RL_COLOR_TYPE" type="GUARD" value="" desc="" />
         <Define name="RL_RECTANGLE_TYPE" type="GUARD" value="" desc="" />
@@ -57,6 +58,7 @@
         <Define name="MATERIAL_MAP_SPECULAR" type="UNKNOWN" value="MATERIAL_MAP_METALNESS" desc="" />
         <Define name="SHADER_LOC_MAP_DIFFUSE" type="UNKNOWN" value="SHADER_LOC_MAP_ALBEDO" desc="" />
         <Define name="SHADER_LOC_MAP_SPECULAR" type="UNKNOWN" value="SHADER_LOC_MAP_METALNESS" desc="" />
+        <Define name="GetMouseRay" type="UNKNOWN" value="GetScreenToWorldRay" desc="Compatibility hack for previous raylib versions" />
     </Defines>
     <Structs count="34">
         <Struct name="Vector2" fieldCount="2" desc="Vector2, 2 components">
@@ -669,7 +671,7 @@
             <Param type="unsigned int" name="frames" desc="" />
         </Callback>
     </Callbacks>
-    <Functions count="561">
+    <Functions count="565">
         <Function name="InitWindow" retType="void" paramCount="3" desc="Initialize window and OpenGL context">
             <Param type="int" name="width" desc="" />
             <Param type="int" name="height" desc="" />
@@ -866,7 +868,7 @@
             <Param type="const char *" name="fsCode" desc="" />
         </Function>
         <Function name="IsShaderReady" retType="bool" paramCount="1" desc="Check if a shader is ready">
-            <Param type="Shader" name="shader" desc="" />
+            <Param type="Shader *" name="shader" desc="" />
         </Function>
         <Function name="GetShaderLocation" retType="int" paramCount="2" desc="Get shader uniform location">
             <Param type="Shader" name="shader" desc="" />
@@ -900,14 +902,14 @@
             <Param type="Texture2D" name="texture" desc="" />
         </Function>
         <Function name="UnloadShader" retType="void" paramCount="1" desc="Unload shader from GPU memory (VRAM)">
-            <Param type="Shader" name="shader" desc="" />
+            <Param type="Shader *" name="shader" desc="" />
         </Function>
-        <Function name="GetScreenToWorldRay" retType="Ray" paramCount="2" desc="Get a ray trace from mouse position">
-            <Param type="Vector2" name="mousePosition" desc="" />
+        <Function name="GetScreenToWorldRay" retType="Ray" paramCount="2" desc="Get a ray trace from screen position (i.e mouse)">
+            <Param type="Vector2" name="position" desc="" />
             <Param type="Camera" name="camera" desc="" />
         </Function>
-        <Function name="GetScreenToWorldRayEx" retType="Ray" paramCount="4" desc="Get a ray trace from mouse position in a viewport">
-            <Param type="Vector2" name="mousePosition" desc="" />
+        <Function name="GetScreenToWorldRayEx" retType="Ray" paramCount="4" desc="Get a ray trace from screen position (i.e mouse) in a viewport">
+            <Param type="Vector2" name="position" desc="" />
             <Param type="Camera" name="camera" desc="" />
             <Param type="float" name="width" desc="" />
             <Param type="float" name="height" desc="" />
@@ -980,6 +982,9 @@
             <Param type="int" name="logLevel" desc="" />
             <Param type="const char *" name="text" desc="" />
             <Param type="..." name="args" desc="" />
+        </Function>
+        <Function name="GetTraceLogLevel" retType="int" paramCount="1" desc="Get the current threshold (minimum) log level">
+            <Param type="" name="" desc="" />
         </Function>
         <Function name="SetTraceLogLevel" retType="void" paramCount="1" desc="Set the current threshold (minimum) log level">
             <Param type="int" name="logLevel" desc="" />
@@ -1118,7 +1123,7 @@
             <Param type="const char *" name="fileName" desc="" />
         </Function>
         <Function name="UnloadAutomationEventList" retType="void" paramCount="1" desc="Unload automation events list from file">
-            <Param type="AutomationEventList" name="list" desc="" />
+            <Param type="AutomationEventList *" name="list" desc="" />
         </Function>
         <Function name="ExportAutomationEventList" retType="bool" paramCount="2" desc="Export automation events list as text file">
             <Param type="AutomationEventList" name="list" desc="" />
@@ -1696,15 +1701,19 @@
             <Param type="int" name="dataSize" desc="" />
         </Function>
         <Function name="LoadImageFromTexture" retType="Image" paramCount="1" desc="Load image from GPU texture data">
-            <Param type="Texture2D" name="texture" desc="" />
+            <Param type="Texture2D *" name="texture" desc="" />
+        </Function>
+        <Function name="ReloadImageFromTexture" retType="Image *" paramCount="2" desc="Load image from GPU texture data, reuse previous image memory">
+            <Param type="Texture2D *" name="texture" desc="" />
+            <Param type="Image *" name="image" desc="" />
         </Function>
         <Function name="LoadImageFromScreen" retType="Image" paramCount="0" desc="Load image from screen buffer and (screenshot)">
         </Function>
         <Function name="IsImageReady" retType="bool" paramCount="1" desc="Check if an image is ready">
-            <Param type="Image" name="image" desc="" />
+            <Param type="Image *" name="image" desc="" />
         </Function>
         <Function name="UnloadImage" retType="void" paramCount="1" desc="Unload image from CPU memory (RAM)">
-            <Param type="Image" name="image" desc="" />
+            <Param type="Image *" name="image" desc="" />
         </Function>
         <Function name="ExportImage" retType="bool" paramCount="2" desc="Export image data to file, returns true on success">
             <Param type="Image" name="image" desc="" />
@@ -1776,10 +1785,10 @@
             <Param type="const char *" name="text" desc="" />
         </Function>
         <Function name="ImageCopy" retType="Image" paramCount="1" desc="Create an image duplicate (useful for transformations)">
-            <Param type="Image" name="image" desc="" />
+            <Param type="Image *" name="image" desc="" />
         </Function>
         <Function name="ImageFromImage" retType="Image" paramCount="2" desc="Create an image from another image piece">
-            <Param type="Image" name="image" desc="" />
+            <Param type="Image *" name="image" desc="" />
             <Param type="Rectangle" name="rec" desc="" />
         </Function>
         <Function name="ImageText" retType="Image" paramCount="3" desc="Create an image from text (default font)">
@@ -2029,10 +2038,14 @@
             <Param type="const char *" name="fileName" desc="" />
         </Function>
         <Function name="LoadTextureFromImage" retType="Texture2D" paramCount="1" desc="Load texture from image data">
-            <Param type="Image" name="image" desc="" />
+            <Param type="Image *" name="image" desc="" />
+        </Function>
+        <Function name="ReloadTextureFromImage" retType="Texture2D *" paramCount="2" desc="Load texture from image data, reuse previous texture">
+            <Param type="Image *" name="image" desc="" />
+            <Param type="Texture2D *" name="texture" desc="" />
         </Function>
         <Function name="LoadTextureCubemap" retType="TextureCubemap" paramCount="2" desc="Load cubemap from image, multiple image cubemap layouts supported">
-            <Param type="Image" name="image" desc="" />
+            <Param type="Image *" name="image" desc="" />
             <Param type="int" name="layout" desc="" />
         </Function>
         <Function name="LoadRenderTexture" retType="RenderTexture2D" paramCount="2" desc="Load texture for rendering (framebuffer)">
@@ -2040,16 +2053,16 @@
             <Param type="int" name="height" desc="" />
         </Function>
         <Function name="IsTextureReady" retType="bool" paramCount="1" desc="Check if a texture is ready">
-            <Param type="Texture2D" name="texture" desc="" />
+            <Param type="Texture2D *" name="texture" desc="" />
         </Function>
         <Function name="UnloadTexture" retType="void" paramCount="1" desc="Unload texture from GPU memory (VRAM)">
-            <Param type="Texture2D" name="texture" desc="" />
+            <Param type="Texture2D *" name="texture" desc="" />
         </Function>
         <Function name="IsRenderTextureReady" retType="bool" paramCount="1" desc="Check if a render texture is ready">
-            <Param type="RenderTexture2D" name="target" desc="" />
+            <Param type="RenderTexture2D *" name="target" desc="" />
         </Function>
         <Function name="UnloadRenderTexture" retType="void" paramCount="1" desc="Unload render texture from GPU memory (VRAM)">
-            <Param type="RenderTexture2D" name="target" desc="" />
+            <Param type="RenderTexture2D *" name="target" desc="" />
         </Function>
         <Function name="UpdateTexture" retType="void" paramCount="2" desc="Update GPU texture with new data">
             <Param type="Texture2D" name="texture" desc="" />
@@ -2101,6 +2114,15 @@
             <Param type="Rectangle" name="dest" desc="" />
             <Param type="Vector2" name="origin" desc="" />
             <Param type="float" name="rotation" desc="" />
+            <Param type="Color" name="tint" desc="" />
+        </Function>
+        <Function name="DrawTextureTiled" retType="void" paramCount="7" desc="Draw part of a texture (defined by a rectangle) with rotation and scale tiled into dest.">
+            <Param type="Texture2D" name="texture" desc="" />
+            <Param type="Rectangle" name="source" desc="" />
+            <Param type="Rectangle" name="dest" desc="" />
+            <Param type="Vector2" name="origin" desc="" />
+            <Param type="float" name="rotation" desc="" />
+            <Param type="float" name="scale" desc="" />
             <Param type="Color" name="tint" desc="" />
         </Function>
         <Function name="DrawTextureNPatch" retType="void" paramCount="6" desc="Draws a texture (or part of it) that stretches or shrinks nicely">
@@ -2199,7 +2221,7 @@
             <Param type="int" name="codepointCount" desc="" />
         </Function>
         <Function name="IsFontReady" retType="bool" paramCount="1" desc="Check if a font is ready">
-            <Param type="Font" name="font" desc="" />
+            <Param type="Font *" name="font" desc="" />
         </Function>
         <Function name="LoadFontData" retType="GlyphInfo *" paramCount="6" desc="Load font data for further use">
             <Param type="const unsigned char *" name="fileData" desc="" />
@@ -2222,7 +2244,7 @@
             <Param type="int" name="glyphCount" desc="" />
         </Function>
         <Function name="UnloadFont" retType="void" paramCount="1" desc="Unload font from GPU memory (VRAM)">
-            <Param type="Font" name="font" desc="" />
+            <Param type="Font *" name="font" desc="" />
         </Function>
         <Function name="ExportFontAsCode" retType="bool" paramCount="2" desc="Export font as code file, returns true on success">
             <Param type="Font" name="font" desc="" />
@@ -2533,10 +2555,10 @@
             <Param type="Mesh" name="mesh" desc="" />
         </Function>
         <Function name="IsModelReady" retType="bool" paramCount="1" desc="Check if a model is ready">
-            <Param type="Model" name="model" desc="" />
+            <Param type="Model *" name="model" desc="" />
         </Function>
         <Function name="UnloadModel" retType="void" paramCount="1" desc="Unload model (including meshes) from memory (RAM and/or VRAM)">
-            <Param type="Model" name="model" desc="" />
+            <Param type="Model *" name="model" desc="" />
         </Function>
         <Function name="GetModelBoundingBox" retType="BoundingBox" paramCount="1" desc="Compute model bounding box limits (considers all meshes)">
             <Param type="Model" name="model" desc="" />
@@ -2611,7 +2633,7 @@
             <Param type="int" name="offset" desc="" />
         </Function>
         <Function name="UnloadMesh" retType="void" paramCount="1" desc="Unload mesh data from CPU and GPU">
-            <Param type="Mesh" name="mesh" desc="" />
+            <Param type="Mesh *" name="mesh" desc="" />
         </Function>
         <Function name="DrawMesh" retType="void" paramCount="3" desc="Draw a 3d mesh with material and transform">
             <Param type="Mesh" name="mesh" desc="" />
@@ -2700,10 +2722,10 @@
         <Function name="LoadMaterialDefault" retType="Material" paramCount="0" desc="Load default material (Supports: DIFFUSE, SPECULAR, NORMAL maps)">
         </Function>
         <Function name="IsMaterialReady" retType="bool" paramCount="1" desc="Check if a material is ready">
-            <Param type="Material" name="material" desc="" />
+            <Param type="Material *" name="material" desc="" />
         </Function>
         <Function name="UnloadMaterial" retType="void" paramCount="1" desc="Unload material from GPU memory (VRAM)">
-            <Param type="Material" name="material" desc="" />
+            <Param type="Material *" name="material" desc="" />
         </Function>
         <Function name="SetMaterialTexture" retType="void" paramCount="3" desc="Set texture for a material map type (MATERIAL_MAP_DIFFUSE, MATERIAL_MAP_SPECULAR...)">
             <Param type="Material *" name="material" desc="" />
@@ -2725,7 +2747,7 @@
             <Param type="int" name="frame" desc="" />
         </Function>
         <Function name="UnloadModelAnimation" retType="void" paramCount="1" desc="Unload animation data">
-            <Param type="ModelAnimation" name="anim" desc="" />
+            <Param type="ModelAnimation *" name="anim" desc="" />
         </Function>
         <Function name="UnloadModelAnimations" retType="void" paramCount="2" desc="Unload animation array data">
             <Param type="ModelAnimation *" name="animations" desc="" />
@@ -2797,7 +2819,7 @@
             <Param type="int" name="dataSize" desc="" />
         </Function>
         <Function name="IsWaveReady" retType="bool" paramCount="1" desc="Checks if wave data is ready">
-            <Param type="Wave" name="wave" desc="" />
+            <Param type="Wave *" name="wave" desc="" />
         </Function>
         <Function name="LoadSound" retType="Sound" paramCount="1" desc="Load sound from file">
             <Param type="const char *" name="fileName" desc="" />
@@ -2809,7 +2831,7 @@
             <Param type="Sound" name="source" desc="" />
         </Function>
         <Function name="IsSoundReady" retType="bool" paramCount="1" desc="Checks if a sound is ready">
-            <Param type="Sound" name="sound" desc="" />
+            <Param type="Sound *" name="sound" desc="" />
         </Function>
         <Function name="UpdateSound" retType="void" paramCount="3" desc="Update sound buffer with new data">
             <Param type="Sound" name="sound" desc="" />
@@ -2817,13 +2839,13 @@
             <Param type="int" name="sampleCount" desc="" />
         </Function>
         <Function name="UnloadWave" retType="void" paramCount="1" desc="Unload wave data">
-            <Param type="Wave" name="wave" desc="" />
+            <Param type="Wave *" name="wave" desc="" />
         </Function>
         <Function name="UnloadSound" retType="void" paramCount="1" desc="Unload sound">
-            <Param type="Sound" name="sound" desc="" />
+            <Param type="Sound *" name="sound" desc="" />
         </Function>
         <Function name="UnloadSoundAlias" retType="void" paramCount="1" desc="Unload a sound alias (does not deallocate sample data)">
-            <Param type="Sound" name="alias" desc="" />
+            <Param type="Sound *" name="alias" desc="" />
         </Function>
         <Function name="ExportWave" retType="bool" paramCount="2" desc="Export wave data to file, returns true on success">
             <Param type="Wave" name="wave" desc="" />
@@ -2889,10 +2911,10 @@
             <Param type="int" name="dataSize" desc="" />
         </Function>
         <Function name="IsMusicReady" retType="bool" paramCount="1" desc="Checks if a music stream is ready">
-            <Param type="Music" name="music" desc="" />
+            <Param type="Music *" name="music" desc="" />
         </Function>
         <Function name="UnloadMusicStream" retType="void" paramCount="1" desc="Unload music stream">
-            <Param type="Music" name="music" desc="" />
+            <Param type="Music *" name="music" desc="" />
         </Function>
         <Function name="PlayMusicStream" retType="void" paramCount="1" desc="Start music playing">
             <Param type="Music" name="music" desc="" />
@@ -2940,10 +2962,10 @@
             <Param type="unsigned int" name="channels" desc="" />
         </Function>
         <Function name="IsAudioStreamReady" retType="bool" paramCount="1" desc="Checks if an audio stream is ready">
-            <Param type="AudioStream" name="stream" desc="" />
+            <Param type="AudioStream *" name="stream" desc="" />
         </Function>
         <Function name="UnloadAudioStream" retType="void" paramCount="1" desc="Unload audio stream and free memory">
-            <Param type="AudioStream" name="stream" desc="" />
+            <Param type="AudioStream *" name="stream" desc="" />
         </Function>
         <Function name="UpdateAudioStream" retType="void" paramCount="3" desc="Update audio stream buffers with data">
             <Param type="AudioStream" name="stream" desc="" />

@@ -85,6 +85,12 @@ return {
       description = ""
     },
     {
+      name = "RL_FREE_NULL(ptr)",
+      type = "MACRO",
+      value = "RL_FREE(ptr); ptr = NULL",
+      description = ""
+    },
+    {
       name = "CLITERAL(type)",
       type = "MACRO",
       value = "type",
@@ -335,6 +341,12 @@ return {
       type = "UNKNOWN",
       value = "SHADER_LOC_MAP_METALNESS",
       description = ""
+    },
+    {
+      name = "GetMouseRay",
+      type = "UNKNOWN",
+      value = "GetScreenToWorldRay",
+      description = "Compatibility hack for previous raylib versions"
     }
   },
   structs = {
@@ -3562,7 +3574,7 @@ return {
       description = "Check if a shader is ready",
       returnType = "bool",
       params = {
-        {type = "Shader", name = "shader"}
+        {type = "Shader *", name = "shader"}
       }
     },
     {
@@ -3631,24 +3643,24 @@ return {
       description = "Unload shader from GPU memory (VRAM)",
       returnType = "void",
       params = {
-        {type = "Shader", name = "shader"}
+        {type = "Shader *", name = "shader"}
       }
     },
     {
       name = "GetScreenToWorldRay",
-      description = "Get a ray trace from mouse position",
+      description = "Get a ray trace from screen position (i.e mouse)",
       returnType = "Ray",
       params = {
-        {type = "Vector2", name = "mousePosition"},
+        {type = "Vector2", name = "position"},
         {type = "Camera", name = "camera"}
       }
     },
     {
       name = "GetScreenToWorldRayEx",
-      description = "Get a ray trace from mouse position in a viewport",
+      description = "Get a ray trace from screen position (i.e mouse) in a viewport",
       returnType = "Ray",
       params = {
-        {type = "Vector2", name = "mousePosition"},
+        {type = "Vector2", name = "position"},
         {type = "Camera", name = "camera"},
         {type = "float", name = "width"},
         {type = "float", name = "height"}
@@ -3816,6 +3828,14 @@ return {
         {type = "int", name = "logLevel"},
         {type = "const char *", name = "text"},
         {type = "...", name = "args"}
+      }
+    },
+    {
+      name = "GetTraceLogLevel",
+      description = "Get the current threshold (minimum) log level",
+      returnType = "int",
+      params = {
+        {type = "", name = ""}
       }
     },
     {
@@ -4156,7 +4176,7 @@ return {
       description = "Unload automation events list from file",
       returnType = "void",
       params = {
-        {type = "AutomationEventList", name = "list"}
+        {type = "AutomationEventList *", name = "list"}
       }
     },
     {
@@ -5315,7 +5335,16 @@ return {
       description = "Load image from GPU texture data",
       returnType = "Image",
       params = {
-        {type = "Texture2D", name = "texture"}
+        {type = "Texture2D *", name = "texture"}
+      }
+    },
+    {
+      name = "ReloadImageFromTexture",
+      description = "Load image from GPU texture data, reuse previous image memory",
+      returnType = "Image *",
+      params = {
+        {type = "Texture2D *", name = "texture"},
+        {type = "Image *", name = "image"}
       }
     },
     {
@@ -5328,7 +5357,7 @@ return {
       description = "Check if an image is ready",
       returnType = "bool",
       params = {
-        {type = "Image", name = "image"}
+        {type = "Image *", name = "image"}
       }
     },
     {
@@ -5336,7 +5365,7 @@ return {
       description = "Unload image from CPU memory (RAM)",
       returnType = "void",
       params = {
-        {type = "Image", name = "image"}
+        {type = "Image *", name = "image"}
       }
     },
     {
@@ -5473,7 +5502,7 @@ return {
       description = "Create an image duplicate (useful for transformations)",
       returnType = "Image",
       params = {
-        {type = "Image", name = "image"}
+        {type = "Image *", name = "image"}
       }
     },
     {
@@ -5481,7 +5510,7 @@ return {
       description = "Create an image from another image piece",
       returnType = "Image",
       params = {
-        {type = "Image", name = "image"},
+        {type = "Image *", name = "image"},
         {type = "Rectangle", name = "rec"}
       }
     },
@@ -5986,7 +6015,16 @@ return {
       description = "Load texture from image data",
       returnType = "Texture2D",
       params = {
-        {type = "Image", name = "image"}
+        {type = "Image *", name = "image"}
+      }
+    },
+    {
+      name = "ReloadTextureFromImage",
+      description = "Load texture from image data, reuse previous texture",
+      returnType = "Texture2D *",
+      params = {
+        {type = "Image *", name = "image"},
+        {type = "Texture2D *", name = "texture"}
       }
     },
     {
@@ -5994,7 +6032,7 @@ return {
       description = "Load cubemap from image, multiple image cubemap layouts supported",
       returnType = "TextureCubemap",
       params = {
-        {type = "Image", name = "image"},
+        {type = "Image *", name = "image"},
         {type = "int", name = "layout"}
       }
     },
@@ -6012,7 +6050,7 @@ return {
       description = "Check if a texture is ready",
       returnType = "bool",
       params = {
-        {type = "Texture2D", name = "texture"}
+        {type = "Texture2D *", name = "texture"}
       }
     },
     {
@@ -6020,7 +6058,7 @@ return {
       description = "Unload texture from GPU memory (VRAM)",
       returnType = "void",
       params = {
-        {type = "Texture2D", name = "texture"}
+        {type = "Texture2D *", name = "texture"}
       }
     },
     {
@@ -6028,7 +6066,7 @@ return {
       description = "Check if a render texture is ready",
       returnType = "bool",
       params = {
-        {type = "RenderTexture2D", name = "target"}
+        {type = "RenderTexture2D *", name = "target"}
       }
     },
     {
@@ -6036,7 +6074,7 @@ return {
       description = "Unload render texture from GPU memory (VRAM)",
       returnType = "void",
       params = {
-        {type = "RenderTexture2D", name = "target"}
+        {type = "RenderTexture2D *", name = "target"}
       }
     },
     {
@@ -6138,6 +6176,20 @@ return {
         {type = "Rectangle", name = "dest"},
         {type = "Vector2", name = "origin"},
         {type = "float", name = "rotation"},
+        {type = "Color", name = "tint"}
+      }
+    },
+    {
+      name = "DrawTextureTiled",
+      description = "Draw part of a texture (defined by a rectangle) with rotation and scale tiled into dest.",
+      returnType = "void",
+      params = {
+        {type = "Texture2D", name = "texture"},
+        {type = "Rectangle", name = "source"},
+        {type = "Rectangle", name = "dest"},
+        {type = "Vector2", name = "origin"},
+        {type = "float", name = "rotation"},
+        {type = "float", name = "scale"},
         {type = "Color", name = "tint"}
       }
     },
@@ -6349,7 +6401,7 @@ return {
       description = "Check if a font is ready",
       returnType = "bool",
       params = {
-        {type = "Font", name = "font"}
+        {type = "Font *", name = "font"}
       }
     },
     {
@@ -6392,7 +6444,7 @@ return {
       description = "Unload font from GPU memory (VRAM)",
       returnType = "void",
       params = {
-        {type = "Font", name = "font"}
+        {type = "Font *", name = "font"}
       }
     },
     {
@@ -7013,7 +7065,7 @@ return {
       description = "Check if a model is ready",
       returnType = "bool",
       params = {
-        {type = "Model", name = "model"}
+        {type = "Model *", name = "model"}
       }
     },
     {
@@ -7021,7 +7073,7 @@ return {
       description = "Unload model (including meshes) from memory (RAM and/or VRAM)",
       returnType = "void",
       params = {
-        {type = "Model", name = "model"}
+        {type = "Model *", name = "model"}
       }
     },
     {
@@ -7156,7 +7208,7 @@ return {
       description = "Unload mesh data from CPU and GPU",
       returnType = "void",
       params = {
-        {type = "Mesh", name = "mesh"}
+        {type = "Mesh *", name = "mesh"}
       }
     },
     {
@@ -7343,7 +7395,7 @@ return {
       description = "Check if a material is ready",
       returnType = "bool",
       params = {
-        {type = "Material", name = "material"}
+        {type = "Material *", name = "material"}
       }
     },
     {
@@ -7351,7 +7403,7 @@ return {
       description = "Unload material from GPU memory (VRAM)",
       returnType = "void",
       params = {
-        {type = "Material", name = "material"}
+        {type = "Material *", name = "material"}
       }
     },
     {
@@ -7398,7 +7450,7 @@ return {
       description = "Unload animation data",
       returnType = "void",
       params = {
-        {type = "ModelAnimation", name = "anim"}
+        {type = "ModelAnimation *", name = "anim"}
       }
     },
     {
@@ -7552,7 +7604,7 @@ return {
       description = "Checks if wave data is ready",
       returnType = "bool",
       params = {
-        {type = "Wave", name = "wave"}
+        {type = "Wave *", name = "wave"}
       }
     },
     {
@@ -7584,7 +7636,7 @@ return {
       description = "Checks if a sound is ready",
       returnType = "bool",
       params = {
-        {type = "Sound", name = "sound"}
+        {type = "Sound *", name = "sound"}
       }
     },
     {
@@ -7602,7 +7654,7 @@ return {
       description = "Unload wave data",
       returnType = "void",
       params = {
-        {type = "Wave", name = "wave"}
+        {type = "Wave *", name = "wave"}
       }
     },
     {
@@ -7610,7 +7662,7 @@ return {
       description = "Unload sound",
       returnType = "void",
       params = {
-        {type = "Sound", name = "sound"}
+        {type = "Sound *", name = "sound"}
       }
     },
     {
@@ -7618,7 +7670,7 @@ return {
       description = "Unload a sound alias (does not deallocate sample data)",
       returnType = "void",
       params = {
-        {type = "Sound", name = "alias"}
+        {type = "Sound *", name = "alias"}
       }
     },
     {
@@ -7774,7 +7826,7 @@ return {
       description = "Checks if a music stream is ready",
       returnType = "bool",
       params = {
-        {type = "Music", name = "music"}
+        {type = "Music *", name = "music"}
       }
     },
     {
@@ -7782,7 +7834,7 @@ return {
       description = "Unload music stream",
       returnType = "void",
       params = {
-        {type = "Music", name = "music"}
+        {type = "Music *", name = "music"}
       }
     },
     {
@@ -7900,7 +7952,7 @@ return {
       description = "Checks if an audio stream is ready",
       returnType = "bool",
       params = {
-        {type = "AudioStream", name = "stream"}
+        {type = "AudioStream *", name = "stream"}
       }
     },
     {
@@ -7908,7 +7960,7 @@ return {
       description = "Unload audio stream and free memory",
       returnType = "void",
       params = {
-        {type = "AudioStream", name = "stream"}
+        {type = "AudioStream *", name = "stream"}
       }
     },
     {

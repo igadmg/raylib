@@ -85,6 +85,12 @@
       "description": ""
     },
     {
+      "name": "RL_FREE_NULL(ptr)",
+      "type": "MACRO",
+      "value": "RL_FREE(ptr); ptr = NULL",
+      "description": ""
+    },
+    {
       "name": "CLITERAL(type)",
       "type": "MACRO",
       "value": "type",
@@ -335,6 +341,12 @@
       "type": "UNKNOWN",
       "value": "SHADER_LOC_MAP_METALNESS",
       "description": ""
+    },
+    {
+      "name": "GetMouseRay",
+      "type": "UNKNOWN",
+      "value": "GetScreenToWorldRay",
+      "description": "Compatibility hack for previous raylib versions"
     }
   ],
   "structs": [
@@ -3737,7 +3749,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Shader",
+          "type": "Shader *",
           "name": "shader"
         }
       ]
@@ -3866,19 +3878,19 @@
       "returnType": "void",
       "params": [
         {
-          "type": "Shader",
+          "type": "Shader *",
           "name": "shader"
         }
       ]
     },
     {
       "name": "GetScreenToWorldRay",
-      "description": "Get a ray trace from mouse position",
+      "description": "Get a ray trace from screen position (i.e mouse)",
       "returnType": "Ray",
       "params": [
         {
           "type": "Vector2",
-          "name": "mousePosition"
+          "name": "position"
         },
         {
           "type": "Camera",
@@ -3888,12 +3900,12 @@
     },
     {
       "name": "GetScreenToWorldRayEx",
-      "description": "Get a ray trace from mouse position in a viewport",
+      "description": "Get a ray trace from screen position (i.e mouse) in a viewport",
       "returnType": "Ray",
       "params": [
         {
           "type": "Vector2",
-          "name": "mousePosition"
+          "name": "position"
         },
         {
           "type": "Camera",
@@ -4151,6 +4163,17 @@
         {
           "type": "...",
           "name": "args"
+        }
+      ]
+    },
+    {
+      "name": "GetTraceLogLevel",
+      "description": "Get the current threshold (minimum) log level",
+      "returnType": "int",
+      "params": [
+        {
+          "type": "",
+          "name": ""
         }
       ]
     },
@@ -4655,7 +4678,7 @@
       "returnType": "void",
       "params": [
         {
-          "type": "AutomationEventList",
+          "type": "AutomationEventList *",
           "name": "list"
         }
       ]
@@ -6798,8 +6821,23 @@
       "returnType": "Image",
       "params": [
         {
-          "type": "Texture2D",
+          "type": "Texture2D *",
           "name": "texture"
+        }
+      ]
+    },
+    {
+      "name": "ReloadImageFromTexture",
+      "description": "Load image from GPU texture data, reuse previous image memory",
+      "returnType": "Image *",
+      "params": [
+        {
+          "type": "Texture2D *",
+          "name": "texture"
+        },
+        {
+          "type": "Image *",
+          "name": "image"
         }
       ]
     },
@@ -6814,7 +6852,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Image",
+          "type": "Image *",
           "name": "image"
         }
       ]
@@ -6825,7 +6863,7 @@
       "returnType": "void",
       "params": [
         {
-          "type": "Image",
+          "type": "Image *",
           "name": "image"
         }
       ]
@@ -7100,7 +7138,7 @@
       "returnType": "Image",
       "params": [
         {
-          "type": "Image",
+          "type": "Image *",
           "name": "image"
         }
       ]
@@ -7111,7 +7149,7 @@
       "returnType": "Image",
       "params": [
         {
-          "type": "Image",
+          "type": "Image *",
           "name": "image"
         },
         {
@@ -8060,8 +8098,23 @@
       "returnType": "Texture2D",
       "params": [
         {
-          "type": "Image",
+          "type": "Image *",
           "name": "image"
+        }
+      ]
+    },
+    {
+      "name": "ReloadTextureFromImage",
+      "description": "Load texture from image data, reuse previous texture",
+      "returnType": "Texture2D *",
+      "params": [
+        {
+          "type": "Image *",
+          "name": "image"
+        },
+        {
+          "type": "Texture2D *",
+          "name": "texture"
         }
       ]
     },
@@ -8071,7 +8124,7 @@
       "returnType": "TextureCubemap",
       "params": [
         {
-          "type": "Image",
+          "type": "Image *",
           "name": "image"
         },
         {
@@ -8101,7 +8154,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Texture2D",
+          "type": "Texture2D *",
           "name": "texture"
         }
       ]
@@ -8112,7 +8165,7 @@
       "returnType": "void",
       "params": [
         {
-          "type": "Texture2D",
+          "type": "Texture2D *",
           "name": "texture"
         }
       ]
@@ -8123,7 +8176,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "RenderTexture2D",
+          "type": "RenderTexture2D *",
           "name": "target"
         }
       ]
@@ -8134,7 +8187,7 @@
       "returnType": "void",
       "params": [
         {
-          "type": "RenderTexture2D",
+          "type": "RenderTexture2D *",
           "name": "target"
         }
       ]
@@ -8330,6 +8383,41 @@
         {
           "type": "float",
           "name": "rotation"
+        },
+        {
+          "type": "Color",
+          "name": "tint"
+        }
+      ]
+    },
+    {
+      "name": "DrawTextureTiled",
+      "description": "Draw part of a texture (defined by a rectangle) with rotation and scale tiled into dest.",
+      "returnType": "void",
+      "params": [
+        {
+          "type": "Texture2D",
+          "name": "texture"
+        },
+        {
+          "type": "Rectangle",
+          "name": "source"
+        },
+        {
+          "type": "Rectangle",
+          "name": "dest"
+        },
+        {
+          "type": "Vector2",
+          "name": "origin"
+        },
+        {
+          "type": "float",
+          "name": "rotation"
+        },
+        {
+          "type": "float",
+          "name": "scale"
         },
         {
           "type": "Color",
@@ -8699,7 +8787,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Font",
+          "type": "Font *",
           "name": "font"
         }
       ]
@@ -8787,7 +8875,7 @@
       "returnType": "void",
       "params": [
         {
-          "type": "Font",
+          "type": "Font *",
           "name": "font"
         }
       ]
@@ -9969,7 +10057,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Model",
+          "type": "Model *",
           "name": "model"
         }
       ]
@@ -9980,7 +10068,7 @@
       "returnType": "void",
       "params": [
         {
-          "type": "Model",
+          "type": "Model *",
           "name": "model"
         }
       ]
@@ -10268,7 +10356,7 @@
       "returnType": "void",
       "params": [
         {
-          "type": "Mesh",
+          "type": "Mesh *",
           "name": "mesh"
         }
       ]
@@ -10602,7 +10690,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Material",
+          "type": "Material *",
           "name": "material"
         }
       ]
@@ -10613,7 +10701,7 @@
       "returnType": "void",
       "params": [
         {
-          "type": "Material",
+          "type": "Material *",
           "name": "material"
         }
       ]
@@ -10696,7 +10784,7 @@
       "returnType": "void",
       "params": [
         {
-          "type": "ModelAnimation",
+          "type": "ModelAnimation *",
           "name": "anim"
         }
       ]
@@ -10958,7 +11046,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Wave",
+          "type": "Wave *",
           "name": "wave"
         }
       ]
@@ -11002,7 +11090,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Sound",
+          "type": "Sound *",
           "name": "sound"
         }
       ]
@@ -11032,7 +11120,7 @@
       "returnType": "void",
       "params": [
         {
-          "type": "Wave",
+          "type": "Wave *",
           "name": "wave"
         }
       ]
@@ -11043,7 +11131,7 @@
       "returnType": "void",
       "params": [
         {
-          "type": "Sound",
+          "type": "Sound *",
           "name": "sound"
         }
       ]
@@ -11054,7 +11142,7 @@
       "returnType": "void",
       "params": [
         {
-          "type": "Sound",
+          "type": "Sound *",
           "name": "alias"
         }
       ]
@@ -11300,7 +11388,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Music",
+          "type": "Music *",
           "name": "music"
         }
       ]
@@ -11311,7 +11399,7 @@
       "returnType": "void",
       "params": [
         {
-          "type": "Music",
+          "type": "Music *",
           "name": "music"
         }
       ]
@@ -11489,7 +11577,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "AudioStream",
+          "type": "AudioStream *",
           "name": "stream"
         }
       ]
@@ -11500,7 +11588,7 @@
       "returnType": "void",
       "params": [
         {
-          "type": "AudioStream",
+          "type": "AudioStream *",
           "name": "stream"
         }
       ]
