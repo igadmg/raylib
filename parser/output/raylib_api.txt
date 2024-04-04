@@ -1,3 +1,4 @@
+
 Defines found: 58
 
 Define 001: RAYLIB_H
@@ -285,11 +286,7 @@ Define 057: SHADER_LOC_MAP_SPECULAR
   Type: UNKNOWN
   Value: SHADER_LOC_MAP_METALNESS
   Description: 
-<<<<<<< HEAD
 Define 058: GetMouseRay
-=======
-Define 057: GetMouseRay
->>>>>>> origin/master
   Name: GetMouseRay
   Type: UNKNOWN
   Value: GetScreenToWorldRay
