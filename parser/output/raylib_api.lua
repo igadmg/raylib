@@ -3662,8 +3662,8 @@ return {
       params = {
         {type = "Vector2", name = "position"},
         {type = "Camera", name = "camera"},
-        {type = "float", name = "width"},
-        {type = "float", name = "height"}
+        {type = "int", name = "width"},
+        {type = "int", name = "height"}
       }
     },
     {

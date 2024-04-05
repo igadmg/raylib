@@ -3912,11 +3912,11 @@
           "name": "camera"
         },
         {
-          "type": "float",
+          "type": "int",
           "name": "width"
         },
         {
-          "type": "float",
+          "type": "int",
           "name": "height"
         }
       ]
