@@ -671,7 +671,7 @@
             <Param type="unsigned int" name="frames" desc="" />
         </Callback>
     </Callbacks>
-    <Functions count="565">
+    <Functions count="566">
         <Function name="InitWindow" retType="void" paramCount="3" desc="Initialize window and OpenGL context">
             <Param type="int" name="width" desc="" />
             <Param type="int" name="height" desc="" />
@@ -1156,6 +1156,8 @@
         </Function>
         <Function name="IsKeyUp" retType="bool" paramCount="1" desc="Check if a key is NOT being pressed">
             <Param type="int" name="key" desc="" />
+        </Function>
+        <Function name="GetKeyDownCount" retType="int" paramCount="0" desc="Get key count of currently pressed keys">
         </Function>
         <Function name="GetKeyPressed" retType="int" paramCount="0" desc="Get key pressed (keycode), call it multiple times for keys queued, returns 0 when the queue is empty">
         </Function>

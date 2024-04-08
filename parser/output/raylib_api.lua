@@ -4263,6 +4263,11 @@ return {
       }
     },
     {
+      name = "GetKeyDownCount",
+      description = "Get key count of currently pressed keys",
+      returnType = "int"
+    },
+    {
       name = "GetKeyPressed",
       description = "Get key pressed (keycode), call it multiple times for keys queued, returns 0 when the queue is empty",
       returnType = "int"
