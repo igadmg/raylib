@@ -764,7 +764,7 @@ int InitPlatform(void)
     }
 
     const bool allowInterlaced = CORE.Window.flags & FLAG_INTERLACED_HINT;
-    const int fps = (CORE.Time.target > 0)? (1.0/CORE.Time.target) : 60;
+    const int fps = (CORE.Time.target > 0) ? (1.0/CORE.Time.target) : 60;
 
     // Try to find an exact matching mode
     platform.modeIndex = FindExactConnectorMode(platform.connector, CORE.Window.screen.width, CORE.Window.screen.height, fps, allowInterlaced);

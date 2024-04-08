@@ -35,10 +35,10 @@ int main(void)
     {
         // Update
         //----------------------------------------------------------------------------------
-        if (IsKeyDown(KEY_RIGHT)) ballPosition.x += 2.0f;
-        if (IsKeyDown(KEY_LEFT)) ballPosition.x -= 2.0f;
-        if (IsKeyDown(KEY_UP)) ballPosition.y -= 2.0f;
-        if (IsKeyDown(KEY_DOWN)) ballPosition.y += 2.0f;
+        if (IsKeyDown(KEY_RIGHT)) ballPosition.x += GetKeyDownCount() * 2.0f;
+        if (IsKeyDown(KEY_LEFT)) ballPosition.x -= GetKeyDownCount() * 2.0f;
+        if (IsKeyDown(KEY_UP)) ballPosition.y -= GetKeyDownCount() * 2.0f;
+        if (IsKeyDown(KEY_DOWN)) ballPosition.y += GetKeyDownCount() * 2.0f;
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -48,6 +48,7 @@ int main(void)
             ClearBackground(RAYWHITE);
 
             DrawText("move the ball with arrow keys", 10, 10, 20, DARKGRAY);
+            DrawFPS(10, 30);
 
             DrawCircleV(ballPosition, 50, MAROON);
 

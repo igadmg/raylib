@@ -1592,10 +1592,15 @@ Vector2 GetScreenToWorld2D(Vector2 position, Camera2D camera)
 // Set target FPS (maximum)
 void SetTargetFPS(int fps)
 {
-    if (fps < 1) CORE.Time.target = 0.0;
-    else CORE.Time.target = 1.0/(double)fps;
-
-    TRACELOG(LOG_INFO, "TIMER: Target time per frame: %02.03f milliseconds", (float)CORE.Time.target*1000.0f);
+    if (fps < 0) {
+        CORE.Time.target = -1.0;
+        TRACELOG(LOG_INFO, "TIMER: Target time per frame is unlimited.");
+    }
+    else if (fps == 0) CORE.Time.target = 0.0;
+    else {
+        CORE.Time.target = 1.0 / (double)fps;
+        TRACELOG(LOG_INFO, "TIMER: Target time per frame: %02.03f milliseconds", (float)CORE.Time.target * 1000.0f);
+    }
 }
 
 // Get current FPS
@@ -2683,7 +2688,6 @@ void PlayAutomationEvent(AutomationEvent event)
 // Check if a key has been pressed once
 bool IsKeyPressed(int key)
 {
-
     bool pressed = false;
 
     if ((key > 0) && (key < MAX_KEYBOARD_KEYS))
@@ -2744,6 +2748,18 @@ bool IsKeyUp(int key)
     }
 
     return up;
+}
+
+int GetKeyDownCount(void)
+{
+    int value = 0;
+
+    for (int key = 0; key < MAX_KEYBOARD_KEYS; key++)
+    {
+        if (CORE.Input.Keyboard.currentKeyState[key] == 1) value++;
+    }
+
+    return value;
 }
 
 // Get the last key pressed
