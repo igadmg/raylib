@@ -3825,33 +3825,6 @@ Texture2D LoadTextureFromImage(Image *image)
     return texture;
 }
 
-// Load a texture from image data
-// NOTE: image is not unloaded, it must be done manually
-Texture2D *ReloadTextureFromImage(Image *image, Texture2D *texture)
-{
-    if (texture->id == 0 ||
-        texture->width != image->width ||
-        texture->height != image->height ||
-        texture->mipmaps != image->mipmaps ||
-        texture->format != image->format)
-    {
-        return texture;
-    }
-
-    if ((image->width != 0) && (image->height != 0))
-    {
-        texture->id = rlReloadTexture(texture->id, image->data, image->width, image->height, image->format, image->mipmaps);
-    }
-    else TRACELOG(LOG_WARNING, "IMAGE: Data is not valid to load texture");
-
-    texture->width = image->width;
-    texture->height = image->height;
-    texture->mipmaps = image->mipmaps;
-    texture->format = image->format;
-
-    return texture;
-}
-
 // Load cubemap from image, multiple image cubemap layouts supported
 TextureCubemap LoadTextureCubemap(Image *image, int layout)
 {
