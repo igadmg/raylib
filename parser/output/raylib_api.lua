@@ -6024,15 +6024,6 @@ return {
       }
     },
     {
-      name = "ReloadTextureFromImage",
-      description = "Load texture from image data, reuse previous texture",
-      returnType = "Texture2D *",
-      params = {
-        {type = "Image *", name = "image"},
-        {type = "Texture2D *", name = "texture"}
-      }
-    },
-    {
       name = "LoadTextureCubemap",
       description = "Load cubemap from image, multiple image cubemap layouts supported",
       returnType = "TextureCubemap",
