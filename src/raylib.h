@@ -1479,10 +1479,12 @@ RLAPI const char *CodepointToUTF8(int codepoint, int *utf8Size);        // Encod
 
 // Text strings management functions (no UTF-8 strings, only byte chars)
 // NOTE: Some strings allocate memory internally for returned strings, just be careful!
+RLAPI const char *TextAlloc(const char *text, int length);                                  // Allocate non null terminated string in internal buffer, for language interop
 RLAPI int TextCopy(char *dst, const char *src);                                             // Copy one string to another, returns bytes copied
 RLAPI bool TextIsEqual(const char *text1, const char *text2);                               // Check if two text string are equal
 RLAPI unsigned int TextLength(const char *text);                                            // Get text length, checks for '\0' ending
 RLAPI const char *TextFormat(const char *text, ...);                                        // Text formatting with variables (sprintf() style)
+RLAPI const char *TextFormatEx(const char *text, int length, ...);                          // Text formatting with variables (sprintf() style), text is not null terminated, defined by length
 RLAPI const char *TextSubtext(const char *text, int position, int length);                  // Get a piece of a text string
 RLAPI char *TextReplace(const char *text, const char *replace, const char *by);             // Replace text string (WARNING: memory must be freed!)
 RLAPI char *TextInsert(const char *text, const char *insert, int position);                 // Insert text in a position (WARNING: memory must be freed!)

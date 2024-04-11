@@ -1389,6 +1389,38 @@ Rectangle GetGlyphAtlasRec(Font font, int codepoint)
 //----------------------------------------------------------------------------------
 // Text strings management functions
 //----------------------------------------------------------------------------------
+const char *TextAlloc(const char *text, int length)
+{
+#ifndef MAX_TEXTALLOC_BUFFER_LENGTH
+#define MAX_TEXTALLOC_BUFFER_LENGTH 4 * MAX_TEXT_BUFFER_LENGTH        // Maximum static buffer for text allocating
+#endif
+
+    // We create an array of buffers so strings don't expire until MAX_TEXTFORMAT_BUFFERS invocations
+    static char buffer[MAX_TEXTALLOC_BUFFER_LENGTH] = { 0 };
+    static int index = 0;
+
+    int requiredByteCount = length;
+    if (length > MAX_TEXTALLOC_BUFFER_LENGTH - 2) length = MAX_TEXTALLOC_BUFFER_LENGTH - 2;
+    if (index + length > MAX_TEXTALLOC_BUFFER_LENGTH - 2) index = 0;
+
+    char *currentBuffer = &buffer[index];
+    memcpy(currentBuffer, text, length);
+    currentBuffer[length + 1] = 0;
+
+    // If requiredByteCount is larger than the MAX_TEXT_BUFFER_LENGTH, then overflow occured
+    if (requiredByteCount >= MAX_TEXT_BUFFER_LENGTH)
+    {
+        // Inserting "..." at the end of the string to mark as truncated
+        char *truncBuffer = currentBuffer + MAX_TEXT_BUFFER_LENGTH - 4; // Adding 4 bytes = "...\0"
+        sprintf(truncBuffer, "...");
+    }
+
+    index += length + 1;     // Move to next buffer for next function call
+    // asset(index < MAX_TEXTALLOCATE_BUFFERS - 2);
+
+    return currentBuffer;
+}
+
 // Get text length in bytes, check for \0 character
 unsigned int TextLength(const char *text)
 {
@@ -1404,12 +1436,10 @@ unsigned int TextLength(const char *text)
     return length;
 }
 
-// Formatting of text with variables to 'embed'
-// WARNING: String returned will expire after this function is called MAX_TEXTFORMAT_BUFFERS times
-const char *TextFormat(const char *text, ...)
+const char *VTextFormat(const char *text, va_list args)
 {
 #ifndef MAX_TEXTFORMAT_BUFFERS
-    #define MAX_TEXTFORMAT_BUFFERS 4        // Maximum number of static buffers for text formatting
+#define MAX_TEXTFORMAT_BUFFERS 4        // Maximum number of static buffers for text formatting
 #endif
 
     // We create an array of buffers so strings don't expire until MAX_TEXTFORMAT_BUFFERS invocations
@@ -1419,10 +1449,7 @@ const char *TextFormat(const char *text, ...)
     char *currentBuffer = buffers[index];
     memset(currentBuffer, 0, MAX_TEXT_BUFFER_LENGTH);   // Clear buffer before using
 
-    va_list args;
-    va_start(args, text);
     int requiredByteCount = vsnprintf(currentBuffer, MAX_TEXT_BUFFER_LENGTH, text, args);
-    va_end(args);
 
     // If requiredByteCount is larger than the MAX_TEXT_BUFFER_LENGTH, then overflow occured
     if (requiredByteCount >= MAX_TEXT_BUFFER_LENGTH)
@@ -1436,6 +1463,36 @@ const char *TextFormat(const char *text, ...)
     if (index >= MAX_TEXTFORMAT_BUFFERS) index = 0;
 
     return currentBuffer;
+}
+
+
+// Formatting of text with variables to 'embed'
+// WARNING: String returned will expire after this function is called MAX_TEXTFORMAT_BUFFERS times
+const char *TextFormat(const char *text, ...)
+{
+    va_list args;
+    va_start(args, text);
+    const char *result = VTextFormat(text, args);
+    va_end(args);
+
+    return result;
+}
+
+// Text formatting with variables (sprintf() style), text is not null terminated, defined by length
+// WARNING: String returned will expire after this function is called MAX_TEXTFORMAT_BUFFERS times
+const char *TextFormatEx(const char *text, int length, ...)
+{
+    static char buffer[MAX_TEXT_BUFFER_LENGTH] = { 0 };
+    if (length > MAX_TEXT_BUFFER_LENGTH - 2) length = MAX_TEXT_BUFFER_LENGTH - 2;
+    memcpy(buffer, text, length);
+    buffer[length + 1] = 0;
+
+    va_list args;
+    va_start(args, length);
+    const char *result = VTextFormat(text, args);
+    va_end(args);
+
+    return result;
 }
 
 // Get integer value from text
