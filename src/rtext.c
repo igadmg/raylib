@@ -1400,12 +1400,12 @@ const char *TextAlloc(const char *text, int length)
     static int index = 0;
 
     int requiredByteCount = length;
-    if (length > MAX_TEXTALLOC_BUFFER_LENGTH - 2) length = MAX_TEXTALLOC_BUFFER_LENGTH - 2;
-    if (index + length > MAX_TEXTALLOC_BUFFER_LENGTH - 2) index = 0;
+    if (length > MAX_TEXTALLOC_BUFFER_LENGTH - 1) length = MAX_TEXTALLOC_BUFFER_LENGTH - 1;
+    if (index + length > MAX_TEXTALLOC_BUFFER_LENGTH - 1) index = 0;
 
     char *currentBuffer = &buffer[index];
     memcpy(currentBuffer, text, length);
-    currentBuffer[length + 1] = 0;
+    currentBuffer[length] = 0;
 
     // If requiredByteCount is larger than the MAX_TEXT_BUFFER_LENGTH, then overflow occured
     if (requiredByteCount >= MAX_TEXT_BUFFER_LENGTH)
@@ -1483,9 +1483,9 @@ const char *TextFormat(const char *text, ...)
 const char *TextFormatEx(const char *text, int length, ...)
 {
     static char buffer[MAX_TEXT_BUFFER_LENGTH] = { 0 };
-    if (length > MAX_TEXT_BUFFER_LENGTH - 2) length = MAX_TEXT_BUFFER_LENGTH - 2;
+    if (length > MAX_TEXT_BUFFER_LENGTH - 1) length = MAX_TEXT_BUFFER_LENGTH - 1;
     memcpy(buffer, text, length);
-    buffer[length + 1] = 0;
+    buffer[length] = 0;
 
     va_list args;
     va_start(args, length);
