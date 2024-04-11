@@ -1389,7 +1389,8 @@ Rectangle GetGlyphAtlasRec(Font font, int codepoint)
 //----------------------------------------------------------------------------------
 // Text strings management functions
 //----------------------------------------------------------------------------------
-const char *TextAlloc(const char *text, int length)
+
+const char *TextAlloc(const char *text, int *length)
 {
 #ifndef MAX_TEXTALLOC_BUFFER_LENGTH
 #define MAX_TEXTALLOC_BUFFER_LENGTH 4 * MAX_TEXT_BUFFER_LENGTH        // Maximum static buffer for text allocating
@@ -1399,13 +1400,14 @@ const char *TextAlloc(const char *text, int length)
     static char buffer[MAX_TEXTALLOC_BUFFER_LENGTH] = { 0 };
     static int index = 0;
 
-    int requiredByteCount = length;
-    if (length > MAX_TEXTALLOC_BUFFER_LENGTH - 1) length = MAX_TEXTALLOC_BUFFER_LENGTH - 1;
-    if (index + length > MAX_TEXTALLOC_BUFFER_LENGTH - 1) index = 0;
+
+    int requiredByteCount = *length;
+    if (*length > MAX_TEXTALLOC_BUFFER_LENGTH - 1) *length = MAX_TEXTALLOC_BUFFER_LENGTH - 1;
+    if (index + *length > MAX_TEXTALLOC_BUFFER_LENGTH - 1) index = 0;
 
     char *currentBuffer = &buffer[index];
-    memcpy(currentBuffer, text, length);
-    currentBuffer[length] = 0;
+    memcpy(currentBuffer, text, *length);
+    currentBuffer[*length] = 0;
 
     // If requiredByteCount is larger than the MAX_TEXT_BUFFER_LENGTH, then overflow occured
     if (requiredByteCount >= MAX_TEXT_BUFFER_LENGTH)
@@ -1415,7 +1417,7 @@ const char *TextAlloc(const char *text, int length)
         sprintf(truncBuffer, "...");
     }
 
-    index += length + 1;     // Move to next buffer for next function call
+    index += *length + 1;     // Move to next buffer for next function call
     // asset(index < MAX_TEXTALLOCATE_BUFFERS - 2);
 
     return currentBuffer;
