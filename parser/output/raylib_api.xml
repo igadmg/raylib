@@ -671,7 +671,7 @@
             <Param type="unsigned int" name="frames" desc="" />
         </Callback>
     </Callbacks>
-    <Functions count="565">
+    <Functions count="567">
         <Function name="InitWindow" retType="void" paramCount="3" desc="Initialize window and OpenGL context">
             <Param type="int" name="width" desc="" />
             <Param type="int" name="height" desc="" />
@@ -2351,6 +2351,10 @@
             <Param type="int" name="codepoint" desc="" />
             <Param type="int *" name="utf8Size" desc="" />
         </Function>
+        <Function name="TextAlloc" retType="const char *" paramCount="2" desc="Allocate non null terminated string in internal buffer, for language interop">
+            <Param type="const char *" name="text" desc="" />
+            <Param type="int" name="length" desc="" />
+        </Function>
         <Function name="TextCopy" retType="int" paramCount="2" desc="Copy one string to another, returns bytes copied">
             <Param type="char *" name="dst" desc="" />
             <Param type="const char *" name="src" desc="" />
@@ -2364,6 +2368,11 @@
         </Function>
         <Function name="TextFormat" retType="const char *" paramCount="2" desc="Text formatting with variables (sprintf() style)">
             <Param type="const char *" name="text" desc="" />
+            <Param type="..." name="args" desc="" />
+        </Function>
+        <Function name="TextFormatEx" retType="const char *" paramCount="3" desc="Text formatting with variables (sprintf() style), text is not null terminated, defined by length">
+            <Param type="const char *" name="text" desc="" />
+            <Param type="int" name="length" desc="" />
             <Param type="..." name="args" desc="" />
         </Function>
         <Function name="TextSubtext" retType="const char *" paramCount="3" desc="Get a piece of a text string">

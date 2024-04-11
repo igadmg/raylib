@@ -9277,6 +9277,21 @@
       ]
     },
     {
+      "name": "TextAlloc",
+      "description": "Allocate non null terminated string in internal buffer, for language interop",
+      "returnType": "const char *",
+      "params": [
+        {
+          "type": "const char *",
+          "name": "text"
+        },
+        {
+          "type": "int",
+          "name": "length"
+        }
+      ]
+    },
+    {
       "name": "TextCopy",
       "description": "Copy one string to another, returns bytes copied",
       "returnType": "int",
@@ -9325,6 +9340,25 @@
         {
           "type": "const char *",
           "name": "text"
+        },
+        {
+          "type": "...",
+          "name": "args"
+        }
+      ]
+    },
+    {
+      "name": "TextFormatEx",
+      "description": "Text formatting with variables (sprintf() style), text is not null terminated, defined by length",
+      "returnType": "const char *",
+      "params": [
+        {
+          "type": "const char *",
+          "name": "text"
+        },
+        {
+          "type": "int",
+          "name": "length"
         },
         {
           "type": "...",
