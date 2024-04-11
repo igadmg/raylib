@@ -3571,7 +3571,7 @@ Function 411: TextAlloc() (2 input parameters)
   Return type: const char *
   Description: Allocate non null terminated string in internal buffer, for language interop
   Param[1]: text (type: const char *)
-  Param[2]: length (type: int)
+  Param[2]: length (type: int *)
 Function 412: TextCopy() (2 input parameters)
   Name: TextCopy
   Return type: int

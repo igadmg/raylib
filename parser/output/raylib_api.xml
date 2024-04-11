@@ -2353,7 +2353,7 @@
         </Function>
         <Function name="TextAlloc" retType="const char *" paramCount="2" desc="Allocate non null terminated string in internal buffer, for language interop">
             <Param type="const char *" name="text" desc="" />
-            <Param type="int" name="length" desc="" />
+            <Param type="int *" name="length" desc="" />
         </Function>
         <Function name="TextCopy" retType="int" paramCount="2" desc="Copy one string to another, returns bytes copied">
             <Param type="char *" name="dst" desc="" />

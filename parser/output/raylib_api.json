@@ -9286,7 +9286,7 @@
           "name": "text"
         },
         {
-          "type": "int",
+          "type": "int *",
           "name": "length"
         }
       ]

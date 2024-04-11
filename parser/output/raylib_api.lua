@@ -6666,7 +6666,7 @@ return {
       returnType = "const char *",
       params = {
         {type = "const char *", name = "text"},
-        {type = "int", name = "length"}
+        {type = "int *", name = "length"}
       }
     },
     {
