@@ -228,7 +228,7 @@ void DrawTriangle3D(Vector3 v1, Vector3 v2, Vector3 v3, Color color)
 // Draw a triangle strip defined by points
 void DrawTriangleStrip3D(Vector3 *points, int pointCount, Color color)
 {
-    if (pointCount < 3) return;
+    if (pointCount < 3) return; // Security check
 
     rlBegin(RL_TRIANGLES);
         rlColor4ub(color.r, color.g, color.b, color.a);
@@ -559,7 +559,7 @@ void DrawCylinderEx(Vector3 startPos, Vector3 endPos, float startRadius, float e
     if (sides < 3) sides = 3;
 
     Vector3 direction = { endPos.x - startPos.x, endPos.y - startPos.y, endPos.z - startPos.z };
-    if ((direction.x == 0) && (direction.y == 0) && (direction.z == 0)) return;
+    if ((direction.x == 0) && (direction.y == 0) && (direction.z == 0)) return; // Security check
 
     // Construct a basis of the base and the top face:
     Vector3 b1 = Vector3Normalize(Vector3Perpendicular(direction));
@@ -570,8 +570,9 @@ void DrawCylinderEx(Vector3 startPos, Vector3 endPos, float startRadius, float e
     rlBegin(RL_TRIANGLES);
         rlColor4ub(color.r, color.g, color.b, color.a);
 
-        for (int i = 0; i < sides; i++) {
-            // compute the four vertices
+        for (int i = 0; i < sides; i++)
+        {
+            // Compute the four vertices
             float s1 = sinf(baseAngle*(i + 0))*startRadius;
             float c1 = cosf(baseAngle*(i + 0))*startRadius;
             Vector3 w1 = { startPos.x + s1*b1.x + c1*b2.x, startPos.y + s1*b1.y + c1*b2.y, startPos.z + s1*b1.z + c1*b2.z };
@@ -585,11 +586,12 @@ void DrawCylinderEx(Vector3 startPos, Vector3 endPos, float startRadius, float e
             float c4 = cosf(baseAngle*(i + 1))*endRadius;
             Vector3 w4 = { endPos.x + s4*b1.x + c4*b2.x, endPos.y + s4*b1.y + c4*b2.y, endPos.z + s4*b1.z + c4*b2.z };
 
-            if (startRadius > 0) {                              //
+            if (startRadius > 0)
+            {
                 rlVertex3f(startPos.x, startPos.y, startPos.z); // |
                 rlVertex3f(w2.x, w2.y, w2.z);                   // T0
                 rlVertex3f(w1.x, w1.y, w1.z);                   // |
-            }                                                   //
+            }
                                                                 //          w2 x.-----------x startPos
             rlVertex3f(w1.x, w1.y, w1.z);                       // |           |\'.  T0    /
             rlVertex3f(w2.x, w2.y, w2.z);                       // T1          | \ '.     /
@@ -599,7 +601,8 @@ void DrawCylinderEx(Vector3 startPos, Vector3 endPos, float startRadius, float e
             rlVertex3f(w4.x, w4.y, w4.z);                       // T2            '.  \  |T3/
             rlVertex3f(w3.x, w3.y, w3.z);                       // |               '. \ | /
                                                                 //                   '.\|/
-            if (endRadius > 0) {                                //                     'x w3
+            if (endRadius > 0)                                  //                     'x w3
+            {
                 rlVertex3f(endPos.x, endPos.y, endPos.z);       // |
                 rlVertex3f(w3.x, w3.y, w3.z);                   // T3
                 rlVertex3f(w4.x, w4.y, w4.z);                   // |
@@ -646,7 +649,7 @@ void DrawCylinderWiresEx(Vector3 startPos, Vector3 endPos, float startRadius, fl
     if (sides < 3) sides = 3;
 
     Vector3 direction = { endPos.x - startPos.x, endPos.y - startPos.y, endPos.z - startPos.z };
-    if ((direction.x == 0) && (direction.y == 0) && (direction.z == 0))return;
+    if ((direction.x == 0) && (direction.y == 0) && (direction.z == 0)) return; // Security check
 
     // Construct a basis of the base and the top face:
     Vector3 b1 = Vector3Normalize(Vector3Perpendicular(direction));
@@ -657,8 +660,9 @@ void DrawCylinderWiresEx(Vector3 startPos, Vector3 endPos, float startRadius, fl
     rlBegin(RL_LINES);
         rlColor4ub(color.r, color.g, color.b, color.a);
 
-        for (int i = 0; i < sides; i++) {
-            // compute the four vertices
+        for (int i = 0; i < sides; i++)
+        {
+            // Compute the four vertices
             float s1 = sinf(baseAngle*(i + 0))*startRadius;
             float c1 = cosf(baseAngle*(i + 0))*startRadius;
             Vector3 w1 = { startPos.x + s1*b1.x + c1*b2.x, startPos.y + s1*b1.y + c1*b2.y, startPos.z + s1*b1.z + c1*b2.z };
@@ -702,7 +706,7 @@ void DrawCapsule(Vector3 startPos, Vector3 endPos, float radius, int slices, int
     Vector3 capCenter = endPos;
 
     float baseSliceAngle = (2.0f*PI)/slices;
-    float baseRingAngle  = PI * 0.5f / rings;
+    float baseRingAngle  = PI*0.5f/rings;
 
     rlBegin(RL_TRIANGLES);
         rlColor4ub(color.r, color.g, color.b, color.a);
@@ -721,38 +725,38 @@ void DrawCapsule(Vector3 startPos, Vector3 endPos, float radius, int slices, int
                     // as we iterate through the rings they must get smaller by the cos(angle(i))
 
                     // compute the four vertices
-                    float ringSin1 = sinf(baseSliceAngle*(j + 0))*cosf(baseRingAngle * ( i + 0 ));
-                    float ringCos1 = cosf(baseSliceAngle*(j + 0))*cosf(baseRingAngle * ( i + 0 ));
+                    float ringSin1 = sinf(baseSliceAngle*(j + 0))*cosf(baseRingAngle*( i + 0 ));
+                    float ringCos1 = cosf(baseSliceAngle*(j + 0))*cosf(baseRingAngle*( i + 0 ));
                     Vector3 w1 = (Vector3){
-                        capCenter.x + (sinf(baseRingAngle * ( i + 0 ))*b0.x + ringSin1*b1.x + ringCos1*b2.x) * radius,
-                        capCenter.y + (sinf(baseRingAngle * ( i + 0 ))*b0.y + ringSin1*b1.y + ringCos1*b2.y) * radius,
-                        capCenter.z + (sinf(baseRingAngle * ( i + 0 ))*b0.z + ringSin1*b1.z + ringCos1*b2.z) * radius
+                        capCenter.x + (sinf(baseRingAngle*( i + 0 ))*b0.x + ringSin1*b1.x + ringCos1*b2.x)*radius,
+                        capCenter.y + (sinf(baseRingAngle*( i + 0 ))*b0.y + ringSin1*b1.y + ringCos1*b2.y)*radius,
+                        capCenter.z + (sinf(baseRingAngle*( i + 0 ))*b0.z + ringSin1*b1.z + ringCos1*b2.z)*radius
                     };
-                    float ringSin2 = sinf(baseSliceAngle*(j + 1))*cosf(baseRingAngle * ( i + 0 ));
-                    float ringCos2 = cosf(baseSliceAngle*(j + 1))*cosf(baseRingAngle * ( i + 0 ));
+                    float ringSin2 = sinf(baseSliceAngle*(j + 1))*cosf(baseRingAngle*( i + 0 ));
+                    float ringCos2 = cosf(baseSliceAngle*(j + 1))*cosf(baseRingAngle*( i + 0 ));
                     Vector3 w2 = (Vector3){
-                        capCenter.x + (sinf(baseRingAngle * ( i + 0 ))*b0.x + ringSin2*b1.x + ringCos2*b2.x) * radius,
-                        capCenter.y + (sinf(baseRingAngle * ( i + 0 ))*b0.y + ringSin2*b1.y + ringCos2*b2.y) * radius,
-                        capCenter.z + (sinf(baseRingAngle * ( i + 0 ))*b0.z + ringSin2*b1.z + ringCos2*b2.z) * radius
+                        capCenter.x + (sinf(baseRingAngle*( i + 0 ))*b0.x + ringSin2*b1.x + ringCos2*b2.x)*radius,
+                        capCenter.y + (sinf(baseRingAngle*( i + 0 ))*b0.y + ringSin2*b1.y + ringCos2*b2.y)*radius,
+                        capCenter.z + (sinf(baseRingAngle*( i + 0 ))*b0.z + ringSin2*b1.z + ringCos2*b2.z)*radius
                     };
 
-                    float ringSin3 = sinf(baseSliceAngle*(j + 0))*cosf(baseRingAngle * ( i + 1 ));
-                    float ringCos3 = cosf(baseSliceAngle*(j + 0))*cosf(baseRingAngle * ( i + 1 ));
+                    float ringSin3 = sinf(baseSliceAngle*(j + 0))*cosf(baseRingAngle*( i + 1 ));
+                    float ringCos3 = cosf(baseSliceAngle*(j + 0))*cosf(baseRingAngle*( i + 1 ));
                     Vector3 w3 = (Vector3){
-                        capCenter.x + (sinf(baseRingAngle * ( i + 1 ))*b0.x + ringSin3*b1.x + ringCos3*b2.x) * radius,
-                        capCenter.y + (sinf(baseRingAngle * ( i + 1 ))*b0.y + ringSin3*b1.y + ringCos3*b2.y) * radius,
-                        capCenter.z + (sinf(baseRingAngle * ( i + 1 ))*b0.z + ringSin3*b1.z + ringCos3*b2.z) * radius
+                        capCenter.x + (sinf(baseRingAngle*( i + 1 ))*b0.x + ringSin3*b1.x + ringCos3*b2.x)*radius,
+                        capCenter.y + (sinf(baseRingAngle*( i + 1 ))*b0.y + ringSin3*b1.y + ringCos3*b2.y)*radius,
+                        capCenter.z + (sinf(baseRingAngle*( i + 1 ))*b0.z + ringSin3*b1.z + ringCos3*b2.z)*radius
                     };
-                    float ringSin4 = sinf(baseSliceAngle*(j + 1))*cosf(baseRingAngle * ( i + 1 ));
-                    float ringCos4 = cosf(baseSliceAngle*(j + 1))*cosf(baseRingAngle * ( i + 1 ));
+                    float ringSin4 = sinf(baseSliceAngle*(j + 1))*cosf(baseRingAngle*( i + 1 ));
+                    float ringCos4 = cosf(baseSliceAngle*(j + 1))*cosf(baseRingAngle*( i + 1 ));
                     Vector3 w4 = (Vector3){
-                        capCenter.x + (sinf(baseRingAngle * ( i + 1 ))*b0.x + ringSin4*b1.x + ringCos4*b2.x) * radius,
-                        capCenter.y + (sinf(baseRingAngle * ( i + 1 ))*b0.y + ringSin4*b1.y + ringCos4*b2.y) * radius,
-                        capCenter.z + (sinf(baseRingAngle * ( i + 1 ))*b0.z + ringSin4*b1.z + ringCos4*b2.z) * radius
+                        capCenter.x + (sinf(baseRingAngle*( i + 1 ))*b0.x + ringSin4*b1.x + ringCos4*b2.x)*radius,
+                        capCenter.y + (sinf(baseRingAngle*( i + 1 ))*b0.y + ringSin4*b1.y + ringCos4*b2.y)*radius,
+                        capCenter.z + (sinf(baseRingAngle*( i + 1 ))*b0.z + ringSin4*b1.z + ringCos4*b2.z)*radius
                     };
 
-                    // make sure cap triangle normals are facing outwards
-                    if(c == 0)
+                    // Make sure cap triangle normals are facing outwards
+                    if (c == 0)
                     {
                         rlVertex3f(w1.x, w1.y, w1.z);
                         rlVertex3f(w2.x, w2.y, w2.z);
@@ -845,7 +849,7 @@ void DrawCapsuleWires(Vector3 startPos, Vector3 endPos, float radius, int slices
     Vector3 capCenter = endPos;
 
     float baseSliceAngle = (2.0f*PI)/slices;
-    float baseRingAngle  = PI * 0.5f / rings;
+    float baseRingAngle  = PI*0.5f/rings;
 
     rlBegin(RL_LINES);
         rlColor4ub(color.r, color.g, color.b, color.a);
@@ -864,34 +868,34 @@ void DrawCapsuleWires(Vector3 startPos, Vector3 endPos, float radius, int slices
                     // as we iterate through the rings they must get smaller by the cos(angle(i))
 
                     // compute the four vertices
-                    float ringSin1 = sinf(baseSliceAngle*(j + 0))*cosf(baseRingAngle * ( i + 0 ));
-                    float ringCos1 = cosf(baseSliceAngle*(j + 0))*cosf(baseRingAngle * ( i + 0 ));
+                    float ringSin1 = sinf(baseSliceAngle*(j + 0))*cosf(baseRingAngle*( i + 0 ));
+                    float ringCos1 = cosf(baseSliceAngle*(j + 0))*cosf(baseRingAngle*( i + 0 ));
                     Vector3 w1 = (Vector3){
-                        capCenter.x + (sinf(baseRingAngle * ( i + 0 ))*b0.x + ringSin1*b1.x + ringCos1*b2.x) * radius,
-                        capCenter.y + (sinf(baseRingAngle * ( i + 0 ))*b0.y + ringSin1*b1.y + ringCos1*b2.y) * radius,
-                        capCenter.z + (sinf(baseRingAngle * ( i + 0 ))*b0.z + ringSin1*b1.z + ringCos1*b2.z) * radius
+                        capCenter.x + (sinf(baseRingAngle*( i + 0 ))*b0.x + ringSin1*b1.x + ringCos1*b2.x)*radius,
+                        capCenter.y + (sinf(baseRingAngle*( i + 0 ))*b0.y + ringSin1*b1.y + ringCos1*b2.y)*radius,
+                        capCenter.z + (sinf(baseRingAngle*( i + 0 ))*b0.z + ringSin1*b1.z + ringCos1*b2.z)*radius
                     };
-                    float ringSin2 = sinf(baseSliceAngle*(j + 1))*cosf(baseRingAngle * ( i + 0 ));
-                    float ringCos2 = cosf(baseSliceAngle*(j + 1))*cosf(baseRingAngle * ( i + 0 ));
+                    float ringSin2 = sinf(baseSliceAngle*(j + 1))*cosf(baseRingAngle*( i + 0 ));
+                    float ringCos2 = cosf(baseSliceAngle*(j + 1))*cosf(baseRingAngle*( i + 0 ));
                     Vector3 w2 = (Vector3){
-                        capCenter.x + (sinf(baseRingAngle * ( i + 0 ))*b0.x + ringSin2*b1.x + ringCos2*b2.x) * radius,
-                        capCenter.y + (sinf(baseRingAngle * ( i + 0 ))*b0.y + ringSin2*b1.y + ringCos2*b2.y) * radius,
-                        capCenter.z + (sinf(baseRingAngle * ( i + 0 ))*b0.z + ringSin2*b1.z + ringCos2*b2.z) * radius
+                        capCenter.x + (sinf(baseRingAngle*( i + 0 ))*b0.x + ringSin2*b1.x + ringCos2*b2.x)*radius,
+                        capCenter.y + (sinf(baseRingAngle*( i + 0 ))*b0.y + ringSin2*b1.y + ringCos2*b2.y)*radius,
+                        capCenter.z + (sinf(baseRingAngle*( i + 0 ))*b0.z + ringSin2*b1.z + ringCos2*b2.z)*radius
                     };
 
-                    float ringSin3 = sinf(baseSliceAngle*(j + 0))*cosf(baseRingAngle * ( i + 1 ));
-                    float ringCos3 = cosf(baseSliceAngle*(j + 0))*cosf(baseRingAngle * ( i + 1 ));
+                    float ringSin3 = sinf(baseSliceAngle*(j + 0))*cosf(baseRingAngle*( i + 1 ));
+                    float ringCos3 = cosf(baseSliceAngle*(j + 0))*cosf(baseRingAngle*( i + 1 ));
                     Vector3 w3 = (Vector3){
-                        capCenter.x + (sinf(baseRingAngle * ( i + 1 ))*b0.x + ringSin3*b1.x + ringCos3*b2.x) * radius,
-                        capCenter.y + (sinf(baseRingAngle * ( i + 1 ))*b0.y + ringSin3*b1.y + ringCos3*b2.y) * radius,
-                        capCenter.z + (sinf(baseRingAngle * ( i + 1 ))*b0.z + ringSin3*b1.z + ringCos3*b2.z) * radius
+                        capCenter.x + (sinf(baseRingAngle*( i + 1 ))*b0.x + ringSin3*b1.x + ringCos3*b2.x)*radius,
+                        capCenter.y + (sinf(baseRingAngle*( i + 1 ))*b0.y + ringSin3*b1.y + ringCos3*b2.y)*radius,
+                        capCenter.z + (sinf(baseRingAngle*( i + 1 ))*b0.z + ringSin3*b1.z + ringCos3*b2.z)*radius
                     };
-                    float ringSin4 = sinf(baseSliceAngle*(j + 1))*cosf(baseRingAngle * ( i + 1 ));
-                    float ringCos4 = cosf(baseSliceAngle*(j + 1))*cosf(baseRingAngle * ( i + 1 ));
+                    float ringSin4 = sinf(baseSliceAngle*(j + 1))*cosf(baseRingAngle*( i + 1 ));
+                    float ringCos4 = cosf(baseSliceAngle*(j + 1))*cosf(baseRingAngle*( i + 1 ));
                     Vector3 w4 = (Vector3){
-                        capCenter.x + (sinf(baseRingAngle * ( i + 1 ))*b0.x + ringSin4*b1.x + ringCos4*b2.x) * radius,
-                        capCenter.y + (sinf(baseRingAngle * ( i + 1 ))*b0.y + ringSin4*b1.y + ringCos4*b2.y) * radius,
-                        capCenter.z + (sinf(baseRingAngle * ( i + 1 ))*b0.z + ringSin4*b1.z + ringCos4*b2.z) * radius
+                        capCenter.x + (sinf(baseRingAngle*( i + 1 ))*b0.x + ringSin4*b1.x + ringCos4*b2.x)*radius,
+                        capCenter.y + (sinf(baseRingAngle*( i + 1 ))*b0.y + ringSin4*b1.y + ringCos4*b2.y)*radius,
+                        capCenter.z + (sinf(baseRingAngle*( i + 1 ))*b0.z + ringSin4*b1.z + ringCos4*b2.z)*radius
                     };
 
                     rlVertex3f(w1.x, w1.y, w1.z);
@@ -1100,13 +1104,17 @@ Model LoadModelFromMesh(Mesh mesh)
 // Check if a model is ready
 bool IsModelReady(Model model)
 {
-    return ((model.meshes != NULL) &&           // Validate model contains some mesh
-            (model.materials != NULL) &&        // Validate model contains some material (at least default one)
-            (model.meshMaterial != NULL) &&     // Validate mesh-material linkage
-            (model.meshCount > 0) &&            // Validate mesh count
-            (model.materialCount > 0));         // Validate material count
+    bool result = false;
+
+    if ((model.meshes != NULL) &&           // Validate model contains some mesh
+        (model.materials != NULL) &&        // Validate model contains some material (at least default one)
+        (model.meshMaterial != NULL) &&     // Validate mesh-material linkage
+        (model.meshCount > 0) &&            // Validate mesh count
+        (model.materialCount > 0)) result = true; // Validate material count
 
     // NOTE: This is a very general model validation, many elements could be validated from a model...
+
+    return result;
 }
 
 // Unload model (meshes/materials) from memory (RAM and/or VRAM)
@@ -1585,7 +1593,7 @@ void DrawMeshInstanced(Mesh mesh, Material material, const Matrix *transforms, i
     // Enable mesh VAO to attach new buffer
     rlEnableVertexArray(mesh.vaoId);
 
-    // This could alternatively use a static VBO and either glMapBuffer() or glBufferSubData().
+    // This could alternatively use a static VBO and either glMapBuffer() or glBufferSubData()
     // It isn't clear which would be reliably faster in all cases and on all platforms,
     // anecdotally glMapBuffer() seems very slow (syncs) while glBufferSubData() seems
     // no faster, since we're transferring all the transform matrices anyway
@@ -1595,7 +1603,7 @@ void DrawMeshInstanced(Mesh mesh, Material material, const Matrix *transforms, i
     for (unsigned int i = 0; i < 4; i++)
     {
         rlEnableVertexAttribute(material.shader.locs[SHADER_LOC_MATRIX_MODEL] + i);
-        rlSetVertexAttribute(material.shader.locs[SHADER_LOC_MATRIX_MODEL] + i, 4, RL_FLOAT, 0, sizeof(Matrix), (void *)(i*sizeof(Vector4)));
+        rlSetVertexAttribute(material.shader.locs[SHADER_LOC_MATRIX_MODEL] + i, 4, RL_FLOAT, 0, sizeof(Matrix), i*sizeof(Vector4));
         rlSetVertexAttributeDivisor(material.shader.locs[SHADER_LOC_MATRIX_MODEL] + i, 1);
     }
 
@@ -1958,18 +1966,18 @@ static void ProcessMaterialsOBJ(Material *materials, tinyobj_material_t *mats, i
         materials[m].maps[MATERIAL_MAP_DIFFUSE].texture = (Texture2D){ rlGetTextureIdDefault(), 1, 1, 1, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8 };
 
         if (mats[m].diffuse_texname != NULL) materials[m].maps[MATERIAL_MAP_DIFFUSE].texture = LoadTexture(mats[m].diffuse_texname);  //char *diffuse_texname; // map_Kd
-        else materials[m].maps[MATERIAL_MAP_DIFFUSE].color = (Color){ (unsigned char)(mats[m].diffuse[0]*255.0f), (unsigned char)(mats[m].diffuse[1]*255.0f), (unsigned char)(mats[m].diffuse[2] * 255.0f), 255 }; //float diffuse[3];
+        else materials[m].maps[MATERIAL_MAP_DIFFUSE].color = (Color){ (unsigned char)(mats[m].diffuse[0]*255.0f), (unsigned char)(mats[m].diffuse[1]*255.0f), (unsigned char)(mats[m].diffuse[2]*255.0f), 255 }; //float diffuse[3];
         materials[m].maps[MATERIAL_MAP_DIFFUSE].value = 0.0f;
 
         if (mats[m].specular_texname != NULL) materials[m].maps[MATERIAL_MAP_SPECULAR].texture = LoadTexture(mats[m].specular_texname);  //char *specular_texname; // map_Ks
-        materials[m].maps[MATERIAL_MAP_SPECULAR].color = (Color){ (unsigned char)(mats[m].specular[0]*255.0f), (unsigned char)(mats[m].specular[1]*255.0f), (unsigned char)(mats[m].specular[2] * 255.0f), 255 }; //float specular[3];
+        materials[m].maps[MATERIAL_MAP_SPECULAR].color = (Color){ (unsigned char)(mats[m].specular[0]*255.0f), (unsigned char)(mats[m].specular[1]*255.0f), (unsigned char)(mats[m].specular[2]*255.0f), 255 }; //float specular[3];
         materials[m].maps[MATERIAL_MAP_SPECULAR].value = 0.0f;
 
         if (mats[m].bump_texname != NULL) materials[m].maps[MATERIAL_MAP_NORMAL].texture = LoadTexture(mats[m].bump_texname);  //char *bump_texname; // map_bump, bump
         materials[m].maps[MATERIAL_MAP_NORMAL].color = WHITE;
         materials[m].maps[MATERIAL_MAP_NORMAL].value = mats[m].shininess;
 
-        materials[m].maps[MATERIAL_MAP_EMISSION].color = (Color){ (unsigned char)(mats[m].emission[0]*255.0f), (unsigned char)(mats[m].emission[1]*255.0f), (unsigned char)(mats[m].emission[2] * 255.0f), 255 }; //float emission[3];
+        materials[m].maps[MATERIAL_MAP_EMISSION].color = (Color){ (unsigned char)(mats[m].emission[0]*255.0f), (unsigned char)(mats[m].emission[1]*255.0f), (unsigned char)(mats[m].emission[2]*255.0f), 255 }; //float emission[3];
 
         if (mats[m].displacement_texname != NULL) materials[m].maps[MATERIAL_MAP_HEIGHT].texture = LoadTexture(mats[m].displacement_texname);  //char *displacement_texname; // disp
     }
@@ -2029,8 +2037,12 @@ Material LoadMaterialDefault(void)
 // Check if a material is ready
 bool IsMaterialReady(Material material)
 {
-    return ((material.maps != NULL) &&      // Validate material contain some map
-            (material.shader.id > 0));      // Validate material shader is valid
+    bool result = false;
+
+    if ((material.maps != NULL) &&      // Validate material contain some map
+        (material.shader.id > 0)) result = true; // Validate material shader is valid
+
+    return result;
 }
 
 // Unload material from memory
@@ -2226,7 +2238,7 @@ Mesh GenMeshPoly(int sides, float radius)
 {
     Mesh mesh = { 0 };
 
-    if (sides < 3) return mesh;
+    if (sides < 3) return mesh; // Security check
 
     int vertexCount = sides*3;
 
@@ -2337,7 +2349,7 @@ Mesh GenMeshPlane(float width, float length, int resX, int resZ)
     for (int face = 0; face < numFaces; face++)
     {
         // Retrieve lower left corner from face ind
-        int i = face + face / (resX - 1);
+        int i = face + face/(resX - 1);
 
         triangles[t++] = i + resX;
         triangles[t++] = i + 1;
@@ -2683,7 +2695,7 @@ Mesh GenMeshCylinder(float radius, float height, int slices)
     {
         // Instance a cylinder that sits on the Z=0 plane using the given tessellation
         // levels across the UV domain.  Think of "slices" like a number of pizza
-        // slices, and "stacks" like a number of stacked rings.
+        // slices, and "stacks" like a number of stacked rings
         // Height and radius are both 1.0, but they can easily be changed with par_shapes_scale
         par_shapes_mesh *cylinder = par_shapes_create_cylinder(slices, 8);
         par_shapes_scale(cylinder, radius, radius, height);
@@ -2747,7 +2759,7 @@ Mesh GenMeshCone(float radius, float height, int slices)
     {
         // Instance a cone that sits on the Z=0 plane using the given tessellation
         // levels across the UV domain.  Think of "slices" like a number of pizza
-        // slices, and "stacks" like a number of stacked rings.
+        // slices, and "stacks" like a number of stacked rings
         // Height and radius are both 1.0, but they can easily be changed with par_shapes_scale
         par_shapes_mesh *cone = par_shapes_create_cone(slices, 8);
         par_shapes_scale(cone, radius, radius, height);
@@ -3026,7 +3038,7 @@ Mesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize)
     Color *pixels = LoadImageColors(cubicmap);
 
     // NOTE: Max possible number of triangles numCubes*(12 triangles by cube)
-    int maxTriangles = cubicmap.width * cubicmap.height * 12;
+    int maxTriangles = cubicmap.width*cubicmap.height*12;
 
     int vCounter = 0;       // Used to count vertices
     int tcCounter = 0;      // Used to count texcoords
@@ -3576,6 +3588,8 @@ void DrawBillboardRec(Camera camera, Texture2D texture, Rectangle source, Vector
     DrawBillboardPro(camera, texture, source, position, up, size, Vector2Zero(), 0.0f, tint);
 }
 
+// Draw a billboard with additional parameters
+// NOTE: Size defines the destination rectangle size, stretching the source texture as required
 void DrawBillboardPro(Camera camera, Texture2D texture, Rectangle source, Vector3 position, Vector3 up, Vector2 size, Vector2 origin, float rotation, Color tint)
 {
     // NOTE: Billboard size will maintain source rectangle aspect ratio, size will represent billboard width
@@ -3645,7 +3659,7 @@ void DrawBillboardPro(Camera camera, Texture2D texture, Rectangle source, Vector
     rlBegin(RL_QUADS);
         rlColor4ub(tint.r, tint.g, tint.b, tint.a);
 
-        if (sizeRatio.x * sizeRatio.y >= 0.0f)
+        if (sizeRatio.x*sizeRatio.y >= 0.0f)
         {
             // Bottom-left corner for texture and quad
             rlTexCoord2f((float)source.x/texture.width, (float)source.y/texture.height);
@@ -3801,7 +3815,7 @@ RayCollision GetRayCollisionBox(Ray ray, BoundingBox box)
     RayCollision collision = { 0 };
 
     // Note: If ray.position is inside the box, the distance is negative (as if the ray was reversed)
-    // Reversing ray.direction will give use the correct result.
+    // Reversing ray.direction will give use the correct result
     bool insideBox = (ray.position.x > box.min.x) && (ray.position.x < box.max.x) &&
                      (ray.position.y > box.min.y) && (ray.position.y < box.max.y) &&
                      (ray.position.z > box.min.z) && (ray.position.z < box.max.z);
@@ -4489,7 +4503,7 @@ static Model LoadIQM(const char *fileName)
 
     BuildPoseFromParentJoints(model.bones, model.boneCount, model.bindPose);
 
-    RL_FREE(fileData);
+    UnloadFileData(fileData);
 
     RL_FREE(imesh);
     RL_FREE(tri);
@@ -4721,7 +4735,7 @@ static ModelAnimation *LoadModelAnimationsIQM(const char *fileName, int *animCou
         }
     }
 
-    RL_FREE(fileData);
+    UnloadFileData(fileData);
 
     RL_FREE(joints);
     RL_FREE(framedata);
@@ -4749,7 +4763,8 @@ static cgltf_result LoadFileGLTFCallback(const struct cgltf_memory_options *memo
 }
 
 // Release file data callback for cgltf
-static void ReleaseFileGLTFCallback(const struct cgltf_memory_options *memoryOptions, const struct cgltf_file_options *fileOptions, void *data) {
+static void ReleaseFileGLTFCallback(const struct cgltf_memory_options *memoryOptions, const struct cgltf_file_options *fileOptions, void *data)
+{
     UnloadFileData(data);
 }
 
@@ -5051,13 +5066,13 @@ static Model LoadGLTF(const char *fileName)
                 for (unsigned int j = 0; j < data->meshes[i].primitives[p].attributes_count; j++)
                 {
                     // Check the different attributes for every primitive
-                    if (data->meshes[i].primitives[p].attributes[j].type == cgltf_attribute_type_position)      // POSITION
+                    if (data->meshes[i].primitives[p].attributes[j].type == cgltf_attribute_type_position)      // POSITION, vec3, float
                     {
                         cgltf_accessor *attribute = data->meshes[i].primitives[p].attributes[j].data;
 
-                        // WARNING: SPECS: POSITION accessor MUST have its min and max properties defined.
+                        // WARNING: SPECS: POSITION accessor MUST have its min and max properties defined
 
-                        if ((attribute->component_type == cgltf_component_type_r_32f) && (attribute->type == cgltf_type_vec3))
+                        if ((attribute->type == cgltf_type_vec3) && (attribute->component_type == cgltf_component_type_r_32f))
                         {
                             // Init raylib mesh vertices to copy glTF attribute data
                             model.meshes[meshIndex].vertexCount = (int)attribute->count;
@@ -5068,11 +5083,11 @@ static Model LoadGLTF(const char *fileName)
                         }
                         else TRACELOG(LOG_WARNING, "MODEL: [%s] Vertices attribute data format not supported, use vec3 float", fileName);
                     }
-                    else if (data->meshes[i].primitives[p].attributes[j].type == cgltf_attribute_type_normal)   // NORMAL
+                    else if (data->meshes[i].primitives[p].attributes[j].type == cgltf_attribute_type_normal)   // NORMAL, vec3, float
                     {
                         cgltf_accessor *attribute = data->meshes[i].primitives[p].attributes[j].data;
 
-                        if ((attribute->component_type == cgltf_component_type_r_32f) && (attribute->type == cgltf_type_vec3))
+                        if ((attribute->type == cgltf_type_vec3) && (attribute->component_type == cgltf_component_type_r_32f))
                         {
                             // Init raylib mesh normals to copy glTF attribute data
                             model.meshes[meshIndex].normals = RL_MALLOC(attribute->count*3*sizeof(float));
@@ -5082,11 +5097,11 @@ static Model LoadGLTF(const char *fileName)
                         }
                         else TRACELOG(LOG_WARNING, "MODEL: [%s] Normal attribute data format not supported, use vec3 float", fileName);
                     }
-                    else if (data->meshes[i].primitives[p].attributes[j].type == cgltf_attribute_type_tangent)   // TANGENT
+                    else if (data->meshes[i].primitives[p].attributes[j].type == cgltf_attribute_type_tangent)   // TANGENT, vec3, float
                     {
                         cgltf_accessor *attribute = data->meshes[i].primitives[p].attributes[j].data;
 
-                        if ((attribute->component_type == cgltf_component_type_r_32f) && (attribute->type == cgltf_type_vec4))
+                        if ((attribute->type == cgltf_type_vec4) && (attribute->component_type == cgltf_component_type_r_32f))
                         {
                             // Init raylib mesh tangent to copy glTF attribute data
                             model.meshes[meshIndex].tangents = RL_MALLOC(attribute->count*4*sizeof(float));
@@ -5096,65 +5111,176 @@ static Model LoadGLTF(const char *fileName)
                         }
                         else TRACELOG(LOG_WARNING, "MODEL: [%s] Tangent attribute data format not supported, use vec4 float", fileName);
                     }
-                    else if (data->meshes[i].primitives[p].attributes[j].type == cgltf_attribute_type_texcoord) // TEXCOORD_0
+                    else if (data->meshes[i].primitives[p].attributes[j].type == cgltf_attribute_type_texcoord) // TEXCOORD_n, vec2, float/u8n/u16n
                     {
-                        // TODO: Support additional texture coordinates: TEXCOORD_1 -> mesh.texcoords2
+                        // Support up to 2 texture coordinates attributes
+                        float *texcoordPtr = NULL;
+                        int index = data->meshes[i].primitives[p].attributes[j].index;
+                        if (index == 0) texcoordPtr = model.meshes[meshIndex].texcoords;
+                        else if (index == 1) texcoordPtr = model.meshes[meshIndex].texcoords2;
+                        else
+                        {
+                            TRACELOG(LOG_WARNING, "MODEL: [%s] No more than 2 texture coordinates attributes supported", fileName);
+                            continue;
+                        }
 
                         cgltf_accessor *attribute = data->meshes[i].primitives[p].attributes[j].data;
 
-                        if ((attribute->component_type == cgltf_component_type_r_32f) && (attribute->type == cgltf_type_vec2))
+                        if (attribute->type == cgltf_type_vec2)
                         {
-                            // Init raylib mesh texcoords to copy glTF attribute data
-                            model.meshes[meshIndex].texcoords = RL_MALLOC(attribute->count*2*sizeof(float));
+                            if (attribute->component_type == cgltf_component_type_r_32f)  // vec2, float
+                            {
+                                // Init raylib mesh texcoords to copy glTF attribute data
+                                texcoordPtr = RL_MALLOC(attribute->count*2*sizeof(float));
 
-                            // Load 3 components of float data type into mesh.texcoords
-                            LOAD_ATTRIBUTE(attribute, 2, float, model.meshes[meshIndex].texcoords)
+                                // Load 3 components of float data type into mesh.texcoords
+                                LOAD_ATTRIBUTE(attribute, 2, float, texcoordPtr)
+                            }
+                            else if (attribute->component_type == cgltf_component_type_r_8u) // vec2, u8n
+                            {
+                                // Init raylib mesh texcoords to copy glTF attribute data
+                                texcoordPtr = RL_MALLOC(attribute->count*2*sizeof(float));
+
+                                // Load data into a temp buffer to be converted to raylib data type
+                                unsigned short *temp = RL_MALLOC(attribute->count*2*sizeof(unsigned char));
+                                LOAD_ATTRIBUTE(attribute, 2, unsigned char, temp);
+
+                                // Convert data to raylib texcoord data type (float)
+                                for (unsigned int t = 0; t < attribute->count*2; t++) texcoordPtr[t] = (float)temp[t]/255.0f;
+
+                                RL_FREE(temp);
+                            }
+                            else if (attribute->component_type == cgltf_component_type_r_16u) // vec2, u16n
+                            {
+                                // Init raylib mesh texcoords to copy glTF attribute data
+                                texcoordPtr = RL_MALLOC(attribute->count*2*sizeof(float));
+
+                                // Load data into a temp buffer to be converted to raylib data type
+                                unsigned short *temp = RL_MALLOC(attribute->count*2*sizeof(unsigned short));
+                                LOAD_ATTRIBUTE(attribute, 2, unsigned short, temp);
+
+                                // Convert data to raylib texcoord data type (float)
+                                for (unsigned int t = 0; t < attribute->count*2; t++) texcoordPtr[t] = (float)temp[t]/65535.0f;
+
+                                RL_FREE(temp);
+                            }
+                            else TRACELOG(LOG_WARNING, "MODEL: [%s] Texcoords attribute data format not supported", fileName);
                         }
                         else TRACELOG(LOG_WARNING, "MODEL: [%s] Texcoords attribute data format not supported, use vec2 float", fileName);
                     }
-                    else if (data->meshes[i].primitives[p].attributes[j].type == cgltf_attribute_type_color)    // COLOR_0
+                    else if (data->meshes[i].primitives[p].attributes[j].type == cgltf_attribute_type_color)    // COLOR_n, vec3/vec4, float/u8n/u16n
                     {
                         cgltf_accessor *attribute = data->meshes[i].primitives[p].attributes[j].data;
 
-                        // WARNING: SPECS: All components of each COLOR_n accessor element MUST be clamped to [0.0, 1.0] range.
+                        // WARNING: SPECS: All components of each COLOR_n accessor element MUST be clamped to [0.0, 1.0] range
 
-                        if ((attribute->component_type == cgltf_component_type_r_8u) && (attribute->type == cgltf_type_vec4))
+                        if (attribute->type == cgltf_type_vec3)  // RGB
                         {
-                            // Init raylib mesh color to copy glTF attribute data
-                            model.meshes[meshIndex].colors = RL_MALLOC(attribute->count*4*sizeof(unsigned char));
+                            if (attribute->component_type == cgltf_component_type_r_8u)
+                            {
+                                // Init raylib mesh color to copy glTF attribute data
+                                model.meshes[meshIndex].colors = RL_MALLOC(attribute->count*4*sizeof(unsigned char));
 
-                            // Load 4 components of unsigned char data type into mesh.colors
-                            LOAD_ATTRIBUTE(attribute, 4, unsigned char, model.meshes[meshIndex].colors)
+                                // Load data into a temp buffer to be converted to raylib data type
+                                unsigned char *temp = RL_MALLOC(attribute->count*3*sizeof(unsigned char));
+                                LOAD_ATTRIBUTE(attribute, 3, unsigned char, temp);
+
+                                // Convert data to raylib color data type (4 bytes)
+                                for (unsigned int c = 0, k = 0; c < (attribute->count*4 - 3); c += 4, k += 3)
+                                {
+                                    model.meshes[meshIndex].colors[c] = temp[k];
+                                    model.meshes[meshIndex].colors[c + 1] = temp[k + 1];
+                                    model.meshes[meshIndex].colors[c + 2] = temp[k + 2];
+                                    model.meshes[meshIndex].colors[c + 3] = 255;
+                                }
+
+                                RL_FREE(temp);
+                            }
+                            else if (attribute->component_type == cgltf_component_type_r_16u)
+                            {
+                                // Init raylib mesh color to copy glTF attribute data
+                                model.meshes[meshIndex].colors = RL_MALLOC(attribute->count*4*sizeof(unsigned char));
+
+                                // Load data into a temp buffer to be converted to raylib data type
+                                unsigned short *temp = RL_MALLOC(attribute->count*3*sizeof(unsigned short));
+                                LOAD_ATTRIBUTE(attribute, 3, unsigned short, temp);
+
+                                // Convert data to raylib color data type (4 bytes)
+                                for (unsigned int c = 0, k = 0; c < (attribute->count*4 - 3); c += 4, k += 3)
+                                {
+                                    model.meshes[meshIndex].colors[c] = (unsigned char)(((float)temp[k]/65535.0f)*255.0f);
+                                    model.meshes[meshIndex].colors[c + 1] = (unsigned char)(((float)temp[k + 1]/65535.0f)*255.0f);
+                                    model.meshes[meshIndex].colors[c + 2] = (unsigned char)(((float)temp[k + 2]/65535.0f)*255.0f);
+                                    model.meshes[meshIndex].colors[c + 3] = 255;
+                                }
+
+                                RL_FREE(temp);
+                            }
+                            else if (attribute->component_type == cgltf_component_type_r_32f)
+                            {
+                                // Init raylib mesh color to copy glTF attribute data
+                                model.meshes[meshIndex].colors = RL_MALLOC(attribute->count*4*sizeof(unsigned char));
+
+                                // Load data into a temp buffer to be converted to raylib data type
+                                float *temp = RL_MALLOC(attribute->count*3*sizeof(float));
+                                LOAD_ATTRIBUTE(attribute, 3, float, temp);
+
+                                // Convert data to raylib color data type (4 bytes)
+                                for (unsigned int c = 0, k = 0; c < (attribute->count*4 - 3); c += 4, k += 3)
+                                {
+                                    model.meshes[meshIndex].colors[c] = (unsigned char)(temp[k]*255.0f);
+                                    model.meshes[meshIndex].colors[c + 1] = (unsigned char)(temp[k + 1]*255.0f);
+                                    model.meshes[meshIndex].colors[c + 2] = (unsigned char)(temp[k + 2]*255.0f);
+                                    model.meshes[meshIndex].colors[c + 3] = 255;
+                                }
+
+                                RL_FREE(temp);
+                            }
+                            else TRACELOG(LOG_WARNING, "MODEL: [%s] Color attribute data format not supported", fileName);
                         }
-                        else if ((attribute->component_type == cgltf_component_type_r_16u) && (attribute->type == cgltf_type_vec4))
+                        else if (attribute->type == cgltf_type_vec4) // RGBA
                         {
-                            // Init raylib mesh color to copy glTF attribute data
-                            model.meshes[meshIndex].colors = RL_MALLOC(attribute->count*4*sizeof(unsigned char));
+                            if (attribute->component_type == cgltf_component_type_r_8u)
+                            {
+                                // Init raylib mesh color to copy glTF attribute data
+                                model.meshes[meshIndex].colors = RL_MALLOC(attribute->count*4*sizeof(unsigned char));
 
-                            // Load data into a temp buffer to be converted to raylib data type
-                            unsigned short *temp = RL_MALLOC(attribute->count*4*sizeof(unsigned short));
-                            LOAD_ATTRIBUTE(attribute, 4, unsigned short, temp);
+                                // Load 4 components of unsigned char data type into mesh.colors
+                                LOAD_ATTRIBUTE(attribute, 4, unsigned char, model.meshes[meshIndex].colors)
+                            }
+                            else if (attribute->component_type == cgltf_component_type_r_16u)
+                            {
+                                // Init raylib mesh color to copy glTF attribute data
+                                model.meshes[meshIndex].colors = RL_MALLOC(attribute->count*4*sizeof(unsigned char));
 
-                            // Convert data to raylib color data type (4 bytes)
-                            for (unsigned int c = 0; c < attribute->count*4; c++) model.meshes[meshIndex].colors[c] = (unsigned char)(((float)temp[c]/65535.0f)*255.0f);
+                                // Load data into a temp buffer to be converted to raylib data type
+                                unsigned short *temp = RL_MALLOC(attribute->count*4*sizeof(unsigned short));
+                                LOAD_ATTRIBUTE(attribute, 4, unsigned short, temp);
 
-                            RL_FREE(temp);
-                        }
-                        else if ((attribute->component_type == cgltf_component_type_r_32f) && (attribute->type == cgltf_type_vec4))
-                        {
-                            // Init raylib mesh color to copy glTF attribute data
-                            model.meshes[meshIndex].colors = RL_MALLOC(attribute->count*4*sizeof(unsigned char));
+                                // Convert data to raylib color data type (4 bytes)
+                                for (unsigned int c = 0; c < attribute->count*4; c++) model.meshes[meshIndex].colors[c] = (unsigned char)(((float)temp[c]/65535.0f)*255.0f);
 
-                            // Load data into a temp buffer to be converted to raylib data type
-                            float *temp = RL_MALLOC(attribute->count*4*sizeof(float));
-                            LOAD_ATTRIBUTE(attribute, 4, float, temp);
+                                RL_FREE(temp);
+                            }
+                            else if (attribute->component_type == cgltf_component_type_r_32f)
+                            {
+                                // Init raylib mesh color to copy glTF attribute data
+                                model.meshes[meshIndex].colors = RL_MALLOC(attribute->count*4*sizeof(unsigned char));
 
-                            // Convert data to raylib color data type (4 bytes), we expect the color data normalized
-                            for (unsigned int c = 0; c < attribute->count*4; c++) model.meshes[meshIndex].colors[c] = (unsigned char)(temp[c]*255.0f);
+                                // Load data into a temp buffer to be converted to raylib data type
+                                float *temp = RL_MALLOC(attribute->count*4*sizeof(float));
+                                LOAD_ATTRIBUTE(attribute, 4, float, temp);
 
-                            RL_FREE(temp);
+                                // Convert data to raylib color data type (4 bytes), we expect the color data normalized
+                                for (unsigned int c = 0; c < attribute->count*4; c++) model.meshes[meshIndex].colors[c] = (unsigned char)(temp[c]*255.0f);
+
+                                RL_FREE(temp);
+                            }
+                            else TRACELOG(LOG_WARNING, "MODEL: [%s] Color attribute data format not supported", fileName);
                         }
                         else TRACELOG(LOG_WARNING, "MODEL: [%s] Color attribute data format not supported", fileName);
+
+
                     }
 
                     // NOTE: Attributes related to animations are processed separately
@@ -5264,68 +5390,103 @@ static Model LoadGLTF(const char *fileName)
                 {
                     // NOTE: JOINTS_1 + WEIGHT_1 will be used for +4 joints influencing a vertex -> Not supported by raylib
 
-                    if (data->meshes[i].primitives[p].attributes[j].type == cgltf_attribute_type_joints)        // JOINTS_n (vec4: 4 bones max per vertex / u8, u16)
+                    if (data->meshes[i].primitives[p].attributes[j].type == cgltf_attribute_type_joints) // JOINTS_n (vec4: 4 bones max per vertex / u8, u16)
                     {
                         cgltf_accessor *attribute = data->meshes[i].primitives[p].attributes[j].data;
 
-                        if ((attribute->component_type == cgltf_component_type_r_8u) && (attribute->type == cgltf_type_vec4))
-                        {
-                            // Handle 8-bit unsigned byte, vec4 format
-                            model.meshes[meshIndex].boneIds = RL_CALLOC(model.meshes[meshIndex].vertexCount*4, sizeof(unsigned char));
-                            LOAD_ATTRIBUTE(attribute, 4, unsigned char, model.meshes[meshIndex].boneIds)
-                        }
-                        else if ((attribute->component_type == cgltf_component_type_r_16u) && (attribute->type == cgltf_type_vec2))
-                        {
-                            // TODO: WARNING: model.meshes[].boneIds is an (unsigned char *) --> Conversion required!
+                        // NOTE: JOINTS_n can only be vec4 and u8/u16
+                        // SPECS: https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#meshes-overview
 
-                            // Handle 16-bit unsigned short, vec2 format
-                            model.meshes[meshIndex].boneIds = RL_CALLOC(model.meshes[meshIndex].vertexCount*2, sizeof(unsigned short));
-                            unsigned short *ptr = (unsigned short *)model.meshes[meshIndex].boneIds;
-                            LOAD_ATTRIBUTE(attribute, 2, unsigned short, ptr)
-                        }
-                        else if ((attribute->component_type == cgltf_component_type_r_16u) && (attribute->type == cgltf_type_vec4))
-                        {
-                            // TODO: WARNING: model.meshes[].boneIds is an (unsigned char *) --> Conversion required!
+                        // WARNING: raylib only supports model.meshes[].boneIds as u8 (unsigned char),
+                        // if data is provided in any other format, it is converted to supported format but
+                        // it could imply data loss (a warning message is issued in that case)
 
-                            // Handle 16-bit unsigned short, vec4 format
-                            model.meshes[meshIndex].boneIds = RL_CALLOC(model.meshes[meshIndex].vertexCount*4, sizeof(unsigned short));
-                            unsigned short *ptr = (unsigned short *)model.meshes[meshIndex].boneIds;
-                            LOAD_ATTRIBUTE(attribute, 4, unsigned short, ptr)
-                        }
-                        else if ((attribute->component_type == cgltf_component_type_r_32u) && (attribute->type == cgltf_type_vec4))
+                        if (attribute->type == cgltf_type_vec4)
                         {
-                            // TODO: WARNING: model.meshes[].boneIds is an (unsigned char *) --> Conversion required!
+                            if (attribute->component_type == cgltf_component_type_r_8u)
+                            {
+                                // Init raylib mesh boneIds to copy glTF attribute data
+                                model.meshes[meshIndex].boneIds = RL_CALLOC(model.meshes[meshIndex].vertexCount*4, sizeof(unsigned char));
 
-                            // Handle 32-bit unsigned int, vec4 format
-                            model.meshes[meshIndex].boneIds = RL_CALLOC(model.meshes[meshIndex].vertexCount*4, sizeof(unsigned int));
-                            unsigned int *ptr = (unsigned int *)model.meshes[meshIndex].boneIds;
-                            LOAD_ATTRIBUTE(attribute, 4, unsigned int, ptr)
-                        }
-                        else if ((attribute->component_type == cgltf_component_type_r_32f) && (attribute->type == cgltf_type_vec2))
-                        {
-                            // TODO: WARNING: model.meshes[].boneIds is an (unsigned char *) --> Conversion required!
+                                // Load attribute: vec4, u8 (unsigned char)
+                                LOAD_ATTRIBUTE(attribute, 4, unsigned char, model.meshes[meshIndex].boneIds)
+                            }
+                            else if (attribute->component_type == cgltf_component_type_r_16u)
+                            {
+                                // Init raylib mesh boneIds to copy glTF attribute data
+                                model.meshes[meshIndex].boneIds = RL_CALLOC(model.meshes[meshIndex].vertexCount*4, sizeof(unsigned char));
 
-                            // Handle 32-bit float, vec2 format
-                            model.meshes[meshIndex].boneIds = RL_CALLOC(model.meshes[meshIndex].vertexCount*2, sizeof(float));
-                            float *ptr = (float *)model.meshes[meshIndex].boneIds;
-                            LOAD_ATTRIBUTE(attribute, 2, float, ptr)
+                                // Load data into a temp buffer to be converted to raylib data type
+                                unsigned short *temp = RL_CALLOC(model.meshes[meshIndex].vertexCount*4, sizeof(unsigned short));
+                                LOAD_ATTRIBUTE(attribute, 4, unsigned short, temp);
+
+                                // Convert data to raylib color data type (4 bytes)
+                                bool boneIdOverflowWarning = false;
+                                for (int b = 0; b < model.meshes[meshIndex].vertexCount*4; b++)
+                                {
+                                    if ((temp[b] > 255) && !boneIdOverflowWarning)
+                                    {
+                                        TRACELOG(LOG_WARNING, "MODEL: [%s] Joint attribute data format (u16) overflow", fileName);
+                                        boneIdOverflowWarning = true;
+                                    }
+
+                                    // Despite the possible overflow, we convert data to unsigned char
+                                    model.meshes[meshIndex].boneIds[b] = (unsigned char)temp[b];
+                                }
+
+                                RL_FREE(temp);
+                            }
+                            else TRACELOG(LOG_WARNING, "MODEL: [%s] Joint attribute data format not supported", fileName);
                         }
                         else TRACELOG(LOG_WARNING, "MODEL: [%s] Joint attribute data format not supported", fileName);
                     }
-                    else if (data->meshes[i].primitives[p].attributes[j].type == cgltf_attribute_type_weights)  // WEIGHTS_n (vec4 / u8, u16, f32)
+                    else if (data->meshes[i].primitives[p].attributes[j].type == cgltf_attribute_type_weights)  // WEIGHTS_n (vec4, u8n/u16n/f32)
                     {
                         cgltf_accessor *attribute = data->meshes[i].primitives[p].attributes[j].data;
 
-                        if ((attribute->component_type == cgltf_component_type_r_32f) && (attribute->type == cgltf_type_vec4))
+                        if (attribute->type == cgltf_type_vec4)
                         {
-                            // Init raylib mesh bone weight to copy glTF attribute data
-                            model.meshes[meshIndex].boneWeights = RL_CALLOC(model.meshes[meshIndex].vertexCount*4, sizeof(float));
+                            // TODO: Support component types: u8, u16?
+                            if (attribute->component_type == cgltf_component_type_r_8u)
+                            {
+                                // Init raylib mesh bone weight to copy glTF attribute data
+                                model.meshes[meshIndex].boneWeights = RL_CALLOC(model.meshes[meshIndex].vertexCount*4, sizeof(float));
 
-                            // Load 4 components of float data type into mesh.boneWeights
-                            // for cgltf_attribute_type_weights we have:
-                            //   - data.meshes[0] (256 vertices)
-                            //   - 256 values, provided as cgltf_type_vec4 of float (4 byte per joint, stride 16)
-                            LOAD_ATTRIBUTE(attribute, 4, float, model.meshes[meshIndex].boneWeights)
+                                // Load data into a temp buffer to be converted to raylib data type
+                                unsigned char *temp = RL_MALLOC(attribute->count*4*sizeof(unsigned char));
+                                LOAD_ATTRIBUTE(attribute, 4, unsigned char, temp);
+
+                                // Convert data to raylib bone weight data type (4 bytes)
+                                for (unsigned int b = 0; b < attribute->count*4; b++) model.meshes[meshIndex].boneWeights[b] = (float)temp[b]/255.0f;
+
+                                RL_FREE(temp);
+                            }
+                            else if (attribute->component_type == cgltf_component_type_r_16u)
+                            {
+                                // Init raylib mesh bone weight to copy glTF attribute data
+                                model.meshes[meshIndex].boneWeights = RL_CALLOC(model.meshes[meshIndex].vertexCount*4, sizeof(float));
+
+                                // Load data into a temp buffer to be converted to raylib data type
+                                unsigned short *temp = RL_MALLOC(attribute->count*4*sizeof(unsigned short));
+                                LOAD_ATTRIBUTE(attribute, 4, unsigned short, temp);
+
+                                // Convert data to raylib bone weight data type
+                                for (unsigned int b = 0; b < attribute->count*4; b++) model.meshes[meshIndex].boneWeights[b] = (float)temp[b]/65535.0f;
+
+                                RL_FREE(temp);
+                            }
+                            else if (attribute->component_type == cgltf_component_type_r_32f)
+                            {
+                                // Init raylib mesh bone weight to copy glTF attribute data
+                                model.meshes[meshIndex].boneWeights = RL_CALLOC(model.meshes[meshIndex].vertexCount*4, sizeof(float));
+
+                                // Load 4 components of float data type into mesh.boneWeights
+                                // for cgltf_attribute_type_weights we have:
+                                //   - data.meshes[0] (256 vertices)
+                                //   - 256 values, provided as cgltf_type_vec4 of float (4 byte per joint, stride 16)
+                                LOAD_ATTRIBUTE(attribute, 4, float, model.meshes[meshIndex].boneWeights)
+                            }
+                            else TRACELOG(LOG_WARNING, "MODEL: [%s] Joint weight attribute data format not supported, use vec4 float", fileName);
                         }
                         else TRACELOG(LOG_WARNING, "MODEL: [%s] Joint weight attribute data format not supported, use vec4 float", fileName);
                     }
@@ -5335,7 +5496,8 @@ static Model LoadGLTF(const char *fileName)
                 model.meshes[meshIndex].animVertices = RL_CALLOC(model.meshes[meshIndex].vertexCount*3, sizeof(float));
                 memcpy(model.meshes[meshIndex].animVertices, model.meshes[meshIndex].vertices, model.meshes[meshIndex].vertexCount*3*sizeof(float));
                 model.meshes[meshIndex].animNormals = RL_CALLOC(model.meshes[meshIndex].vertexCount*3, sizeof(float));
-                if (model.meshes[meshIndex].normals != NULL) {
+                if (model.meshes[meshIndex].normals != NULL)
+                {
                     memcpy(model.meshes[meshIndex].animNormals, model.meshes[meshIndex].normals, model.meshes[meshIndex].vertexCount*3*sizeof(float));
                 }
 
@@ -5355,7 +5517,7 @@ static Model LoadGLTF(const char *fileName)
     return model;
 }
 
-// Get interpolated pose for bone sampler at a specific time. Returns true on success.
+// Get interpolated pose for bone sampler at a specific time. Returns true on success
 static bool GetPoseAtTimeGLTF(cgltf_interpolation_type interpolationType, cgltf_accessor *input, cgltf_accessor *output, float time, void *data)
 {
     if (interpolationType >= cgltf_interpolation_type_max_enum) return false;
@@ -5379,7 +5541,7 @@ static bool GetPoseAtTimeGLTF(cgltf_interpolation_type interpolationType, cgltf_
             break;
         }
     }
-    
+
     float duration = fmax((tend - tstart), EPSILON);
     float t = (time - tstart)/duration;
     t = (t < 0.0f)? 0.0f : t;
@@ -5400,7 +5562,6 @@ static bool GetPoseAtTimeGLTF(cgltf_interpolation_type interpolationType, cgltf_
 
                 *r = v1;
             } break;
-
             case cgltf_interpolation_type_linear:
             {
                 float tmp[3] = { 0.0f };
@@ -5409,10 +5570,9 @@ static bool GetPoseAtTimeGLTF(cgltf_interpolation_type interpolationType, cgltf_
                 cgltf_accessor_read_float(output, keyframe+1, tmp, 3);
                 Vector3 v2 = {tmp[0], tmp[1], tmp[2]};
                 Vector3 *r = data;
-                
+
                 *r = Vector3Lerp(v1, v2, t);
             } break;
-
             case cgltf_interpolation_type_cubic_spline:
             {
                 float tmp[3] = { 0.0f };
@@ -5428,6 +5588,7 @@ static bool GetPoseAtTimeGLTF(cgltf_interpolation_type interpolationType, cgltf_
 
                 *r = Vector3CubicHermite(v1, tangent1, v2, tangent2, t);
             } break;
+            default: break;
         }
     }
     else if (output->type == cgltf_type_vec4)
@@ -5444,7 +5605,6 @@ static bool GetPoseAtTimeGLTF(cgltf_interpolation_type interpolationType, cgltf_
 
                 *r = v1;
             } break;
-
             case cgltf_interpolation_type_linear:
             {
                 float tmp[4] = { 0.0f };
@@ -5453,10 +5613,9 @@ static bool GetPoseAtTimeGLTF(cgltf_interpolation_type interpolationType, cgltf_
                 cgltf_accessor_read_float(output, keyframe+1, tmp, 4);
                 Vector4 v2 = {tmp[0], tmp[1], tmp[2], tmp[3]};
                 Vector4 *r = data;
-                
+
                 *r = QuaternionSlerp(v1, v2, t);
             } break;
-
             case cgltf_interpolation_type_cubic_spline:
             {
                 float tmp[4] = { 0.0f };
@@ -5477,12 +5636,13 @@ static bool GetPoseAtTimeGLTF(cgltf_interpolation_type interpolationType, cgltf_
                 {
                     v2 = Vector4Negate(v2);
                 }
-                
+
                 outTangent1 = Vector4Scale(outTangent1, duration);
                 inTangent2 = Vector4Scale(inTangent2, duration);
 
                 *r = QuaternionCubicHermiteSpline(v1, outTangent1, v2, inTangent2, t);
             } break;
+            default: break;
         }
     }
 
@@ -5821,7 +5981,7 @@ static Model LoadM3D(const char *fileName)
         // We always need a default material, so we add +1
         model.materialCount++;
 
-        // Faces must be in non-decreasing materialid order. Verify that quickly, sorting them otherwise.
+        // Faces must be in non-decreasing materialid order. Verify that quickly, sorting them otherwise
         // WARNING: Sorting is not needed, valid M3D model files should already be sorted
         // Just keeping the sorting function for reference (Check PR #3363 #3385)
         /*
@@ -5829,12 +5989,12 @@ static Model LoadM3D(const char *fileName)
         {
             if (m3d->face[i-1].materialid <= m3d->face[i].materialid) continue;
 
-            // face[i-1] > face[i].  slide face[i] lower.
+            // face[i-1] > face[i].  slide face[i] lower
             m3df_t slider = m3d->face[i];
             j = i-1;
 
             do
-            {   // face[j] > slider, face[j+1] is svailable vacant gap.
+            {   // face[j] > slider, face[j+1] is svailable vacant gap
                 m3d->face[j+1] = m3d->face[j];
                 j = j-1;
             }
@@ -6095,10 +6255,10 @@ static Model LoadM3D(const char *fileName)
         }
 
         // Load bone-pose default mesh into animation vertices. These will be updated when UpdateModelAnimation gets
-        // called, but not before, however DrawMesh uses these if they exist (so not good if they are left empty).
+        // called, but not before, however DrawMesh uses these if they exist (so not good if they are left empty)
         if (m3d->numbone && m3d->numskin)
         {
-            for(i = 0; i < model.meshCount; i++)
+            for (i = 0; i < model.meshCount; i++)
             {
                 memcpy(model.meshes[i].animVertices, model.meshes[i].vertices, model.meshes[i].vertexCount*3*sizeof(float));
                 memcpy(model.meshes[i].animNormals, model.meshes[i].normals, model.meshes[i].vertexCount*3*sizeof(float));
@@ -6152,7 +6312,7 @@ static ModelAnimation *LoadModelAnimationsM3D(const char *fileName, int *animCou
 
         for (unsigned int a = 0; a < m3d->numaction; a++)
         {
-            animations[a].frameCount = m3d->action[a].durationmsec / M3D_ANIMDELAY;
+            animations[a].frameCount = m3d->action[a].durationmsec/M3D_ANIMDELAY;
             animations[a].boneCount = m3d->numbone + 1;
             animations[a].bones = RL_MALLOC((m3d->numbone + 1)*sizeof(BoneInfo));
             animations[a].framePoses = RL_MALLOC(animations[a].frameCount*sizeof(Transform *));
