@@ -891,27 +891,8 @@ void EndDrawing(void)
 #endif
 
 #if !defined(SUPPORT_CUSTOM_FRAME_CONTROL)
-    SwapScreenBuffer();                  // Copy back buffer to front buffer (screen)
-
-    // Frame time control system
-    CORE.Time.current = GetTime();
-    CORE.Time.draw = CORE.Time.current - CORE.Time.previous;
-    CORE.Time.previous = CORE.Time.current;
-
-    CORE.Time.frame = CORE.Time.update + CORE.Time.draw;
-
-    // Wait for some milliseconds...
-    if (CORE.Time.frame < CORE.Time.target)
-    {
-        WaitTime(CORE.Time.target - CORE.Time.frame);
-
-        CORE.Time.current = GetTime();
-        double waitTime = CORE.Time.current - CORE.Time.previous;
-        CORE.Time.previous = CORE.Time.current;
-
-        CORE.Time.frame += waitTime;    // Total frame time: update + draw + wait
-    }
-
+    SwapScreenBuffer();     // Copy back buffer to front buffer (screen)
+    FrameTimeControl();     // Frame time control system
     PollInputEvents();      // Poll user events (before next frame update)
 #endif
 
@@ -1664,6 +1645,27 @@ float GetFrameTime(void)
 // NOTE: Functions with a platform-specific implementation on rcore_<platform>.c
 //void SwapScreenBuffer(void);
 //void PollInputEvents(void);
+
+void FrameTimeControl(void)
+{
+    CORE.Time.current = GetTime();
+    CORE.Time.draw = CORE.Time.current - CORE.Time.previous;
+    CORE.Time.previous = CORE.Time.current;
+
+    CORE.Time.frame = CORE.Time.update + CORE.Time.draw;
+
+    // Wait for some milliseconds...
+    if (CORE.Time.frame < CORE.Time.target)
+    {
+        WaitTime(CORE.Time.target - CORE.Time.frame);
+
+        CORE.Time.current = GetTime();
+        double waitTime = CORE.Time.current - CORE.Time.previous;
+        CORE.Time.previous = CORE.Time.current;
+
+        CORE.Time.frame += waitTime;    // Total frame time: update + draw + wait
+    }
+}
 
 // Wait for some time (stop program execution)
 // NOTE: Sleep() granularity could be around 10 ms, it means, Sleep() could
