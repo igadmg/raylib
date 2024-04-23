@@ -3754,6 +3754,11 @@ return {
       returnType = "void"
     },
     {
+      name = "FrameTimeControl",
+      description = "Do frame time control",
+      returnType = "void"
+    },
+    {
       name = "WaitTime",
       description = "Wait for some time (halt program execution)",
       returnType = "void",

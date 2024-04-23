@@ -671,7 +671,7 @@
             <Param type="unsigned int" name="frames" desc="" />
         </Callback>
     </Callbacks>
-    <Functions count="567">
+    <Functions count="569">
         <Function name="InitWindow" retType="void" paramCount="3" desc="Initialize window and OpenGL context">
             <Param type="int" name="width" desc="" />
             <Param type="int" name="height" desc="" />
@@ -950,6 +950,8 @@
         <Function name="SwapScreenBuffer" retType="void" paramCount="0" desc="Swap back buffer with front buffer (screen drawing)">
         </Function>
         <Function name="PollInputEvents" retType="void" paramCount="0" desc="Register all input events">
+        </Function>
+        <Function name="FrameTimeControl" retType="void" paramCount="0" desc="Do frame time control">
         </Function>
         <Function name="WaitTime" retType="void" paramCount="1" desc="Wait for some time (halt program execution)">
             <Param type="double" name="seconds" desc="" />
@@ -1470,7 +1472,13 @@
             <Param type="int" name="segments" desc="" />
             <Param type="Color" name="color" desc="" />
         </Function>
-        <Function name="DrawRectangleRoundedLines" retType="void" paramCount="5" desc="Draw rectangle with rounded edges outline">
+        <Function name="DrawRectangleRoundedLines" retType="void" paramCount="4" desc="Draw rectangle lines with rounded edges">
+            <Param type="Rectangle" name="rec" desc="" />
+            <Param type="float" name="roundness" desc="" />
+            <Param type="int" name="segments" desc="" />
+            <Param type="Color" name="color" desc="" />
+        </Function>
+        <Function name="DrawRectangleRoundedLinesEx" retType="void" paramCount="5" desc="Draw rectangle with rounded edges outline">
             <Param type="Rectangle" name="rec" desc="" />
             <Param type="float" name="roundness" desc="" />
             <Param type="int" name="segments" desc="" />
