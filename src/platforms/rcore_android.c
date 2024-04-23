@@ -281,14 +281,14 @@ void android_main(struct android_app *app)
     // Request to end the native activity
     ANativeActivity_finish(app->activity);
 
-    // Android ALooper_pollAll() variables
+    // Android ALooper_pollOnce() variables
     int pollResult = 0;
     int pollEvents = 0;
 
     // Waiting for application events before complete finishing
     while (!app->destroyRequested)
     {
-        while ((pollResult = ALooper_pollAll(0, NULL, &pollEvents, (void **)&platform.source)) >= 0)
+        while ((pollResult = ALooper_pollOnce(0, NULL, &pollEvents, (void **)&platform.source)) >= 0)
         {
             if (platform.source != NULL) platform.source->process(app, platform.source);
         }
@@ -660,7 +660,7 @@ void PollInputEvents(void)
                 CORE.Input.Gamepad.previousButtonState[i][k] = CORE.Input.Gamepad.currentButtonState[i][k];
         }
     }
-    
+
     // Register previous touch states
     for (int i = 0; i < MAX_TOUCH_POINTS; i++) CORE.Input.Touch.previousTouchState[i] = CORE.Input.Touch.currentTouchState[i];
 
@@ -675,13 +675,13 @@ void PollInputEvents(void)
         CORE.Input.Keyboard.keyRepeatInFrame[i] = 0;
     }
 
-    // Android ALooper_pollAll() variables
+    // Android ALooper_pollOnce() variables
     int pollResult = 0;
     int pollEvents = 0;
 
     // Poll Events (registered events)
     // NOTE: Activity is paused if not enabled (platform.appEnabled)
-    while ((pollResult = ALooper_pollAll(platform.appEnabled? 0 : -1, NULL, &pollEvents, (void**)&platform.source)) >= 0)
+    while ((pollResult = ALooper_pollOnce(platform.appEnabled? 0 : -1, NULL, &pollEvents, (void**)&platform.source)) >= 0)
     {
         // Process this event
         if (platform.source != NULL) platform.source->process(platform.app, platform.source);
@@ -760,7 +760,7 @@ int InitPlatform(void)
 
     TRACELOG(LOG_INFO, "PLATFORM: ANDROID: Initialized successfully");
 
-    // Android ALooper_pollAll() variables
+    // Android ALooper_pollOnce() variables
     int pollResult = 0;
     int pollEvents = 0;
 
@@ -768,7 +768,7 @@ int InitPlatform(void)
     while (!CORE.Window.ready)
     {
         // Process events loop
-        while ((pollResult = ALooper_pollAll(0, NULL, &pollEvents, (void**)&platform.source)) >= 0)
+        while ((pollResult = ALooper_pollOnce(0, NULL, &pollEvents, (void**)&platform.source)) >= 0)
         {
             // Process this event
             if (platform.source != NULL) platform.source->process(platform.app, platform.source);
