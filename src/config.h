@@ -69,9 +69,7 @@
 // Support custom frame control, only for advance users
 // By default EndDrawing() does this job: draws everything + SwapScreenBuffer() + manage frame timing + PollInputEvents()
 // Enabling this flag allows manual control of the frame processes, use at your own risk
-#if defined(PLATFORM_ANDROID_GOLANG)
-#define SUPPORT_CUSTOM_FRAME_CONTROL    1
-#endif
+//#define SUPPORT_CUSTOM_FRAME_CONTROL    1
 
 // rcore: Configuration values
 //------------------------------------------------------------------------------------
@@ -247,7 +245,9 @@
 // Module: utils - Configuration Flags
 //------------------------------------------------------------------------------------
 // Standard file io library (stdio.h) included
+#if !defined(PLATFORM_ANDROID)
 #define SUPPORT_STANDARD_FILEIO         1
+#endif
 // Show TRACELOG() output messages
 // NOTE: By default LOG_DEBUG traces not shown
 #define SUPPORT_TRACELOG                1
