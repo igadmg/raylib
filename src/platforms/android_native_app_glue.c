@@ -438,6 +438,7 @@ void RayLibANativeActivity_onCreate(ANativeActivity* activity,
     activity->callbacks->onNativeWindowDestroyed = onNativeWindowDestroyed;
     activity->callbacks->onInputQueueCreated = onInputQueueCreated;
     activity->callbacks->onInputQueueDestroyed = onInputQueueDestroyed;
+    activity->callbacks->onNativeWindowRedrawNeeded = NULL;
 
     activity->instance = android_app_create(activity, savedState, savedStateSize);
 }
