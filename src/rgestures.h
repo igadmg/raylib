@@ -128,8 +128,11 @@ bool IsGestureDetected(int gesture);                    // Check if a gesture ha
 int GetGestureDetected(void);                           // Get latest detected gesture
 
 float GetGestureHoldDuration(void);                     // Get gesture hold time in seconds
+float GetGestureSwipeDistance(void);                    // Get gesture swipe distance
+float GetGestureSwipeIntensity(void);                   // Get gesture swipe intensity
 float GetGestureSwipeAngle(void);                       // Get gesture swipe angle
 Vector2 GetGestureDragVector(void);                     // Get gesture drag vector
+float GetGestureDragAngle(void);                        // Get gesture drag angle
 Vector2 GetGesturePinchVector(void);                    // Get gesture pinch delta
 float GetGesturePinchAngle(void);                       // Get gesture pinch angle
 #endif
@@ -217,6 +220,7 @@ typedef struct {
     struct {
         float frameDirection;           // DRAG last frame drag direction
         Vector2 vector;                 // DRAG vector (between initial and current position)
+        float angle;                    // DRAG angle (relative to x-axis)
     } Drag;
     struct {
         Vector2 start;                  // SWIPE start position of touch start or drag change direction
@@ -372,6 +376,7 @@ void ProcessGestureEvent(GestureEvent event)
 
                 GESTURES.Drag.frameDirection = curDirection;
                 GESTURES.Drag.vector = rgVector2Subtract(GESTURES.Touch.moveDownPositionA, GESTURES.Touch.downDragPosition);
+                GESTURES.Drag.angle = 360.0f - rgVector2Angle(GESTURES.Touch.moveDownPositionA, GESTURES.Touch.downDragPosition);
             }
         }
     }
@@ -476,11 +481,29 @@ float GetGestureHoldDuration(void)
     return (float)time;
 }
 
+// Get swipe distance
+// NOTE: distance (from start point to final) (normalized [0..1])
+float GetGestureSwipeDistance(void)
+{
+    // NOTE: swipe distance is calculated on one touch points TOUCH_ACTION_UP
+
+    return GESTURES.Swipe.distance;
+}
+
+// Get swipe intensity
+// NOTE: intensity in pixels per frame
+float GetGestureSwipeIntensity(void)
+{
+    // NOTE: swipe intensity is calculated on one touch points TOUCH_ACTION_UP
+
+    return GESTURES.Swipe.intensity;
+}
+
 // Get swipe angle
 // NOTE: Angle in degrees, horizontal-right is 0, counterclockwise
 float GetGestureSwipeAngle(void)
 {
-    // NOTE: swipe angle is calculated on one touch points TOUCH_ACTION_MOVE
+    // NOTE: swipe angle is calculated on one touch points TOUCH_ACTION_UP
 
     return GESTURES.Swipe.angle;
 }
@@ -491,6 +514,15 @@ Vector2 GetGestureDragVector(void)
     // NOTE: drag vector is calculated on one touch points TOUCH_ACTION_MOVE
 
     return GESTURES.Drag.vector;
+}
+
+// Get swipe angle
+// NOTE: Angle in degrees, horizontal-right is 0, counterclockwise
+float GetGestureDragAngle(void)
+{
+    // NOTE: swipe angle is calculated on one touch points TOUCH_ACTION_MOVE
+
+    return GESTURES.Drag.angle;
 }
 
 // Get distance between two pinch points

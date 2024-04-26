@@ -1213,6 +1213,9 @@ RLAPI bool IsGestureDetected(unsigned int gesture);     // Check if a gesture ha
 RLAPI int GetGestureDetected(void);                     // Get latest detected gesture
 RLAPI Vector2 GetGestureTapPosition(void);              // Get position of tab and double tap gestures, or any start tap gesture position
 RLAPI float GetGestureHoldDuration(void);               // Get gesture hold time in milliseconds
+RLAPI float GetGestureSwipeDistance(void);              // Get gesture swipe distance
+RLAPI float GetGestureSwipeIntensity(void);             // Get gesture swipe intensity
+RLAPI float GetGestureSwipeAngle(void);                 // Get gesture swipe angle
 RLAPI Vector2 GetGestureDragVector(void);               // Get gesture drag vector
 RLAPI float GetGestureDragAngle(void);                  // Get gesture drag angle
 RLAPI Vector2 GetGesturePinchVector(void);              // Get gesture pinch delta
