@@ -2945,6 +2945,11 @@ return {
           description = "Swipe down gesture"
         },
         {
+          name = "GESTURE_SWIPE",
+          value = 0,
+          description = ""
+        },
+        {
           name = "GESTURE_PINCH_IN",
           value = 256,
           description = "Pinch in gesture"
@@ -4532,8 +4537,28 @@ return {
       returnType = "int"
     },
     {
+      name = "GetGestureTapPosition",
+      description = "Get position of tab and double tap gestures, or any start tap gesture position",
+      returnType = "Vector2"
+    },
+    {
       name = "GetGestureHoldDuration",
       description = "Get gesture hold time in milliseconds",
+      returnType = "float"
+    },
+    {
+      name = "GetGestureSwipeDistance",
+      description = "Get gesture swipe distance",
+      returnType = "float"
+    },
+    {
+      name = "GetGestureSwipeIntensity",
+      description = "Get gesture swipe intensity",
+      returnType = "float"
+    },
+    {
+      name = "GetGestureSwipeAngle",
+      description = "Get gesture swipe angle",
       returnType = "float"
     },
     {

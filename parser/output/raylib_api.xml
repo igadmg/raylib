@@ -614,7 +614,7 @@
             <Value name="BLEND_CUSTOM" integer="6" desc="Blend textures using custom src/dst factors (use rlSetBlendFactors())" />
             <Value name="BLEND_CUSTOM_SEPARATE" integer="7" desc="Blend textures using custom rgb/alpha separate src/dst factors (use rlSetBlendFactorsSeparate())" />
         </Enum>
-        <Enum name="Gesture" valueCount="11" desc="Gesture">
+        <Enum name="Gesture" valueCount="12" desc="Gesture">
             <Value name="GESTURE_NONE" integer="0" desc="No gesture" />
             <Value name="GESTURE_TAP" integer="1" desc="Tap gesture" />
             <Value name="GESTURE_DOUBLETAP" integer="2" desc="Double tap gesture" />
@@ -624,6 +624,7 @@
             <Value name="GESTURE_SWIPE_LEFT" integer="32" desc="Swipe left gesture" />
             <Value name="GESTURE_SWIPE_UP" integer="64" desc="Swipe up gesture" />
             <Value name="GESTURE_SWIPE_DOWN" integer="128" desc="Swipe down gesture" />
+            <Value name="GESTURE_SWIPE" integer="0" desc="" />
             <Value name="GESTURE_PINCH_IN" integer="256" desc="Pinch in gesture" />
             <Value name="GESTURE_PINCH_OUT" integer="512" desc="Pinch out gesture" />
         </Enum>
@@ -671,7 +672,7 @@
             <Param type="unsigned int" name="frames" desc="" />
         </Callback>
     </Callbacks>
-    <Functions count="569">
+    <Functions count="573">
         <Function name="InitWindow" retType="void" paramCount="3" desc="Initialize window and OpenGL context">
             <Param type="int" name="width" desc="" />
             <Param type="int" name="height" desc="" />
@@ -1266,7 +1267,15 @@
         </Function>
         <Function name="GetGestureDetected" retType="int" paramCount="0" desc="Get latest detected gesture">
         </Function>
+        <Function name="GetGestureTapPosition" retType="Vector2" paramCount="0" desc="Get position of tab and double tap gestures, or any start tap gesture position">
+        </Function>
         <Function name="GetGestureHoldDuration" retType="float" paramCount="0" desc="Get gesture hold time in milliseconds">
+        </Function>
+        <Function name="GetGestureSwipeDistance" retType="float" paramCount="0" desc="Get gesture swipe distance">
+        </Function>
+        <Function name="GetGestureSwipeIntensity" retType="float" paramCount="0" desc="Get gesture swipe intensity">
+        </Function>
+        <Function name="GetGestureSwipeAngle" retType="float" paramCount="0" desc="Get gesture swipe angle">
         </Function>
         <Function name="GetGestureDragVector" retType="Vector2" paramCount="0" desc="Get gesture drag vector">
         </Function>
