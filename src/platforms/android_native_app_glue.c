@@ -406,6 +406,16 @@ static void onNativeWindowDestroyed(ANativeActivity* activity, ANativeWindow* wi
     android_app_set_window((struct android_app*)activity->instance, NULL);
 }
 
+static void onNativeWindowRedrawNeeded(ANativeActivity* activity, ANativeWindow* window) {
+    LOGV("NativeWindowRedrawNeeded: %p -- %p\n", activity, window);
+    android_app_write_cmd((struct android_app*)activity->instance, APP_CMD_WINDOW_REDRAW_NEEDED);
+}
+
+static void onNativeWindowResized(ANativeActivity* activity, ANativeWindow* window) {
+    LOGV("NativeWindowResized: %p -- %p\n", activity, window);
+    android_app_write_cmd((struct android_app*)activity->instance, APP_CMD_WINDOW_RESIZED);
+}
+
 static void onInputQueueCreated(ANativeActivity* activity, AInputQueue* queue) {
     LOGV("InputQueueCreated: %p -- %p\n", activity, queue);
     android_app_set_input((struct android_app*)activity->instance, queue);
@@ -436,9 +446,10 @@ void RayLibANativeActivity_onCreate(ANativeActivity* activity,
     activity->callbacks->onWindowFocusChanged = onWindowFocusChanged;
     activity->callbacks->onNativeWindowCreated = onNativeWindowCreated;
     activity->callbacks->onNativeWindowDestroyed = onNativeWindowDestroyed;
+    activity->callbacks->onNativeWindowRedrawNeeded = onNativeWindowRedrawNeeded;
+    activity->callbacks->onNativeWindowResized = onNativeWindowResized;
     activity->callbacks->onInputQueueCreated = onInputQueueCreated;
     activity->callbacks->onInputQueueDestroyed = onInputQueueDestroyed;
-    activity->callbacks->onNativeWindowRedrawNeeded = NULL;
 
     activity->instance = android_app_create(activity, savedState, savedStateSize);
 }

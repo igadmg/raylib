@@ -687,6 +687,8 @@ void PollInputEvents(void)
         CORE.Input.Keyboard.keyRepeatInFrame[i] = 0;
     }
 
+    CORE.Window.resizedLastFrame = false;
+
     // Android ALooper_pollOnce() variables
     int pollResult = 0;
     int pollEvents = 0;
@@ -1086,12 +1088,64 @@ static void AndroidCommandCallback(struct android_app *app, int32_t cmd)
         case APP_CMD_SAVE_STATE: break;
         case APP_CMD_STOP: break;
         case APP_CMD_DESTROY: break;
-        case APP_CMD_CONFIG_CHANGED:
+        case APP_CMD_CONFIG_CHANGED: break;
+        case APP_CMD_WINDOW_RESIZED:
         {
-            //AConfiguration_fromAssetManager(platform.app->config, platform.app->activity->assetManager);
-            //print_cur_config(platform.app);
+            int width = ANativeWindow_getWidth(platform.app->window);
+            int height = ANativeWindow_getHeight(platform.app->window);
 
-            // Check screen orientation here!
+            SetupViewport(width, height);
+
+            CORE.Window.currentFbo.width = width;
+            CORE.Window.currentFbo.height = height;
+            CORE.Window.resizedLastFrame = true;
+
+            CORE.Window.display.width = width;
+            CORE.Window.display.height = height;
+            CORE.Window.screen.width = width;
+            CORE.Window.screen.height = height;
+
+            eglMakeCurrent(platform.device, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+
+            if (platform.surface != EGL_NO_SURFACE)
+            {
+                eglDestroySurface(platform.device, platform.surface);
+                platform.surface = EGL_NO_SURFACE;
+            }
+
+            EGLint displayFormat = 0;
+
+            // EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is guaranteed to be accepted by ANativeWindow_setBuffersGeometry()
+            // As soon as we picked a EGLConfig, we can safely reconfigure the ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID
+            eglGetConfigAttrib(platform.device, platform.config, EGL_NATIVE_VISUAL_ID, &displayFormat);
+
+            SetupFramebuffer(CORE.Window.display.width, CORE.Window.display.height);
+
+            ANativeWindow_setBuffersGeometry(platform.app->window, CORE.Window.render.width, CORE.Window.render.height, displayFormat);
+            //ANativeWindow_setBuffersGeometry(window, 0, 0, displayFormat);       // Force use of native display size
+
+            platform.surface = eglCreateWindowSurface(platform.device, platform.config, platform.app->window, NULL);
+
+            // There must be at least one frame displayed before the buffers are swapped
+            //eglSwapInterval(platform.device, 1);
+
+            if (eglMakeCurrent(platform.device, platform.surface, platform.surface, platform.context) == EGL_FALSE)
+            {
+                TRACELOG(LOG_WARNING, "DISPLAY: Failed to attach EGL rendering context to EGL surface");
+            }
+            else
+            {
+                CORE.Window.render.width = CORE.Window.screen.width;
+                CORE.Window.render.height = CORE.Window.screen.height;
+                CORE.Window.currentFbo.width = CORE.Window.render.width;
+                CORE.Window.currentFbo.height = CORE.Window.render.height;
+
+                TRACELOG(LOG_INFO, "DISPLAY: Device initialized successfully");
+                TRACELOG(LOG_INFO, "    > Display size: %i x %i", CORE.Window.display.width, CORE.Window.display.height);
+                TRACELOG(LOG_INFO, "    > Screen size:  %i x %i", CORE.Window.screen.width, CORE.Window.screen.height);
+                TRACELOG(LOG_INFO, "    > Render size:  %i x %i", CORE.Window.render.width, CORE.Window.render.height);
+                TRACELOG(LOG_INFO, "    > Viewport offsets: %i, %i", CORE.Window.renderOffset.x, CORE.Window.renderOffset.y);
+            }
         } break;
         default: break;
     }
