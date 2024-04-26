@@ -910,6 +910,7 @@ typedef enum {
     GESTURE_SWIPE_LEFT  = 32,       // Swipe left gesture
     GESTURE_SWIPE_UP    = 64,       // Swipe up gesture
     GESTURE_SWIPE_DOWN  = 128,      // Swipe down gesture
+    GESTURE_SWIPE       = GESTURE_SWIPE_RIGHT | GESTURE_SWIPE_LEFT | GESTURE_SWIPE_UP | GESTURE_SWIPE_DOWN,
     GESTURE_PINCH_IN    = 256,      // Pinch in gesture
     GESTURE_PINCH_OUT   = 512       // Pinch out gesture
 } Gesture;
@@ -1210,6 +1211,7 @@ RLAPI int GetTouchPointCount(void);                           // Get number of t
 RLAPI void SetGesturesEnabled(unsigned int flags);      // Enable a set of gestures using flags
 RLAPI bool IsGestureDetected(unsigned int gesture);     // Check if a gesture have been detected
 RLAPI int GetGestureDetected(void);                     // Get latest detected gesture
+RLAPI Vector2 GetGestureTapPosition(void);              // Get position of tab and double tap gestures, or any start tap gesture position
 RLAPI float GetGestureHoldDuration(void);               // Get gesture hold time in milliseconds
 RLAPI Vector2 GetGestureDragVector(void);               // Get gesture drag vector
 RLAPI float GetGestureDragAngle(void);                  // Get gesture drag angle
