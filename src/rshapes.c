@@ -178,8 +178,8 @@ void DrawLine(int startPosX, int startPosY, int endPosX, int endPosY, Color colo
 {
     rlBegin(RL_LINES);
         rlColor4ub(color.r, color.g, color.b, color.a);
-        rlVertex2f((float)startPosX, (float)startPosY);
-        rlVertex2f((float)endPosX, (float)endPosY);
+        rlVertex2f((float)startPosX + 0.5, (float)startPosY + 0.5);
+        rlVertex2f((float)endPosX + 0.5, (float)endPosY + 0.5);
     rlEnd();
 }
 
@@ -188,8 +188,8 @@ void DrawLineV(Vector2 startPos, Vector2 endPos, Color color)
 {
     rlBegin(RL_LINES);
         rlColor4ub(color.r, color.g, color.b, color.a);
-        rlVertex2f(startPos.x, startPos.y);
-        rlVertex2f(endPos.x, endPos.y);
+        rlVertex2f(startPos.x + 0.5, startPos.y + 0.5);
+        rlVertex2f(endPos.x + 0.5, endPos.y + 0.5);
     rlEnd();
 }
 
@@ -203,8 +203,8 @@ void DrawLineStrip(Vector2 *points, int pointCount, Color color)
 
         for (int i = 0; i < pointCount - 1; i++)
         {
-            rlVertex2f(points[i].x, points[i].y);
-            rlVertex2f(points[i + 1].x, points[i + 1].y);
+            rlVertex2f(points[i].x + 0.5, points[i].y + 0.5);
+            rlVertex2f(points[i + 1].x + 0.5, points[i + 1].y + 0.5);
         }
     rlEnd();
 }
