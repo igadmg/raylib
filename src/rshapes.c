@@ -287,6 +287,9 @@ void DrawCircleV(Vector2 center, float radius, Color color)
 // Draw a piece of a circle
 void DrawCircleSector(Vector2 center, float radius, float startAngle, float endAngle, int segments, Color color)
 {
+    center.x += 0.5f;
+    center.y += 0.5f;
+
     if (radius <= 0.0f) radius = 0.1f;  // Avoid div by zero
 
     // Function expects (endAngle > startAngle)
@@ -404,6 +407,9 @@ void DrawCircleSectorLines(Vector2 center, float radius, float startAngle, float
     float angle = startAngle;
     bool showCapLines = true;
 
+    center.x += 0.5f;
+    center.y += 0.5f;
+
     rlBegin(RL_LINES);
         if (showCapLines)
         {
@@ -435,15 +441,18 @@ void DrawCircleSectorLines(Vector2 center, float radius, float startAngle, float
 // NOTE: Gradient goes from center (color1) to border (color2)
 void DrawCircleGradient(int centerX, int centerY, float radius, Color color1, Color color2)
 {
+    float fcenterX = (float)centerX + 0.5f;
+    float fcenterY = (float)centerY + 0.5f;
+
     rlBegin(RL_TRIANGLES);
         for (int i = 0; i < 360; i += 10)
         {
             rlColor4ub(color1.r, color1.g, color1.b, color1.a);
-            rlVertex2f((float)centerX, (float)centerY);
+            rlVertex2f(fcenterX, fcenterY);
             rlColor4ub(color2.r, color2.g, color2.b, color2.a);
-            rlVertex2f((float)centerX + cosf(DEG2RAD*(i + 10))*radius, (float)centerY + sinf(DEG2RAD*(i + 10))*radius);
+            rlVertex2f(fcenterX + cosf(DEG2RAD*(i + 10))*radius, fcenterY + sinf(DEG2RAD*(i + 10))*radius);
             rlColor4ub(color2.r, color2.g, color2.b, color2.a);
-            rlVertex2f((float)centerX + cosf(DEG2RAD*i)*radius, (float)centerY + sinf(DEG2RAD*i)*radius);
+            rlVertex2f(fcenterX + cosf(DEG2RAD*i)*radius, fcenterY + sinf(DEG2RAD*i)*radius);
         }
     rlEnd();
 }
@@ -457,6 +466,9 @@ void DrawCircleLines(int centerX, int centerY, float radius, Color color)
 // Draw circle outline (Vector version)
 void DrawCircleLinesV(Vector2 center, float radius, Color color)
 {
+    center.x += 0.5f;
+    center.y += 0.5f;
+
     rlBegin(RL_LINES);
         rlColor4ub(color.r, color.g, color.b, color.a);
 
@@ -486,6 +498,9 @@ void DrawEllipse(int centerX, int centerY, float radiusH, float radiusV, Color c
 // Draw ellipse outline
 void DrawEllipseLines(int centerX, int centerY, float radiusH, float radiusV, Color color)
 {
+    centerX += 0.5f;
+    centerY += 0.5f;
+
     rlBegin(RL_LINES);
         for (int i = 0; i < 360; i += 10)
         {
@@ -813,19 +828,24 @@ void DrawRectangleGradientEx(Rectangle rec, Color col1, Color col2, Color col3, 
 // but it solves another issue: https://github.com/raysan5/raylib/issues/3884
 void DrawRectangleLines(int posX, int posY, int width, int height, Color color)
 {
+    float fposX = (float)posX + 0.5f;
+    float fposY = (float)posY + 0.5f;
+    width -= 1;
+    height -= 1;
+
     rlBegin(RL_LINES);
         rlColor4ub(color.r, color.g, color.b, color.a);
-        rlVertex2f(posX, posY);
-        rlVertex2f(posX + width, posY + 1);
+        rlVertex2f(fposX, fposY);
+        rlVertex2f(fposX + width, fposY);
 
-        rlVertex2f(posX + width, posY + 1);
-        rlVertex2f(posX + width, posY + height);
+        rlVertex2f(fposX + width, fposY);
+        rlVertex2f(fposX + width, fposY + height);
 
-        rlVertex2f(posX + width, posY + height);
-        rlVertex2f(posX + 1, posY + height);
+        rlVertex2f(fposX + width, fposY + height);
+        rlVertex2f(fposX, fposY + height);
 
-        rlVertex2f(posX + 1, posY + height);
-        rlVertex2f(posX + 1, posY + 1);
+        rlVertex2f(fposX, fposY + height);
+        rlVertex2f(fposX, fposY);
     rlEnd();
 }
 

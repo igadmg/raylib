@@ -47,12 +47,29 @@ int main(void)
             DrawText("some basic shapes available on raylib", 20, 20, 20, DARKGRAY);
 
             // Circle shapes and lines
+            DrawCircleLines(screenWidth/5, 120, 35, DARKGREEN);
             DrawCircle(screenWidth/5, 120, 35, DARKBLUE);
+            DrawLine(screenWidth / 5, 120, screenWidth / 5, 120 - 35, BLACK);
+            DrawLine(screenWidth / 5, 120, screenWidth / 5 - 35, 120, BLACK);
+            DrawLine(screenWidth / 5, 120, screenWidth / 5, 120 + 35, BLACK);
+            DrawLine(screenWidth / 5, 120, screenWidth / 5 + 35, 120, BLACK);
+
+            DrawCircleLines(screenWidth / 5, 220, 60, DARKGREEN);
             DrawCircleGradient(screenWidth/5, 220, 60, GREEN, SKYBLUE);
-            DrawCircleLines(screenWidth/5, 340, 80, DARKBLUE);
+            DrawLine(screenWidth / 5, 220, screenWidth / 5, 220 - 60, BLACK);
+            DrawLine(screenWidth / 5, 220, screenWidth / 5 - 60, 220, BLACK);
+            DrawLine(screenWidth / 5, 220, screenWidth / 5, 220 + 60, BLACK);
+            DrawLine(screenWidth / 5, 220, screenWidth / 5 + 60, 220, BLACK);
+
+            DrawCircleLines(screenWidth/5, 340, 80, DARKGREEN);
 
             // Rectangle shapes and lines
+            DrawRectangleLines(0, 0, screenWidth, screenHeight, ORANGE);
+            DrawLine(0, 1, screenWidth -1, 1, BLACK);
+
             DrawRectangle(screenWidth/4*2 - 60, 100, 120, 60, RED);
+            DrawRectangleLines(screenWidth / 4 * 2 - 60, 100, 120, 60, ORANGE);
+            DrawLine(screenWidth / 4 * 2 - 60, 100, screenWidth / 4 * 2 - 60 + 120-1, 100+60-1, BLACK);
             DrawRectangleGradientH(screenWidth/4*2 - 90, 170, 180, 130, MAROON, GOLD);
             DrawRectangleLines(screenWidth/4*2 - 40, 320, 80, 60, ORANGE);  // NOTE: Uses QUADS internally, not lines
 
