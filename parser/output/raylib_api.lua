@@ -3843,10 +3843,7 @@ return {
     {
       name = "GetTraceLogLevel",
       description = "Get the current threshold (minimum) log level",
-      returnType = "int",
-      params = {
-        {type = "", name = ""}
-      }
+      returnType = "int"
     },
     {
       name = "SetTraceLogLevel",

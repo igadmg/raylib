@@ -986,8 +986,7 @@
             <Param type="const char *" name="text" desc="" />
             <Param type="..." name="args" desc="" />
         </Function>
-        <Function name="GetTraceLogLevel" retType="int" paramCount="1" desc="Get the current threshold (minimum) log level">
-            <Param type="" name="" desc="" />
+        <Function name="GetTraceLogLevel" retType="int" paramCount="0" desc="Get the current threshold (minimum) log level">
         </Function>
         <Function name="SetTraceLogLevel" retType="void" paramCount="1" desc="Set the current threshold (minimum) log level">
             <Param type="int" name="logLevel" desc="" />

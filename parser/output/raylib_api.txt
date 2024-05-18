@@ -1567,11 +1567,11 @@ Function 107: TraceLog() (3 input parameters)
   Param[1]: logLevel (type: int)
   Param[2]: text (type: const char *)
   Param[3]: args (type: ...)
-Function 108: GetTraceLogLevel() (1 input parameters)
+Function 108: GetTraceLogLevel() (0 input parameters)
   Name: GetTraceLogLevel
   Return type: int
   Description: Get the current threshold (minimum) log level
-  Param[1]:  (type: )
+  No input parameters
 Function 109: SetTraceLogLevel() (1 input parameters)
   Name: SetTraceLogLevel
   Return type: void
