@@ -828,24 +828,19 @@ void DrawRectangleGradientEx(Rectangle rec, Color col1, Color col2, Color col3, 
 // but it solves another issue: https://github.com/raysan5/raylib/issues/3884
 void DrawRectangleLines(int posX, int posY, int width, int height, Color color)
 {
-    float fposX = (float)posX + 0.5f;
-    float fposY = (float)posY + 0.5f;
-    width -= 1;
-    height -= 1;
-
     rlBegin(RL_LINES);
         rlColor4ub(color.r, color.g, color.b, color.a);
-        rlVertex2f(fposX, fposY);
-        rlVertex2f(fposX + width, fposY);
+        rlVertex2f((float)posX, (float)posY);
+        rlVertex2f((float)posX + (float)width, (float)posY + 1);
 
-        rlVertex2f(fposX + width, fposY);
-        rlVertex2f(fposX + width, fposY + height);
+        rlVertex2f((float)posX + (float)width, (float)posY + 1);
+        rlVertex2f((float)posX + (float)width, (float)posY + (float)height);
 
-        rlVertex2f(fposX + width, fposY + height);
-        rlVertex2f(fposX, fposY + height);
+        rlVertex2f((float)posX + (float)width, (float)posY + (float)height);
+        rlVertex2f((float)posX + 1, (float)posY + (float)height);
 
-        rlVertex2f(fposX, fposY + height);
-        rlVertex2f(fposX, fposY);
+        rlVertex2f((float)posX + 1, (float)posY + (float)height);
+        rlVertex2f((float)posX + 1, (float)posY + 1);
     rlEnd();
 }
 

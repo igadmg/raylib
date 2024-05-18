@@ -1152,7 +1152,7 @@ void DrawTextEx(Font font, const char *text, Vector2 position, float fontSize, f
 
     int size = TextLength(text);    // Total size in bytes of the text, scanned by codepoints in loop
 
-    int textOffsetY = 0;            // Offset between lines (on linebreak '\n')
+    float textOffsetY = 0;          // Offset between lines (on linebreak '\n')
     float textOffsetX = 0.0f;       // Offset X to next character to draw
 
     float scaleFactor = fontSize/font.baseSize;         // Character quad scaling factor
@@ -1226,7 +1226,7 @@ void DrawTextCodepoint(Font font, int codepoint, Vector2 position, float fontSiz
 // Draw multiple character (codepoints)
 void DrawTextCodepoints(Font font, const int *codepoints, int codepointCount, Vector2 position, float fontSize, float spacing, Color tint)
 {
-    int textOffsetY = 0;            // Offset between lines (on linebreak '\n')
+    float textOffsetY = 0;          // Offset between lines (on linebreak '\n')
     float textOffsetX = 0.0f;       // Offset X to next character to draw
 
     float scaleFactor = fontSize/font.baseSize;         // Character quad scaling factor
@@ -2300,7 +2300,11 @@ static Font LoadBMFont(const char *fileName)
             // Fill character image data from full font data
             font.glyphs[i].image = ImageFromImage(&fullFont, font.recs[i]);
         }
-        else TRACELOG(LOG_WARNING, "FONT: [%s] Some characters data not correctly provided", fileName);
+        else
+        {
+            font.glyphs[i].image = GenImageColor(font.recs[i].width, font.recs[i].height, BLACK);
+            TRACELOG(LOG_WARNING, "FONT: [%s] Some characters data not correctly provided", fileName);
+        }
     }
 
     UnloadImage(&fullFont);
