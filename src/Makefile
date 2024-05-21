@@ -452,7 +452,7 @@ endif
 # Define include paths for required headers: INCLUDE_PATHS
 # NOTE: Several external required libraries (stb and others)
 #------------------------------------------------------------------------------------------------
-INCLUDE_PATHS = -I. 
+INCLUDE_PATHS = -I.
 
 # Define additional directories containing required header files
 ifeq ($(PLATFORM),PLATFORM_DESKTOP)
@@ -620,7 +620,7 @@ OBJS = rcore.o \
        rshapes.o \
        rtextures.o \
        rtext.o \
-       utils.o 
+       utils.o
 
 
 ifeq ($(PLATFORM),PLATFORM_DESKTOP)

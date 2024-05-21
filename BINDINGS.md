@@ -39,7 +39,7 @@ Some people ported raylib to other languages in form of bindings or wrappers to 
 | KaylibKit          | 4.5     | [Kotlin/native](https://kotlinlang.org) | Zlib | https://codeberg.org/Kenta/KaylibKit   |
 | raylib-lua         | 4.5     | [Lua](http://www.lua.org/)           | ISC | https://github.com/TSnake41/raylib-lua        |
 | raylua             | 4.0     | [Lua](http://www.lua.org/)           | MIT | https://github.com/Rabios/raylua              |
-| raylib-matte       | 4.6-dev | [Matte](https://github.com/jcorks/matte/) | MIT | https://github.com/jcorks/raylib-matte | 
+| raylib-matte       | 4.6-dev | [Matte](https://github.com/jcorks/matte/) | MIT | https://github.com/jcorks/raylib-matte |
 | Raylib.nelua       | **5.0** | [nelua](https://nelua.io/)           | Zlib | https://github.com/AuzFox/Raylib.nelua     |
 | NimraylibNow!      | 4.2     | [Nim](https://nim-lang.org/)         | MIT | https://github.com/greenfork/nimraylib_now    |
 | raylib-bindings    | 4.5     | [Ruby](https://www.ruby-lang.org/en/) | Zlib | https://github.com/vaiorabbit/raylib-bindings |
@@ -76,7 +76,7 @@ Some people ported raylib to other languages in form of bindings or wrappers to 
 | raylib.zig         | 5.1-dev | [Zig](https://ziglang.org/)               | MIT | https://github.com/ryupold/raylib.zig |
 | hare-raylib        | **auto** | [Hare](https://harelang.org/)        | Zlib | https://git.sr.ht/~evantj/hare-raylib       |
 | raylib-sunder      | **auto** | [Sunder](https://github.com/ashn-dot-dev/sunder) | 0BSD | https://github.com/ashn-dot-dev/raylib-sunder |
-| rayed-bqn          | **auto** | [BQN](https://mlochbaum.github.io/BQN/) | MIT | https://github.com/Brian-ED/rayed-bqn | 
+| rayed-bqn          | **auto** | [BQN](https://mlochbaum.github.io/BQN/) | MIT | https://github.com/Brian-ED/rayed-bqn |
 | rayjs              | 4.6-dev | [QuickJS](https://bellard.org/quickjs/)    | MIT | https://github.com/mode777/rayjs    |
 | raylib-raku        | **auto** | [Raku](https://www.raku.org/) | Artistic License 2.0 | https://github.com/vushu/raylib-raku |
 | Raylib.lean        | 4.5     | [Lean4](https://lean-lang.org/) | BSD-3-Clause | https://github.com/KislyjKisel/Raylib.lean |
