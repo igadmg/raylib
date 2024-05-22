@@ -314,6 +314,7 @@ typedef struct CoreData {
             Vector2 previousPosition;       // Previous mouse position
 
             int cursor;                     // Tracks current mouse cursor
+            void* customCursor;             // Tracks custom cursor
             bool cursorHidden;              // Track if cursor is hidden
             bool cursorOnScreen;            // Tracks if cursor is inside client area
 

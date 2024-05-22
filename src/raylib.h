@@ -1197,6 +1197,7 @@ RLAPI void SetMouseScale(float scaleX, float scaleY);         // Set mouse scali
 RLAPI float GetMouseWheelMove(void);                          // Get mouse wheel movement for X or Y, whichever is larger
 RLAPI Vector2 GetMouseWheelMoveV(void);                       // Get mouse wheel movement for both X and Y
 RLAPI void SetMouseCursor(int cursor);                        // Set mouse cursor
+RLAPI void SetMouseCursorImage(Image image, int xhot, int yhot); // Set mouse cursor image
 
 // Input-related functions: touch
 RLAPI int GetTouchX(void);                                    // Get touch position X for touch point 0 (relative to screen size)

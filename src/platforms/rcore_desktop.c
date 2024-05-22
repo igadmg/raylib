@@ -1063,6 +1063,12 @@ void SetMousePosition(int x, int y)
 // Set mouse cursor
 void SetMouseCursor(int cursor)
 {
+    if (CORE.Input.Mouse.customCursor)
+    {
+        glfwDestroyCursor(CORE.Input.Mouse.customCursor);
+        CORE.Input.Mouse.customCursor = NULL;
+    }
+
     CORE.Input.Mouse.cursor = cursor;
     if (cursor == MOUSE_CURSOR_DEFAULT) glfwSetCursor(platform.handle, NULL);
     else
@@ -1070,6 +1076,26 @@ void SetMouseCursor(int cursor)
         // NOTE: We are relating internal GLFW enum values to our MouseCursor enum values
         glfwSetCursor(platform.handle, glfwCreateStandardCursor(0x00036000 + cursor));
     }
+}
+
+void SetMouseCursorImage(Image image, int xhot, int yhot)
+{
+    if (CORE.Input.Mouse.customCursor)
+    {
+        glfwDestroyCursor(CORE.Input.Mouse.customCursor);
+        CORE.Input.Mouse.customCursor = NULL;
+    }
+
+    CORE.Input.Mouse.cursor = -1;
+
+    GLFWimage cursor = { 0 };
+    cursor.width = image.width;
+    cursor.height = image.height;
+    cursor.pixels = (unsigned char*)image.data;
+    GLFWcursor* customCursor = glfwCreateCursor(&image, xhot, yhot);
+
+    CORE.Input.Mouse.customCursor = customCursor;
+    glfwSetCursor(platform.handle, customCursor);
 }
 
 // Register all input events

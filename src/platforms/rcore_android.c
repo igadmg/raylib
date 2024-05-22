@@ -644,6 +644,11 @@ void SetMouseCursor(int cursor)
     TRACELOG(LOG_WARNING, "SetMouseCursor() not implemented on target platform");
 }
 
+void SetMouseCursorImage(Image image, int xhot, int yhot)
+{
+    TRACELOG(LOG_WARNING, "SetMouseCursorImage() not implemented on target platform");
+}
+
 // Register all input events
 void PollInputEvents(void)
 {
