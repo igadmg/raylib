@@ -4482,6 +4482,16 @@ return {
       }
     },
     {
+      name = "SetMouseCursorImage",
+      description = "Set mouse cursor image",
+      returnType = "void",
+      params = {
+        {type = "Image", name = "image"},
+        {type = "int", name = "xhot"},
+        {type = "int", name = "yhot"}
+      }
+    },
+    {
       name = "GetTouchX",
       description = "Get touch position X for touch point 0 (relative to screen size)",
       returnType = "int"

@@ -672,7 +672,7 @@
             <Param type="unsigned int" name="frames" desc="" />
         </Callback>
     </Callbacks>
-    <Functions count="573">
+    <Functions count="574">
         <Function name="InitWindow" retType="void" paramCount="3" desc="Initialize window and OpenGL context">
             <Param type="int" name="width" desc="" />
             <Param type="int" name="height" desc="" />
@@ -1245,6 +1245,11 @@
         </Function>
         <Function name="SetMouseCursor" retType="void" paramCount="1" desc="Set mouse cursor">
             <Param type="int" name="cursor" desc="" />
+        </Function>
+        <Function name="SetMouseCursorImage" retType="void" paramCount="3" desc="Set mouse cursor image">
+            <Param type="Image" name="image" desc="" />
+            <Param type="int" name="xhot" desc="" />
+            <Param type="int" name="yhot" desc="" />
         </Function>
         <Function name="GetTouchX" retType="int" paramCount="0" desc="Get touch position X for touch point 0 (relative to screen size)">
         </Function>
