@@ -1092,7 +1092,7 @@ void SetMouseCursorImage(Image image, int xhot, int yhot)
     cursor.width = image.width;
     cursor.height = image.height;
     cursor.pixels = (unsigned char*)image.data;
-    GLFWcursor* customCursor = glfwCreateCursor(&image, xhot, yhot);
+    GLFWcursor* customCursor = glfwCreateCursor(&cursor, xhot, yhot);
 
     CORE.Input.Mouse.customCursor = customCursor;
     glfwSetCursor(platform.handle, customCursor);
