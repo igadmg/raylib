@@ -2190,7 +2190,7 @@ void ImageBlurGaussian(Image *image, int blurSize)
 }
 
 // The kernel matrix is assumed to be square. Only supply the width of the kernel
-void ImageKernelConvolution(Image *image, float* kernel, int kernelSize)
+void ImageKernelConvolution(Image *image, float *kernel, int kernelSize)
 {
     if ((image->data == NULL) || (image->width == 0) || (image->height == 0) || kernel == NULL) return;
 
@@ -4626,12 +4626,12 @@ Color Fade(Color color, float alpha)
 int ColorToInt(Color color)
 {
     int result = 0;
-    
-    result = (int)(((unsigned int)color.r << 24) | 
-                   ((unsigned int)color.g << 16) | 
-                   ((unsigned int)color.b << 8) | 
+
+    result = (int)(((unsigned int)color.r << 24) |
+                   ((unsigned int)color.g << 16) |
+                   ((unsigned int)color.b << 8) |
                     (unsigned int)color.a);
-    
+
     return result;
 }
 
