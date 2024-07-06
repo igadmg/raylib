@@ -126,7 +126,7 @@ Rectangle GetShapesTextureRectangle(void)
 // Draw a pixel
 void DrawPixel(int posX, int posY, Color color)
 {
-  DrawPixelV((Vector2){ (float)posX, (float)posY }, color);
+    DrawPixelV((Vector2){ (float)posX, (float)posY }, color);
 }
 
 // Draw a pixel (Vector version)
@@ -178,9 +178,8 @@ void DrawLine(int startPosX, int startPosY, int endPosX, int endPosY, Color colo
 {
     rlBegin(RL_LINES);
         rlColor4ub(color.r, color.g, color.b, color.a);
-        // WARNING: Adding 0.5f offset to "center" point on selected pixel
-        rlVertex2f((float)startPosX + 0.5f, (float)startPosY + 0.5f);
-        rlVertex2f((float)endPosX + 0.5f, (float)endPosY + 0.5f);
+        rlVertex2f((float)startPosX, (float)startPosY);
+        rlVertex2f((float)endPosX, (float)endPosY);
     rlEnd();
 }
 
@@ -189,9 +188,8 @@ void DrawLineV(Vector2 startPos, Vector2 endPos, Color color)
 {
     rlBegin(RL_LINES);
         rlColor4ub(color.r, color.g, color.b, color.a);
-        // WARNING: Adding 0.5f offset to "center" point on selected pixel
-        rlVertex2f(startPos.x + 0.5f, startPos.y + 0.5f);
-        rlVertex2f(endPos.x + 0.5f, endPos.y + 0.5f);
+        rlVertex2f(startPos.x, startPos.y);
+        rlVertex2f(endPos.x, endPos.y);
     rlEnd();
 }
 
@@ -339,7 +337,7 @@ void DrawCircleSector(Vector2 center, float radius, float startAngle, float endA
         }
 
         // NOTE: In case number of segments is odd, we add one last piece to the cake
-        if (((unsigned int)segments%2) == 1)
+        if ((((unsigned int)segments)%2) == 1)
         {
             rlColor4ub(color.r, color.g, color.b, color.a);
 
@@ -1836,7 +1834,7 @@ void DrawSplineBezierQuadratic(const Vector2 *points, int pointCount, float thic
     if (pointCount >= 3)
     {
         for (int i = 0; i < pointCount - 2; i += 2) DrawSplineSegmentBezierQuadratic(points[i], points[i + 1], points[i + 2], thick, color);
-        
+
         // Cap circle drawing at the end of every segment
         //for (int i = 2; i < pointCount - 2; i += 2) DrawCircleV(points[i], thick/2.0f, color);
     }
@@ -1848,7 +1846,7 @@ void DrawSplineBezierCubic(const Vector2 *points, int pointCount, float thick, C
     if (pointCount >= 4)
     {
         for (int i = 0; i < pointCount - 3; i += 3) DrawSplineSegmentBezierCubic(points[i], points[i + 1], points[i + 2], points[i + 3], thick, color);
-        
+
         // Cap circle drawing at the end of every segment
         //for (int i = 3; i < pointCount - 3; i += 3) DrawCircleV(points[i], thick/2.0f, color);
     }
@@ -2237,10 +2235,10 @@ bool CheckCollisionCircles(Vector2 center1, float radius1, Vector2 center2, floa
     float dx = center2.x - center1.x;      // X distance between centers
     float dy = center2.y - center1.y;      // Y distance between centers
 
-    float distanceSquared = dx * dx + dy * dy; // Distance between centers squared
+    float distanceSquared = dx*dx + dy*dy; // Distance between centers squared
     float radiusSum = radius1 + radius2;
 
-    collision = (distanceSquared <= (radiusSum * radiusSum));
+    collision = (distanceSquared <= (radiusSum*radiusSum));
 
     return collision;
 }
@@ -2331,17 +2329,17 @@ RLAPI bool CheckCollisionCircleLine(Vector2 center, float radius, Vector2 p1, Ve
         return CheckCollisionCircles(p1, 0, center, radius);
     }
 
-    float lengthSQ = ((dx * dx) + (dy * dy));
-    float dotProduct = (((center.x - p1.x) * (p2.x - p1.x)) + ((center.y - p1.y) * (p2.y - p1.y))) / (lengthSQ);
+    float lengthSQ = ((dx*dx) + (dy*dy));
+    float dotProduct = (((center.x - p1.x)*(p2.x - p1.x)) + ((center.y - p1.y)*(p2.y - p1.y)))/(lengthSQ);
 
     if (dotProduct > 1.0f) dotProduct = 1.0f;
     else if (dotProduct < 0.0f) dotProduct = 0.0f;
 
-    float dx2 = (p1.x - (dotProduct * (dx))) - center.x;
-    float dy2 = (p1.y - (dotProduct * (dy))) - center.y;
-    float distanceSQ = ((dx2 * dx2) + (dy2 * dy2));
+    float dx2 = (p1.x - (dotProduct*(dx))) - center.x;
+    float dy2 = (p1.y - (dotProduct*(dy))) - center.y;
+    float distanceSQ = ((dx2*dx2) + (dy2*dy2));
 
-    return (distanceSQ <= radius * radius);
+    return (distanceSQ <= radius*radius);
 }
 
 // Get collision rectangle for two rectangles collision
