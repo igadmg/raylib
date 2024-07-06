@@ -1664,12 +1664,12 @@ Image ImageTextEx(Font font, const char *text, float fontSize, float spacing, Co
 }
 
 // Create an image from a selected channel of another image
-Image ImageFromChannel(Image image, int selectedChannel)
+Image ImageFromChannel(Image *image, int selectedChannel)
 {
     Image result = { 0 };
 
     // Security check to avoid program crash
-    if ((image.data == NULL) || (image.width == 0) || (image.height == 0)) return result;
+    if ((image->data == NULL) || (image->width == 0) || (image->height == 0)) return result;
 
     // Check selected channel is valid
     if (selectedChannel < 0)
@@ -1678,9 +1678,9 @@ Image ImageFromChannel(Image image, int selectedChannel)
         selectedChannel = 0;
     }
 
-    if (image.format == PIXELFORMAT_UNCOMPRESSED_GRAYSCALE ||
-        image.format == PIXELFORMAT_UNCOMPRESSED_R32 ||
-        image.format == PIXELFORMAT_UNCOMPRESSED_R16)
+    if (image->format == PIXELFORMAT_UNCOMPRESSED_GRAYSCALE ||
+        image->format == PIXELFORMAT_UNCOMPRESSED_R32 ||
+        image->format == PIXELFORMAT_UNCOMPRESSED_R16)
     {
         if (selectedChannel > 0)
         {
@@ -1688,7 +1688,7 @@ Image ImageFromChannel(Image image, int selectedChannel)
             selectedChannel = 0;
         }
     }
-    else if (image.format == PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA)
+    else if (image->format == PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA)
     {
         if (selectedChannel > 1)
         {
@@ -1696,10 +1696,10 @@ Image ImageFromChannel(Image image, int selectedChannel)
             selectedChannel = 1;
         }
     }
-    else if (image.format == PIXELFORMAT_UNCOMPRESSED_R5G6B5 ||
-             image.format == PIXELFORMAT_UNCOMPRESSED_R8G8B8 ||
-             image.format == PIXELFORMAT_UNCOMPRESSED_R32G32B32 ||
-             image.format == PIXELFORMAT_UNCOMPRESSED_R16G16B16)
+    else if (image->format == PIXELFORMAT_UNCOMPRESSED_R5G6B5 ||
+             image->format == PIXELFORMAT_UNCOMPRESSED_R8G8B8 ||
+             image->format == PIXELFORMAT_UNCOMPRESSED_R32G32B32 ||
+             image->format == PIXELFORMAT_UNCOMPRESSED_R16G16B16)
     {
         if (selectedChannel > 2)
         {
@@ -1717,34 +1717,34 @@ Image ImageFromChannel(Image image, int selectedChannel)
 
     // TODO: Consider other one-channel formats: R16, R32
     result.format = PIXELFORMAT_UNCOMPRESSED_GRAYSCALE;
-    result.height = image.height;
-    result.width = image.width;
+    result.height = image->height;
+    result.width = image->width;
     result.mipmaps = 1;
 
-    unsigned char *pixels = (unsigned char *)RL_CALLOC(image.width*image.height, sizeof(unsigned char)); // Values from 0 to 255
+    unsigned char *pixels = (unsigned char *)RL_CALLOC(image->width*image->height, sizeof(unsigned char)); // Values from 0 to 255
 
-    if (image.format >= PIXELFORMAT_COMPRESSED_DXT1_RGB) TRACELOG(LOG_WARNING, "IMAGE: Pixel data retrieval not supported for compressed image formats");
+    if (image->format >= PIXELFORMAT_COMPRESSED_DXT1_RGB) TRACELOG(LOG_WARNING, "IMAGE: Pixel data retrieval not supported for compressed image formats");
     else
     {
-        for (int i = 0, k = 0; i < image.width*image.height; i++)
+        for (int i = 0, k = 0; i < image->width*image->height; i++)
         {
             float pixelValue = -1;
-            switch (image.format)
+            switch (image->format)
             {
                 case PIXELFORMAT_UNCOMPRESSED_GRAYSCALE:
                 {
-                    pixelValue = (float)((unsigned char *)image.data)[i + selectedChannel]/255.0f;
+                    pixelValue = (float)((unsigned char *)image->data)[i + selectedChannel]/255.0f;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA:
                 {
-                    pixelValue = (float)((unsigned char *)image.data)[k + selectedChannel]/255.0f;
+                    pixelValue = (float)((unsigned char *)image->data)[k + selectedChannel]/255.0f;
                     k += 2;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R5G5B5A1:
                 {
-                    unsigned short pixel = ((unsigned short *)image.data)[i];
+                    unsigned short pixel = ((unsigned short *)image->data)[i];
 
                     if (selectedChannel == 0) pixelValue = (float)((pixel & 0b1111100000000000) >> 11)*(1.0f/31);
                     else if (selectedChannel == 1) pixelValue = (float)((pixel & 0b0000011111000000) >> 6)*(1.0f/31);
@@ -1754,7 +1754,7 @@ Image ImageFromChannel(Image image, int selectedChannel)
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R5G6B5:
                 {
-                    unsigned short pixel = ((unsigned short *)image.data)[i];
+                    unsigned short pixel = ((unsigned short *)image->data)[i];
 
                     if (selectedChannel == 0) pixelValue = (float)((pixel & 0b1111100000000000) >> 11)*(1.0f/31);
                     else if (selectedChannel == 1) pixelValue = (float)((pixel & 0b0000011111100000) >> 5)*(1.0f/63);
@@ -1763,7 +1763,7 @@ Image ImageFromChannel(Image image, int selectedChannel)
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R4G4B4A4:
                 {
-                    unsigned short pixel = ((unsigned short *)image.data)[i];
+                    unsigned short pixel = ((unsigned short *)image->data)[i];
 
                     if (selectedChannel == 0) pixelValue = (float)((pixel & 0b1111000000000000) >> 12)*(1.0f/15);
                     else if (selectedChannel == 1) pixelValue = (float)((pixel & 0b0000111100000000) >> 8)*(1.0f/15);
@@ -1773,49 +1773,49 @@ Image ImageFromChannel(Image image, int selectedChannel)
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R8G8B8A8:
                 {
-                    pixelValue = (float)((unsigned char *)image.data)[k + selectedChannel]/255.0f;
+                    pixelValue = (float)((unsigned char *)image->data)[k + selectedChannel]/255.0f;
                     k += 4;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R8G8B8:
                 {
-                    pixelValue = (float)((unsigned char *)image.data)[k + selectedChannel]/255.0f;
+                    pixelValue = (float)((unsigned char *)image->data)[k + selectedChannel]/255.0f;
                     k += 3;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R32:
                 {
-                    pixelValue = ((float *)image.data)[k];
+                    pixelValue = ((float *)image->data)[k];
                     k += 1;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R32G32B32:
                 {
-                    pixelValue = ((float *)image.data)[k + selectedChannel];
+                    pixelValue = ((float *)image->data)[k + selectedChannel];
                     k += 3;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R32G32B32A32:
                 {
-                    pixelValue = ((float *)image.data)[k + selectedChannel];
+                    pixelValue = ((float *)image->data)[k + selectedChannel];
                     k += 4;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R16:
                 {
-                    pixelValue = HalfToFloat(((unsigned short *)image.data)[k]);
+                    pixelValue = HalfToFloat(((unsigned short *)image->data)[k]);
                     k += 1;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R16G16B16:
                 {
-                    pixelValue = HalfToFloat(((unsigned short *)image.data)[k+selectedChannel]);
+                    pixelValue = HalfToFloat(((unsigned short *)image->data)[k+selectedChannel]);
                     k += 3;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R16G16B16A16:
                 {
-                    pixelValue = HalfToFloat(((unsigned short *)image.data)[k + selectedChannel]);
+                    pixelValue = HalfToFloat(((unsigned short *)image->data)[k + selectedChannel]);
                     k += 4;
 
                 } break;
