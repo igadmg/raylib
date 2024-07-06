@@ -5591,7 +5591,7 @@ return {
       description = "Create an image from a selected channel of another image (GRAYSCALE)",
       returnType = "Image",
       params = {
-        {type = "Image", name = "image"},
+        {type = "Image *", name = "image"},
         {type = "int", name = "selectedChannel"}
       }
     },

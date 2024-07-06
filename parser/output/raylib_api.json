@@ -7269,7 +7269,7 @@
       "returnType": "Image",
       "params": [
         {
-          "type": "Image",
+          "type": "Image *",
           "name": "image"
         },
         {
