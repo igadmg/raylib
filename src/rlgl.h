@@ -527,6 +527,10 @@ typedef enum {
     RL_SHADER_UNIFORM_IVEC2,            // Shader uniform type: ivec2 (2 int)
     RL_SHADER_UNIFORM_IVEC3,            // Shader uniform type: ivec3 (3 int)
     RL_SHADER_UNIFORM_IVEC4,            // Shader uniform type: ivec4 (4 int)
+    RL_SHADER_UNIFORM_UINT,             // Shader uniform type: unsigned int
+    RL_SHADER_UNIFORM_UIVEC2,           // Shader uniform type: uivec2 (2 unsigned int)
+    RL_SHADER_UNIFORM_UIVEC3,           // Shader uniform type: uivec3 (3 unsigned int)
+    RL_SHADER_UNIFORM_UIVEC4,           // Shader uniform type: uivec4 (4 unsigned int)
     RL_SHADER_UNIFORM_SAMPLER2D         // Shader uniform type: sampler2d
 } rlShaderUniformDataType;
 
@@ -665,7 +669,7 @@ RLAPI void rlDisableScissorTest(void);                  // Disable scissor test
 RLAPI void rlScissor(int x, int y, int width, int height); // Scissor test
 RLAPI void rlEnableWireMode(void);                      // Enable wire mode
 RLAPI void rlEnablePointMode(void);                     // Enable point mode
-RLAPI void rlDisableWireMode(void);                     // Disable wire mode ( and point ) maybe rename
+RLAPI void rlDisableWireMode(void);                     // Disable wire (and point) mode
 RLAPI void rlSetLineWidth(float width);                 // Set the line drawing width
 RLAPI float rlGetLineWidth(void);                       // Get the line drawing width
 RLAPI void rlEnableSmoothLines(void);                   // Enable line aliasing
@@ -1948,6 +1952,7 @@ void rlEnableWireMode(void)
 #endif
 }
 
+// Enable point mode
 void rlEnablePointMode(void)
 {
 #if defined(GRAPHICS_API_OPENGL_11) || defined(GRAPHICS_API_OPENGL_33)
@@ -1956,6 +1961,7 @@ void rlEnablePointMode(void)
     glEnable(GL_PROGRAM_POINT_SIZE);
 #endif
 }
+
 // Disable wire mode
 void rlDisableWireMode(void)
 {
@@ -3994,18 +4000,18 @@ unsigned int rlLoadShaderCode(const char *vsCode, const char *fsCode)
     unsigned int fragmentShaderId = 0;
 
     // Compile vertex shader (if provided)
+    // NOTE: If not vertex shader is provided, use default one
     if (vsCode != NULL) vertexShaderId = rlCompileShader(vsCode, GL_VERTEX_SHADER);
-    // In case no vertex shader was provided or compilation failed, we use default vertex shader
-    if (vertexShaderId == 0) vertexShaderId = RLGL.State.defaultVShaderId;
+    else vertexShaderId = RLGL.State.defaultVShaderId;
 
     // Compile fragment shader (if provided)
+    // NOTE: If not vertex shader is provided, use default one
     if (fsCode != NULL) fragmentShaderId = rlCompileShader(fsCode, GL_FRAGMENT_SHADER);
-    // In case no fragment shader was provided or compilation failed, we use default fragment shader
-    if (fragmentShaderId == 0) fragmentShaderId = RLGL.State.defaultFShaderId;
+    else fragmentShaderId = RLGL.State.defaultFShaderId;
 
     // In case vertex and fragment shader are the default ones, no need to recompile, we can just assign the default shader program id
     if ((vertexShaderId == RLGL.State.defaultVShaderId) && (fragmentShaderId == RLGL.State.defaultFShaderId)) id = RLGL.State.defaultShaderId;
-    else
+    else if ((vertexShaderId > 0) && (fragmentShaderId > 0))
     {
         // One of or both shader are new, we need to compile a new shader program
         id = rlLoadShaderProgram(vertexShaderId, fragmentShaderId);
@@ -4100,6 +4106,8 @@ unsigned int rlCompileShader(const char *shaderCode, int type)
             TRACELOG(RL_LOG_WARNING, "SHADER: [ID %i] Compile error: %s", shader, log);
             RL_FREE(log);
         }
+
+        shader = 0;
     }
     else
     {
@@ -4232,8 +4240,16 @@ void rlSetUniform(int locIndex, const void *value, int uniformType, int count)
         case RL_SHADER_UNIFORM_IVEC2: glUniform2iv(locIndex, count, (int *)value); break;
         case RL_SHADER_UNIFORM_IVEC3: glUniform3iv(locIndex, count, (int *)value); break;
         case RL_SHADER_UNIFORM_IVEC4: glUniform4iv(locIndex, count, (int *)value); break;
+    #if !defined(GRAPHICS_API_OPENGL_ES2)
+        case RL_SHADER_UNIFORM_UINT: glUniform1uiv(locIndex, count, (unsigned int *)value); break;
+        case RL_SHADER_UNIFORM_UIVEC2: glUniform2uiv(locIndex, count, (unsigned int *)value); break;
+        case RL_SHADER_UNIFORM_UIVEC3: glUniform3uiv(locIndex, count, (unsigned int *)value); break;
+        case RL_SHADER_UNIFORM_UIVEC4: glUniform4uiv(locIndex, count, (unsigned int *)value); break;
+    #endif
         case RL_SHADER_UNIFORM_SAMPLER2D: glUniform1iv(locIndex, count, (int *)value); break;
         default: TRACELOG(RL_LOG_WARNING, "SHADER: Failed to set uniform value, data type not recognized");
+        
+        // TODO: Support glUniform1uiv(), glUniform2uiv(), glUniform3uiv(), glUniform4uiv()
     }
 #endif
 }
@@ -4408,14 +4424,14 @@ void rlUpdateShaderBuffer(unsigned int id, const void *data, unsigned int dataSi
 // Get SSBO buffer size
 unsigned int rlGetShaderBufferSize(unsigned int id)
 {
-    GLint64 size = 0;
-
 #if defined(GRAPHICS_API_OPENGL_43)
+    GLint64 size = 0;
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, id);
     glGetBufferParameteri64v(GL_SHADER_STORAGE_BUFFER, GL_BUFFER_SIZE, &size);
-#endif
-
     return (size > 0)? (unsigned int)size : 0;
+#else
+    return 0;
+#endif
 }
 
 // Read SSBO buffer data (GPU->CPU)
