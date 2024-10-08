@@ -856,12 +856,22 @@ return {
         {
           type = "unsigned char *",
           name = "boneIds",
-          description = "Vertex bone ids, max 255 bone ids, up to 4 bones influence by vertex (skinning)"
+          description = "Vertex bone ids, max 255 bone ids, up to 4 bones influence by vertex (skinning) (shader-location = 6)"
         },
         {
           type = "float *",
           name = "boneWeights",
-          description = "Vertex bone weight, up to 4 bones influence by vertex (skinning)"
+          description = "Vertex bone weight, up to 4 bones influence by vertex (skinning) (shader-location = 7)"
+        },
+        {
+          type = "Matrix *",
+          name = "boneMatrices",
+          description = "Bones animated transformation matrices"
+        },
+        {
+          type = "int",
+          name = "boneCount",
+          description = "Number of bones"
         },
         {
           type = "unsigned int",
@@ -2524,6 +2534,21 @@ return {
           name = "SHADER_LOC_MAP_BRDF",
           value = 25,
           description = "Shader location: sampler2d texture: brdf"
+        },
+        {
+          name = "SHADER_LOC_VERTEX_BONEIDS",
+          value = 26,
+          description = "Shader location: vertex attribute: boneIds"
+        },
+        {
+          name = "SHADER_LOC_VERTEX_BONEWEIGHTS",
+          value = 27,
+          description = "Shader location: vertex attribute: boneWeights"
+        },
+        {
+          name = "SHADER_LOC_BONE_MATRICES",
+          value = 28,
+          description = "Shader location: array of matrices uniform: boneMatrices"
         }
       }
     },
@@ -4064,6 +4089,14 @@ return {
       returnType = "const char *"
     },
     {
+      name = "MakeDirectory",
+      description = "Create directories (including full path requested), returns 0 on success",
+      returnType = "int",
+      params = {
+        {type = "const char *", name = "dirPath"}
+      }
+    },
+    {
       name = "ChangeDirectory",
       description = "Change working directory, return true on success",
       returnType = "bool",
@@ -4097,7 +4130,7 @@ return {
     },
     {
       name = "LoadDirectoryFilesEx",
-      description = "Load directory filepaths with extension filtering and recursive directory scan",
+      description = "Load directory filepaths with extension filtering and recursive directory scan. Use 'DIR' in the filter string to include directories in the result",
       returnType = "FilePathList",
       params = {
         {type = "const char *", name = "basePath"},
@@ -4637,7 +4670,7 @@ return {
     },
     {
       name = "DrawPixel",
-      description = "Draw a pixel",
+      description = "Draw a pixel using geometry [Can be slow, use with care]",
       returnType = "void",
       params = {
         {type = "int", name = "posX"},
@@ -4647,7 +4680,7 @@ return {
     },
     {
       name = "DrawPixelV",
-      description = "Draw a pixel (Vector version)",
+      description = "Draw a pixel using geometry (Vector version) [Can be slow, use with care]",
       returnType = "void",
       params = {
         {type = "Vector2", name = "position"},
@@ -6457,6 +6490,16 @@ return {
       }
     },
     {
+      name = "ColorLerp",
+      description = "Get color lerp interpolation between two colors, factor [0.0f..1.0f]",
+      returnType = "Color",
+      params = {
+        {type = "Color", name = "color1"},
+        {type = "Color", name = "color2"},
+        {type = "float", name = "factor"}
+      }
+    },
+    {
       name = "GetColor",
       description = "Get Color structure from hexadecimal value",
       returnType = "Color",
@@ -6508,7 +6551,7 @@ return {
     },
     {
       name = "LoadFontEx",
-      description = "Load font from file with extended parameters, use NULL for codepoints and 0 for codepointCount to load the default character setFont",
+      description = "Load font from file with extended parameters, use NULL for codepoints and 0 for codepointCount to load the default character set, font size is provided in pixels height",
       returnType = "Font",
       params = {
         {type = "const char *", name = "fileName"},
@@ -7672,6 +7715,16 @@ return {
       params = {
         {type = "Model", name = "model"},
         {type = "ModelAnimation", name = "anim"}
+      }
+    },
+    {
+      name = "UpdateModelAnimationBoneMatrices",
+      description = "Update model animation mesh bone matrices (Note GPU skinning does not work on Mac)",
+      returnType = "void",
+      params = {
+        {type = "Model", name = "model"},
+        {type = "ModelAnimation", name = "anim"},
+        {type = "int", name = "frame"}
       }
     },
     {
