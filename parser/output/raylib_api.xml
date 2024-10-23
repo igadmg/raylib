@@ -677,7 +677,7 @@
             <Param type="unsigned int" name="frames" desc="" />
         </Callback>
     </Callbacks>
-    <Functions count="580">
+    <Functions count="592">
         <Function name="InitWindow" retType="void" paramCount="3" desc="Initialize window and OpenGL context">
             <Param type="int" name="width" desc="" />
             <Param type="int" name="height" desc="" />
@@ -874,7 +874,7 @@
             <Param type="const char *" name="fsCode" desc="" />
         </Function>
         <Function name="IsShaderValid" retType="bool" paramCount="1" desc="Check if a shader is valid (loaded on GPU)">
-            <Param type="Shader" name="shader" desc="" />
+            <Param type="Shader *" name="shader" desc="" />
         </Function>
         <Function name="GetShaderLocation" retType="int" paramCount="2" desc="Get shader uniform location">
             <Param type="Shader" name="shader" desc="" />
@@ -1294,6 +1294,8 @@
             <Param type="unsigned int" name="gesture" desc="" />
         </Function>
         <Function name="GetGestureDetected" retType="int" paramCount="0" desc="Get latest detected gesture">
+        </Function>
+        <Function name="GetGestureTapPosition" retType="Vector2" paramCount="0" desc="Get position of tab and double tap gestures, or any start tap gesture position">
         </Function>
         <Function name="GetGestureHoldDuration" retType="float" paramCount="0" desc="Get gesture hold time in seconds">
         </Function>
@@ -1756,7 +1758,7 @@
         <Function name="LoadImageFromScreen" retType="Image" paramCount="0" desc="Load image from screen buffer and (screenshot)">
         </Function>
         <Function name="IsImageValid" retType="bool" paramCount="1" desc="Check if an image is valid (data and parameters)">
-            <Param type="Image" name="image" desc="" />
+            <Param type="Image *" name="image" desc="" />
         </Function>
         <Function name="UnloadImage" retType="void" paramCount="1" desc="Unload image from CPU memory (RAM)">
             <Param type="Image *" name="image" desc="" />
@@ -2141,13 +2143,13 @@
             <Param type="int" name="height" desc="" />
         </Function>
         <Function name="IsTextureValid" retType="bool" paramCount="1" desc="Check if a texture is valid (loaded in GPU)">
-            <Param type="Texture2D" name="texture" desc="" />
+            <Param type="Texture2D *" name="texture" desc="" />
         </Function>
         <Function name="UnloadTexture" retType="void" paramCount="1" desc="Unload texture from GPU memory (VRAM)">
             <Param type="Texture2D *" name="texture" desc="" />
         </Function>
         <Function name="IsRenderTextureValid" retType="bool" paramCount="1" desc="Check if a render texture is valid (loaded in GPU)">
-            <Param type="RenderTexture2D" name="target" desc="" />
+            <Param type="RenderTexture2D *" name="target" desc="" />
         </Function>
         <Function name="UnloadRenderTexture" retType="void" paramCount="1" desc="Unload render texture from GPU memory (VRAM)">
             <Param type="RenderTexture2D *" name="target" desc="" />
@@ -2314,7 +2316,7 @@
             <Param type="int" name="codepointCount" desc="" />
         </Function>
         <Function name="IsFontValid" retType="bool" paramCount="1" desc="Check if a font is valid (font data loaded, WARNING: GPU texture not checked)">
-            <Param type="Font" name="font" desc="" />
+            <Param type="Font *" name="font" desc="" />
         </Function>
         <Function name="LoadFontData" retType="GlyphInfo *" paramCount="6" desc="Load font data for further use">
             <Param type="const unsigned char *" name="fileData" desc="" />
@@ -2663,7 +2665,7 @@
             <Param type="Mesh" name="mesh" desc="" />
         </Function>
         <Function name="IsModelValid" retType="bool" paramCount="1" desc="Check if a model is valid (loaded in GPU, VAO/VBOs)">
-            <Param type="Model" name="model" desc="" />
+            <Param type="Model *" name="model" desc="" />
         </Function>
         <Function name="UnloadModel" retType="void" paramCount="1" desc="Unload model (including meshes) from memory (RAM and/or VRAM)">
             <Param type="Model *" name="model" desc="" />
@@ -2844,7 +2846,7 @@
         <Function name="LoadMaterialDefault" retType="Material" paramCount="0" desc="Load default material (Supports: DIFFUSE, SPECULAR, NORMAL maps)">
         </Function>
         <Function name="IsMaterialValid" retType="bool" paramCount="1" desc="Check if a material is valid (shader assigned, map textures loaded in GPU)">
-            <Param type="Material" name="material" desc="" />
+            <Param type="Material *" name="material" desc="" />
         </Function>
         <Function name="UnloadMaterial" retType="void" paramCount="1" desc="Unload material from GPU memory (VRAM)">
             <Param type="Material *" name="material" desc="" />
@@ -2946,7 +2948,7 @@
             <Param type="int" name="dataSize" desc="" />
         </Function>
         <Function name="IsWaveValid" retType="bool" paramCount="1" desc="Checks if wave data is valid (data loaded and parameters)">
-            <Param type="Wave" name="wave" desc="" />
+            <Param type="Wave *" name="wave" desc="" />
         </Function>
         <Function name="LoadSound" retType="Sound" paramCount="1" desc="Load sound from file">
             <Param type="const char *" name="fileName" desc="" />
@@ -2958,7 +2960,7 @@
             <Param type="Sound" name="source" desc="" />
         </Function>
         <Function name="IsSoundValid" retType="bool" paramCount="1" desc="Checks if a sound is valid (data loaded and buffers initialized)">
-            <Param type="Sound" name="sound" desc="" />
+            <Param type="Sound *" name="sound" desc="" />
         </Function>
         <Function name="UpdateSound" retType="void" paramCount="3" desc="Update sound buffer with new data">
             <Param type="Sound" name="sound" desc="" />
@@ -3038,7 +3040,7 @@
             <Param type="int" name="dataSize" desc="" />
         </Function>
         <Function name="IsMusicValid" retType="bool" paramCount="1" desc="Checks if a music stream is valid (context and buffers initialized)">
-            <Param type="Music" name="music" desc="" />
+            <Param type="Music *" name="music" desc="" />
         </Function>
         <Function name="UnloadMusicStream" retType="void" paramCount="1" desc="Unload music stream">
             <Param type="Music *" name="music" desc="" />
@@ -3089,7 +3091,7 @@
             <Param type="unsigned int" name="channels" desc="" />
         </Function>
         <Function name="IsAudioStreamValid" retType="bool" paramCount="1" desc="Checks if an audio stream is valid (buffers initialized)">
-            <Param type="AudioStream" name="stream" desc="" />
+            <Param type="AudioStream *" name="stream" desc="" />
         </Function>
         <Function name="UnloadAudioStream" retType="void" paramCount="1" desc="Unload audio stream and free memory">
             <Param type="AudioStream *" name="stream" desc="" />
