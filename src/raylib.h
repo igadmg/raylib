@@ -1,22 +1,22 @@
 /**********************************************************************************************
 *
-*   raylib v5.5-dev - A simple and easy-to-use library to enjoy videogames programming (www.raylib.com)
+*   raylib v5.5 - A simple and easy-to-use library to enjoy videogames programming (www.raylib.com)
 *
 *   FEATURES:
 *       - NO external dependencies, all required libraries included with raylib
 *       - Multiplatform: Windows, Linux, FreeBSD, OpenBSD, NetBSD, DragonFly,
 *                        MacOS, Haiku, Android, Raspberry Pi, DRM native, HTML5.
 *       - Written in plain C code (C99) in PascalCase/camelCase notation
-*       - Hardware accelerated with OpenGL (1.1, 2.1, 3.3, 4.3 or ES2 - choose at compile)
+*       - Hardware accelerated with OpenGL (1.1, 2.1, 3.3, 4.3, ES2, ES3 - choose at compile)
 *       - Unique OpenGL abstraction layer (usable as standalone module): [rlgl]
-*       - Multiple Fonts formats supported (TTF, XNA fonts, AngelCode fonts)
+*       - Multiple Fonts formats supported (TTF, OTF, FNT, BDF, Sprite fonts)
 *       - Outstanding texture formats support, including compressed formats (DXT, ETC, ASTC)
 *       - Full 3d support for 3d Shapes, Models, Billboards, Heightmaps and more!
 *       - Flexible Materials system, supporting classic maps and PBR maps
-*       - Animated 3D models supported (skeletal bones animation) (IQM)
+*       - Animated 3D models supported (skeletal bones animation) (IQM, M3D, GLTF)
 *       - Shaders support, including Model shaders and Postprocessing shaders
 *       - Powerful math module for Vector, Matrix and Quaternion operations: [raymath]
-*       - Audio loading and playing with streaming support (WAV, OGG, MP3, FLAC, XM, MOD)
+*       - Audio loading and playing with streaming support (WAV, OGG, MP3, FLAC, QOA, XM, MOD)
 *       - VR stereo rendering with configurable HMD device parameters
 *       - Bindings to multiple programming languages available!
 *
@@ -27,29 +27,35 @@
 *       - One default RenderBatch is loaded on rlglInit()->rlLoadRenderBatch() [rlgl] (OpenGL 3.3 or ES2)
 *
 *   DEPENDENCIES (included):
-*       [rcore] rglfw (Camilla Löwy - github.com/glfw/glfw) for window/context management and input (PLATFORM_DESKTOP)
-*       [rlgl] glad (David Herberth - github.com/Dav1dde/glad) for OpenGL 3.3 extensions loading (PLATFORM_DESKTOP)
+*       [rcore][GLFW] rglfw (Camilla Löwy - github.com/glfw/glfw) for window/context management and input
+*       [rcore][RGFW] rgfw (ColleagueRiley - github.com/ColleagueRiley/RGFW) for window/context management and input
+*       [rlgl] glad/glad_gles2 (David Herberth - github.com/Dav1dde/glad) for OpenGL 3.3 extensions loading
 *       [raudio] miniaudio (David Reid - github.com/mackron/miniaudio) for audio device/context management
 *
 *   OPTIONAL DEPENDENCIES (included):
 *       [rcore] msf_gif (Miles Fogle) for GIF recording
 *       [rcore] sinfl (Micha Mettke) for DEFLATE decompression algorithm
 *       [rcore] sdefl (Micha Mettke) for DEFLATE compression algorithm
+*       [rcore] rprand (Ramon Snatamaria) for pseudo-random numbers generation
+*       [rtextures] qoi (Dominic Szablewski - https://phoboslab.org) for QOI image manage
 *       [rtextures] stb_image (Sean Barret) for images loading (BMP, TGA, PNG, JPEG, HDR...)
 *       [rtextures] stb_image_write (Sean Barret) for image writing (BMP, TGA, PNG, JPG)
-*       [rtextures] stb_image_resize (Sean Barret) for image resizing algorithms
+*       [rtextures] stb_image_resize2 (Sean Barret) for image resizing algorithms
+*       [rtextures] stb_perlin (Sean Barret) for Perlin Noise image generation
 *       [rtext] stb_truetype (Sean Barret) for ttf fonts loading
 *       [rtext] stb_rect_pack (Sean Barret) for rectangles packing
 *       [rmodels] par_shapes (Philip Rideout) for parametric 3d shapes generation
 *       [rmodels] tinyobj_loader_c (Syoyo Fujita) for models loading (OBJ, MTL)
 *       [rmodels] cgltf (Johannes Kuhlmann) for models loading (glTF)
-*       [rmodels] Model3D (bzt) for models loading (M3D, https://bztsrc.gitlab.io/model3d)
+*       [rmodels] m3d (bzt) for models loading (M3D, https://bztsrc.gitlab.io/model3d)
+*       [rmodels] vox_loader (Johann Nadalutti) for models loading (VOX)
 *       [raudio] dr_wav (David Reid) for WAV audio file loading
 *       [raudio] dr_flac (David Reid) for FLAC audio file loading
 *       [raudio] dr_mp3 (David Reid) for MP3 audio file loading
 *       [raudio] stb_vorbis (Sean Barret) for OGG audio loading
 *       [raudio] jar_xm (Joshua Reisenauer) for XM audio module loading
 *       [raudio] jar_mod (Joshua Reisenauer) for MOD audio module loading
+*       [raudio] qoa (Dominic Szablewski - https://phoboslab.org) for QOA audio manage
 *
 *
 *   LICENSE: zlib/libpng
@@ -84,7 +90,7 @@
 #define RAYLIB_VERSION_MAJOR 5
 #define RAYLIB_VERSION_MINOR 5
 #define RAYLIB_VERSION_PATCH 0
-#define RAYLIB_VERSION  "5.5-dev"
+#define RAYLIB_VERSION  "5.5"
 
 // Function specifiers in case library is build/used as a shared library
 // NOTE: Microsoft specifiers to tell compiler that symbols are imported/exported from a .dll
@@ -880,8 +886,7 @@ typedef enum {
     CUBEMAP_LAYOUT_LINE_VERTICAL,           // Layout is defined by a vertical line with faces
     CUBEMAP_LAYOUT_LINE_HORIZONTAL,         // Layout is defined by a horizontal line with faces
     CUBEMAP_LAYOUT_CROSS_THREE_BY_FOUR,     // Layout is defined by a 3x4 cross with cubemap faces
-    CUBEMAP_LAYOUT_CROSS_FOUR_BY_THREE,     // Layout is defined by a 4x3 cross with cubemap faces
-    CUBEMAP_LAYOUT_PANORAMA                 // Layout is defined by a panorama image (equirrectangular map)
+    CUBEMAP_LAYOUT_CROSS_FOUR_BY_THREE     // Layout is defined by a 4x3 cross with cubemap faces
 } CubemapLayout;
 
 // Font type, defines generation method
@@ -969,36 +974,36 @@ RLAPI void CloseWindow(void);                                     // Close windo
 RLAPI bool WindowShouldClose(void);                               // Check if application should close (KEY_ESCAPE pressed or windows close icon clicked)
 RLAPI bool IsWindowReady(void);                                   // Check if window has been initialized successfully
 RLAPI bool IsWindowFullscreen(void);                              // Check if window is currently fullscreen
-RLAPI bool IsWindowHidden(void);                                  // Check if window is currently hidden (only PLATFORM_DESKTOP)
-RLAPI bool IsWindowMinimized(void);                               // Check if window is currently minimized (only PLATFORM_DESKTOP)
-RLAPI bool IsWindowMaximized(void);                               // Check if window is currently maximized (only PLATFORM_DESKTOP)
-RLAPI bool IsWindowFocused(void);                                 // Check if window is currently focused (only PLATFORM_DESKTOP)
+RLAPI bool IsWindowHidden(void);                                  // Check if window is currently hidden
+RLAPI bool IsWindowMinimized(void);                               // Check if window is currently minimized
+RLAPI bool IsWindowMaximized(void);                               // Check if window is currently maximized
+RLAPI bool IsWindowFocused(void);                                 // Check if window is currently focused
 RLAPI bool IsWindowResized(void);                                 // Check if window has been resized last frame
 RLAPI bool IsWindowState(unsigned int flag);                      // Check if one specific window flag is enabled
-RLAPI void SetWindowState(unsigned int flags);                    // Set window configuration state using flags (only PLATFORM_DESKTOP)
+RLAPI void SetWindowState(unsigned int flags);                    // Set window configuration state using flags
 RLAPI void ClearWindowState(unsigned int flags);                  // Clear window configuration state flags
-RLAPI void ToggleFullscreen(void);                                // Toggle window state: fullscreen/windowed [resizes monitor to match window resolution] (only PLATFORM_DESKTOP)
-RLAPI void ToggleBorderlessWindowed(void);                        // Toggle window state: borderless windowed [resizes window to match monitor resolution] (only PLATFORM_DESKTOP)
-RLAPI void MaximizeWindow(void);                                  // Set window state: maximized, if resizable (only PLATFORM_DESKTOP)
-RLAPI void MinimizeWindow(void);                                  // Set window state: minimized, if resizable (only PLATFORM_DESKTOP)
-RLAPI void RestoreWindow(void);                                   // Set window state: not minimized/maximized (only PLATFORM_DESKTOP)
-RLAPI void SetWindowIcon(Image image);                            // Set icon for window (single image, RGBA 32bit, only PLATFORM_DESKTOP)
-RLAPI void SetWindowIcons(Image *images, int count);              // Set icon for window (multiple images, RGBA 32bit, only PLATFORM_DESKTOP)
-RLAPI void SetWindowTitle(const char *title);                     // Set title for window (only PLATFORM_DESKTOP and PLATFORM_WEB)
-RLAPI void SetWindowPosition(int x, int y);                       // Set window position on screen (only PLATFORM_DESKTOP)
+RLAPI void ToggleFullscreen(void);                                // Toggle window state: fullscreen/windowed, resizes monitor to match window resolution
+RLAPI void ToggleBorderlessWindowed(void);                        // Toggle window state: borderless windowed, resizes window to match monitor resolution
+RLAPI void MaximizeWindow(void);                                  // Set window state: maximized, if resizable
+RLAPI void MinimizeWindow(void);                                  // Set window state: minimized, if resizable
+RLAPI void RestoreWindow(void);                                   // Set window state: not minimized/maximized
+RLAPI void SetWindowIcon(Image image);                            // Set icon for window (single image, RGBA 32bit)
+RLAPI void SetWindowIcons(Image *images, int count);              // Set icon for window (multiple images, RGBA 32bit)
+RLAPI void SetWindowTitle(const char *title);                     // Set title for window
+RLAPI void SetWindowPosition(int x, int y);                       // Set window position on screen
 RLAPI void SetWindowMonitor(int monitor);                         // Set monitor for the current window
 RLAPI void SetWindowMinSize(int width, int height);               // Set window minimum dimensions (for FLAG_WINDOW_RESIZABLE)
 RLAPI void SetWindowMaxSize(int width, int height);               // Set window maximum dimensions (for FLAG_WINDOW_RESIZABLE)
 RLAPI void SetWindowSize(int width, int height);                  // Set window dimensions
-RLAPI void SetWindowOpacity(float opacity);                       // Set window opacity [0.0f..1.0f] (only PLATFORM_DESKTOP)
-RLAPI void SetWindowFocused(void);                                // Set window focused (only PLATFORM_DESKTOP)
+RLAPI void SetWindowOpacity(float opacity);                       // Set window opacity [0.0f..1.0f]
+RLAPI void SetWindowFocused(void);                                // Set window focused
 RLAPI void *GetWindowHandle(void);                                // Get native window handle
 RLAPI int GetScreenWidth(void);                                   // Get current screen width
 RLAPI int GetScreenHeight(void);                                  // Get current screen height
 RLAPI int GetRenderWidth(void);                                   // Get current render width (it considers HiDPI)
 RLAPI int GetRenderHeight(void);                                  // Get current render height (it considers HiDPI)
 RLAPI int GetMonitorCount(void);                                  // Get number of connected monitors
-RLAPI int GetCurrentMonitor(void);                                // Get current connected monitor
+RLAPI int GetCurrentMonitor(void);                                // Get current monitor where window is placed
 RLAPI Vector2 GetMonitorPosition(int monitor);                    // Get specified monitor position
 RLAPI int GetMonitorWidth(int monitor);                           // Get specified monitor width (current video mode used by monitor)
 RLAPI int GetMonitorHeight(int monitor);                          // Get specified monitor height (current video mode used by monitor)
@@ -1010,6 +1015,7 @@ RLAPI Vector2 GetWindowScaleDPI(void);                            // Get window 
 RLAPI const char *GetMonitorName(int monitor);                    // Get the human-readable, UTF-8 encoded name of the specified monitor
 RLAPI void SetClipboardText(const char *text);                    // Set clipboard text content
 RLAPI const char *GetClipboardText(void);                         // Get clipboard text content
+RLAPI Image GetClipboardImage(void);                              // Get clipboard image content
 RLAPI void EnableEventWaiting(void);                              // Enable waiting for events on EndDrawing(), no automatic event polling
 RLAPI void DisableEventWaiting(void);                             // Disable waiting for events on EndDrawing(), automatic events polling
 
@@ -1048,7 +1054,7 @@ RLAPI void UnloadVrStereoConfig(VrStereoConfig config);           // Unload VR s
 // NOTE: Shader functionality is not available on OpenGL 1.1
 RLAPI Shader LoadShader(const char *vsFileName, const char *fsFileName);   // Load shader from files and bind default locations
 RLAPI Shader LoadShaderFromMemory(const char *vsCode, const char *fsCode); // Load shader from code strings and bind default locations
-RLAPI bool IsShaderValid(Shader *shader);                                  // Check if a shader is valid (loaded on GPU)
+RLAPI bool IsShaderValid(Shader shader);                                   // Check if a shader is valid (loaded on GPU)
 RLAPI int GetShaderLocation(Shader shader, const char *uniformName);       // Get shader uniform location
 RLAPI int GetShaderLocationAttrib(Shader shader, const char *attribName);  // Get shader attribute location
 RLAPI void SetShaderValue(Shader shader, int locIndex, const void *value, int uniformType);               // Set shader uniform value
@@ -1171,7 +1177,7 @@ RLAPI void PlayAutomationEvent(AutomationEvent event);                          
 
 // Input-related functions: keyboard
 RLAPI bool IsKeyPressed(int key);                             // Check if a key has been pressed once
-RLAPI bool IsKeyPressedRepeat(int key);                       // Check if a key has been pressed again (Only PLATFORM_DESKTOP)
+RLAPI bool IsKeyPressedRepeat(int key);                       // Check if a key has been pressed again
 RLAPI bool IsKeyDown(int key);                                // Check if a key is being pressed
 RLAPI bool IsKeyReleased(int key);                            // Check if a key has been released once
 RLAPI bool IsKeyUp(int key);                                  // Check if a key is NOT being pressed
@@ -1331,10 +1337,10 @@ RLAPI Image LoadImageRaw(const char *fileName, int width, int height, int format
 RLAPI Image LoadImageAnim(const char *fileName, int *frames);                                            // Load image sequence from file (frames appended to image.data)
 RLAPI Image LoadImageAnimFromMemory(const char *fileType, const unsigned char *fileData, int dataSize, int *frames); // Load image sequence from memory buffer
 RLAPI Image LoadImageFromMemory(const char *fileType, const unsigned char *fileData, int dataSize);      // Load image from memory buffer, fileType refers to extension: i.e. '.png'
-RLAPI Image LoadImageFromTexture(Texture2D *texture);                                                    // Load image from GPU texture data
-RLAPI Image *ReloadImageFromTexture(Texture2D *texture, Image *image);                                   // Load image from GPU texture data, reuse previous image memory
+RLAPI Image LoadImageFromTexture(Texture2D texture);                                                     // Load image from GPU texture data
+RLAPI Image *ReloadImageFromTexture(Texture2D texture, Image *image);                                    // Load image from GPU texture data, reuse previous image memory
 RLAPI Image LoadImageFromScreen(void);                                                                   // Load image from screen buffer and (screenshot)
-RLAPI bool IsImageValid(Image *image);                                                                   // Check if an image is valid (data and parameters)
+RLAPI bool IsImageValid(Image image);                                                                    // Check if an image is valid (data and parameters)
 RLAPI void UnloadImage(Image *image);                                                                    // Unload image from CPU memory (RAM)
 RLAPI bool ExportImage(Image image, const char *fileName);                                               // Export image data to file, returns true on success
 RLAPI unsigned char *ExportImageToMemory(Image image, const char *fileType, int *fileSize);              // Export image to memory buffer
@@ -1352,9 +1358,9 @@ RLAPI Image GenImageCellular(int width, int height, int tileSize);              
 RLAPI Image GenImageText(int width, int height, const char *text);                                       // Generate image: grayscale image from text data
 
 // Image manipulation functions
-RLAPI Image ImageCopy(Image *image);                                                                     // Create an image duplicate (useful for transformations)
-RLAPI Image ImageFromImage(Image *image, Rectangle rec);                                                 // Create an image from another image piece
-RLAPI Image ImageFromChannel(Image *image, int selectedChannel);                                         // Create an image from a selected channel of another image (GRAYSCALE)
+RLAPI Image ImageCopy(Image image);                                                                      // Create an image duplicate (useful for transformations)
+RLAPI Image ImageFromImage(Image image, Rectangle rec);                                                  // Create an image from another image piece
+RLAPI Image ImageFromChannel(Image image, int selectedChannel);                                          // Create an image from a selected channel of another image (GRAYSCALE)
 RLAPI Image ImageText(const char *text, int fontSize, Color color);                                      // Create an image from text (default font)
 RLAPI Image ImageTextEx(Font font, const char *text, float fontSize, float spacing, Color tint);         // Create an image from text (custom sprite font)
 RLAPI void ImageFormat(Image *image, int newFormat);                                                     // Convert image data to desired format
@@ -1417,12 +1423,12 @@ RLAPI void ImageDrawTextEx(Image *dst, Font font, const char *text, Vector2 posi
 // Texture loading functions
 // NOTE: These functions require GPU access
 RLAPI Texture2D LoadTexture(const char *fileName);                                                       // Load texture from file into GPU memory (VRAM)
-RLAPI Texture2D LoadTextureFromImage(Image *image);                                                      // Load texture from image data
-RLAPI TextureCubemap LoadTextureCubemap(Image *image, int layout);                                       // Load cubemap from image, multiple image cubemap layouts supported
+RLAPI Texture2D LoadTextureFromImage(Image image);                                                       // Load texture from image data
+RLAPI TextureCubemap LoadTextureCubemap(Image image, int layout);                                        // Load cubemap from image, multiple image cubemap layouts supported
 RLAPI RenderTexture2D LoadRenderTexture(int width, int height);                                          // Load texture for rendering (framebuffer)
-RLAPI bool IsTextureValid(Texture2D *texture);                                                           // Check if a texture is valid (loaded in GPU)
+RLAPI bool IsTextureValid(Texture2D texture);                                                            // Check if a texture is valid (loaded in GPU)
 RLAPI void UnloadTexture(Texture2D *texture);                                                            // Unload texture from GPU memory (VRAM)
-RLAPI bool IsRenderTextureValid(RenderTexture2D *target);                                                // Check if a render texture is valid (loaded in GPU)
+RLAPI bool IsRenderTextureValid(RenderTexture2D target);                                                 // Check if a render texture is valid (loaded in GPU)
 RLAPI void UnloadRenderTexture(RenderTexture2D *target);                                                 // Unload render texture from GPU memory (VRAM)
 RLAPI void UpdateTexture(Texture2D texture, const void *pixels);                                         // Update GPU texture with new data
 RLAPI void UpdateTextureRec(Texture2D texture, Rectangle rec, const void *pixels);                       // Update GPU texture rectangle with new data
@@ -1470,7 +1476,7 @@ RLAPI Font LoadFont(const char *fileName);                                      
 RLAPI Font LoadFontEx(const char *fileName, int fontSize, int *codepoints, int codepointCount); // Load font from file with extended parameters, use NULL for codepoints and 0 for codepointCount to load the default character set, font size is provided in pixels height
 RLAPI Font LoadFontFromImage(Image image, Color key, int firstChar);                        // Load font from Image (XNA style)
 RLAPI Font LoadFontFromMemory(const char *fileType, const unsigned char *fileData, int dataSize, int fontSize, int *codepoints, int codepointCount); // Load font from memory buffer, fileType refers to extension: i.e. '.ttf'
-RLAPI bool IsFontValid(Font *font);                                                         // Check if a font is valid (font data loaded, WARNING: GPU texture not checked)
+RLAPI bool IsFontValid(Font font);                                                          // Check if a font is valid (font data loaded, WARNING: GPU texture not checked)
 RLAPI GlyphInfo *LoadFontData(const unsigned char *fileData, int dataSize, int fontSize, int *codepoints, int codepointCount, int type); // Load font data for further use
 RLAPI Image GenImageFontAtlas(const GlyphInfo *glyphs, Rectangle **glyphRecs, int glyphCount, int fontSize, int padding, int packMethod); // Generate image font atlas using chars info
 RLAPI void UnloadFontData(GlyphInfo *glyphs, int glyphCount);                               // Unload font chars info data (RAM)
@@ -1562,7 +1568,7 @@ RLAPI void DrawGrid(int slices, float spacing);                                 
 // Model management functions
 RLAPI Model LoadModel(const char *fileName);                                                // Load model from files (meshes and materials)
 RLAPI Model LoadModelFromMesh(Mesh mesh);                                                   // Load model from generated mesh (default material)
-RLAPI bool IsModelValid(Model *model);                                                      // Check if a model is valid (loaded in GPU, VAO/VBOs)
+RLAPI bool IsModelValid(Model model);                                                       // Check if a model is valid (loaded in GPU, VAO/VBOs)
 RLAPI void UnloadModel(Model *model);                                                       // Unload model (including meshes) from memory (RAM and/or VRAM)
 RLAPI BoundingBox GetModelBoundingBox(Model model);                                         // Compute model bounding box limits (considers all meshes)
 
@@ -1605,18 +1611,18 @@ RLAPI Mesh GenMeshCubicmap(Image cubicmap, Vector3 cubeSize);                   
 // Material loading/unloading functions
 RLAPI Material *LoadMaterials(const char *fileName, int *materialCount);                    // Load materials from model file
 RLAPI Material LoadMaterialDefault(void);                                                   // Load default material (Supports: DIFFUSE, SPECULAR, NORMAL maps)
-RLAPI bool IsMaterialValid(Material *material);                                             // Check if a material is valid (shader assigned, map textures loaded in GPU)
+RLAPI bool IsMaterialValid(Material material);                                              // Check if a material is valid (shader assigned, map textures loaded in GPU)
 RLAPI void UnloadMaterial(Material *material);                                              // Unload material from GPU memory (VRAM)
 RLAPI void SetMaterialTexture(Material *material, int mapType, Texture2D texture);          // Set texture for a material map type (MATERIAL_MAP_DIFFUSE, MATERIAL_MAP_SPECULAR...)
 RLAPI void SetModelMeshMaterial(Model *model, int meshId, int materialId);                  // Set material for a mesh
 
 // Model animations loading/unloading functions
 RLAPI ModelAnimation *LoadModelAnimations(const char *fileName, int *animCount);            // Load model animations from file
-RLAPI void UpdateModelAnimation(Model model, ModelAnimation anim, int frame);               // Update model animation pose
+RLAPI void UpdateModelAnimation(Model model, ModelAnimation anim, int frame);               // Update model animation pose (CPU)
+RLAPI void UpdateModelAnimationBones(Model model, ModelAnimation anim, int frame);          // Update model animation mesh bone matrices (GPU skinning)
 RLAPI void UnloadModelAnimation(ModelAnimation *anim);                                      // Unload animation data
 RLAPI void UnloadModelAnimations(ModelAnimation *animations, int animCount);                // Unload animation array data
 RLAPI bool IsModelAnimationValid(Model model, ModelAnimation anim);                         // Check model animation skeleton match
-RLAPI void UpdateModelAnimationBoneMatrices(Model model, ModelAnimation anim, int frame);   // Update model animation mesh bone matrices (Note GPU skinning does not work on Mac)
 
 // Collision detection functions
 RLAPI bool CheckCollisionSpheres(Vector3 center1, float radius1, Vector3 center2, float radius2);   // Check collision between two spheres
@@ -1643,11 +1649,11 @@ RLAPI float GetMasterVolume(void);                                    // Get mas
 // Wave/Sound loading/unloading functions
 RLAPI Wave LoadWave(const char *fileName);                            // Load wave data from file
 RLAPI Wave LoadWaveFromMemory(const char *fileType, const unsigned char *fileData, int dataSize); // Load wave from memory buffer, fileType refers to extension: i.e. '.wav'
-RLAPI bool IsWaveValid(Wave *wave);                                   // Checks if wave data is valid (data loaded and parameters)
+RLAPI bool IsWaveValid(Wave wave);                                    // Checks if wave data is valid (data loaded and parameters)
 RLAPI Sound LoadSound(const char *fileName);                          // Load sound from file
 RLAPI Sound LoadSoundFromWave(Wave wave);                             // Load sound from wave data
 RLAPI Sound LoadSoundAlias(Sound source);                             // Create a new sound that shares the same sample data as the source sound, does not own the sound data
-RLAPI bool IsSoundValid(Sound *sound);                                // Checks if a sound is valid (data loaded and buffers initialized)
+RLAPI bool IsSoundValid(Sound sound);                                 // Checks if a sound is valid (data loaded and buffers initialized)
 RLAPI void UpdateSound(Sound sound, const void *data, int sampleCount); // Update sound buffer with new data
 RLAPI void UnloadWave(Wave *wave);                                    // Unload wave data
 RLAPI void UnloadSound(Sound *sound);                                 // Unload sound
@@ -1673,7 +1679,7 @@ RLAPI void UnloadWaveSamples(float *samples);                         // Unload 
 // Music management functions
 RLAPI Music LoadMusicStream(const char *fileName);                    // Load music stream from file
 RLAPI Music LoadMusicStreamFromMemory(const char *fileType, const unsigned char *data, int dataSize); // Load music stream from data
-RLAPI bool IsMusicValid(Music *music);                                // Checks if a music stream is valid (context and buffers initialized)
+RLAPI bool IsMusicValid(Music music);                                 // Checks if a music stream is valid (context and buffers initialized)
 RLAPI void UnloadMusicStream(Music *music);                           // Unload music stream
 RLAPI void PlayMusicStream(Music music);                              // Start music playing
 RLAPI bool IsMusicStreamPlaying(Music music);                         // Check if music is playing
@@ -1690,7 +1696,7 @@ RLAPI float GetMusicTimePlayed(Music music);                          // Get cur
 
 // AudioStream management functions
 RLAPI AudioStream LoadAudioStream(unsigned int sampleRate, unsigned int sampleSize, unsigned int channels); // Load audio stream (to stream raw audio pcm data)
-RLAPI bool IsAudioStreamValid(AudioStream *stream);                   // Checks if an audio stream is valid (buffers initialized)
+RLAPI bool IsAudioStreamValid(AudioStream stream);                    // Checks if an audio stream is valid (buffers initialized)
 RLAPI void UnloadAudioStream(AudioStream *stream);                    // Unload audio stream and free memory
 RLAPI void UpdateAudioStream(AudioStream stream, const void *data, int frameCount); // Update audio stream buffers with data
 RLAPI bool IsAudioStreamProcessed(AudioStream stream);                // Check if any audio stream buffers requires refill

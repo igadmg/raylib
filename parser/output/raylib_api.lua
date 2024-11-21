@@ -27,7 +27,7 @@ return {
     {
       name = "RAYLIB_VERSION",
       type = "STRING",
-      value = "5.5-dev",
+      value = "5.5",
       description = ""
     },
     {
@@ -2845,11 +2845,6 @@ return {
           name = "CUBEMAP_LAYOUT_CROSS_FOUR_BY_THREE",
           value = 4,
           description = "Layout is defined by a 4x3 cross with cubemap faces"
-        },
-        {
-          name = "CUBEMAP_LAYOUT_PANORAMA",
-          value = 5,
-          description = "Layout is defined by a panorama image (equirrectangular map)"
         }
       }
     },
@@ -3145,22 +3140,22 @@ return {
     },
     {
       name = "IsWindowHidden",
-      description = "Check if window is currently hidden (only PLATFORM_DESKTOP)",
+      description = "Check if window is currently hidden",
       returnType = "bool"
     },
     {
       name = "IsWindowMinimized",
-      description = "Check if window is currently minimized (only PLATFORM_DESKTOP)",
+      description = "Check if window is currently minimized",
       returnType = "bool"
     },
     {
       name = "IsWindowMaximized",
-      description = "Check if window is currently maximized (only PLATFORM_DESKTOP)",
+      description = "Check if window is currently maximized",
       returnType = "bool"
     },
     {
       name = "IsWindowFocused",
-      description = "Check if window is currently focused (only PLATFORM_DESKTOP)",
+      description = "Check if window is currently focused",
       returnType = "bool"
     },
     {
@@ -3178,7 +3173,7 @@ return {
     },
     {
       name = "SetWindowState",
-      description = "Set window configuration state using flags (only PLATFORM_DESKTOP)",
+      description = "Set window configuration state using flags",
       returnType = "void",
       params = {
         {type = "unsigned int", name = "flags"}
@@ -3194,32 +3189,32 @@ return {
     },
     {
       name = "ToggleFullscreen",
-      description = "Toggle window state: fullscreen/windowed [resizes monitor to match window resolution] (only PLATFORM_DESKTOP)",
+      description = "Toggle window state: fullscreen/windowed, resizes monitor to match window resolution",
       returnType = "void"
     },
     {
       name = "ToggleBorderlessWindowed",
-      description = "Toggle window state: borderless windowed [resizes window to match monitor resolution] (only PLATFORM_DESKTOP)",
+      description = "Toggle window state: borderless windowed, resizes window to match monitor resolution",
       returnType = "void"
     },
     {
       name = "MaximizeWindow",
-      description = "Set window state: maximized, if resizable (only PLATFORM_DESKTOP)",
+      description = "Set window state: maximized, if resizable",
       returnType = "void"
     },
     {
       name = "MinimizeWindow",
-      description = "Set window state: minimized, if resizable (only PLATFORM_DESKTOP)",
+      description = "Set window state: minimized, if resizable",
       returnType = "void"
     },
     {
       name = "RestoreWindow",
-      description = "Set window state: not minimized/maximized (only PLATFORM_DESKTOP)",
+      description = "Set window state: not minimized/maximized",
       returnType = "void"
     },
     {
       name = "SetWindowIcon",
-      description = "Set icon for window (single image, RGBA 32bit, only PLATFORM_DESKTOP)",
+      description = "Set icon for window (single image, RGBA 32bit)",
       returnType = "void",
       params = {
         {type = "Image", name = "image"}
@@ -3227,7 +3222,7 @@ return {
     },
     {
       name = "SetWindowIcons",
-      description = "Set icon for window (multiple images, RGBA 32bit, only PLATFORM_DESKTOP)",
+      description = "Set icon for window (multiple images, RGBA 32bit)",
       returnType = "void",
       params = {
         {type = "Image *", name = "images"},
@@ -3236,7 +3231,7 @@ return {
     },
     {
       name = "SetWindowTitle",
-      description = "Set title for window (only PLATFORM_DESKTOP and PLATFORM_WEB)",
+      description = "Set title for window",
       returnType = "void",
       params = {
         {type = "const char *", name = "title"}
@@ -3244,7 +3239,7 @@ return {
     },
     {
       name = "SetWindowPosition",
-      description = "Set window position on screen (only PLATFORM_DESKTOP)",
+      description = "Set window position on screen",
       returnType = "void",
       params = {
         {type = "int", name = "x"},
@@ -3288,7 +3283,7 @@ return {
     },
     {
       name = "SetWindowOpacity",
-      description = "Set window opacity [0.0f..1.0f] (only PLATFORM_DESKTOP)",
+      description = "Set window opacity [0.0f..1.0f]",
       returnType = "void",
       params = {
         {type = "float", name = "opacity"}
@@ -3296,7 +3291,7 @@ return {
     },
     {
       name = "SetWindowFocused",
-      description = "Set window focused (only PLATFORM_DESKTOP)",
+      description = "Set window focused",
       returnType = "void"
     },
     {
@@ -3331,7 +3326,7 @@ return {
     },
     {
       name = "GetCurrentMonitor",
-      description = "Get current connected monitor",
+      description = "Get current monitor where window is placed",
       returnType = "int"
     },
     {
@@ -3412,6 +3407,11 @@ return {
       name = "GetClipboardText",
       description = "Get clipboard text content",
       returnType = "const char *"
+    },
+    {
+      name = "GetClipboardImage",
+      description = "Get clipboard image content",
+      returnType = "Image"
     },
     {
       name = "EnableEventWaiting",
@@ -4307,7 +4307,7 @@ return {
     },
     {
       name = "IsKeyPressedRepeat",
-      description = "Check if a key has been pressed again (Only PLATFORM_DESKTOP)",
+      description = "Check if a key has been pressed again",
       returnType = "bool",
       params = {
         {type = "int", name = "key"}
@@ -7701,7 +7701,17 @@ return {
     },
     {
       name = "UpdateModelAnimation",
-      description = "Update model animation pose",
+      description = "Update model animation pose (CPU)",
+      returnType = "void",
+      params = {
+        {type = "Model", name = "model"},
+        {type = "ModelAnimation", name = "anim"},
+        {type = "int", name = "frame"}
+      }
+    },
+    {
+      name = "UpdateModelAnimationBones",
+      description = "Update model animation mesh bone matrices (GPU skinning)",
       returnType = "void",
       params = {
         {type = "Model", name = "model"},
@@ -7733,16 +7743,6 @@ return {
       params = {
         {type = "Model", name = "model"},
         {type = "ModelAnimation", name = "anim"}
-      }
-    },
-    {
-      name = "UpdateModelAnimationBoneMatrices",
-      description = "Update model animation mesh bone matrices (Note GPU skinning does not work on Mac)",
-      returnType = "void",
-      params = {
-        {type = "Model", name = "model"},
-        {type = "ModelAnimation", name = "anim"},
-        {type = "int", name = "frame"}
       }
     },
     {

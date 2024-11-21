@@ -253,7 +253,7 @@ extern void LoadFontDefault(void)
         counter++;
     }
 
-    if (isGpuReady) defaultFont.texture = LoadTextureFromImage(&imFont);
+    if (isGpuReady) defaultFont.texture = LoadTextureFromImage(imFont);
 
     // Reconstruct charSet using charsWidth[], charsHeight, charsDivisor, glyphCount
     //------------------------------------------------------------------------------
@@ -295,7 +295,7 @@ extern void LoadFontDefault(void)
         defaultFont.glyphs[i].advanceX = 0;
 
         // Fill character image data from fontClear data
-        defaultFont.glyphs[i].image = ImageFromImage(&imFont, defaultFont.recs[i]);
+        defaultFont.glyphs[i].image = ImageFromImage(imFont, defaultFont.recs[i]);
     }
 
     UnloadImage(&imFont);
@@ -491,7 +491,7 @@ Font LoadFontFromImage(Image image, Color key, int firstChar)
     };
 
     // Set font with all data parsed from image
-    if (isGpuReady) font.texture = LoadTextureFromImage(&fontClear); // Convert processed image to OpenGL texture
+    if (isGpuReady) font.texture = LoadTextureFromImage(fontClear); // Convert processed image to OpenGL texture
     font.glyphCount = index;
     font.glyphPadding = 0;
 
@@ -513,7 +513,7 @@ Font LoadFontFromImage(Image image, Color key, int firstChar)
         font.glyphs[i].advanceX = 0;
 
         // Fill character image data from fontClear data
-        font.glyphs[i].image = ImageFromImage(&fontClear, tempCharRecs[i]);
+        font.glyphs[i].image = ImageFromImage(fontClear, tempCharRecs[i]);
     }
 
     UnloadImage(&fontClear);     // Unload processed image once converted to texture
@@ -560,13 +560,13 @@ Font LoadFontFromMemory(const char *fileType, const unsigned char *fileData, int
         font.glyphPadding = FONT_TTF_DEFAULT_CHARS_PADDING;
 
         Image atlas = GenImageFontAtlas(font.glyphs, &font.recs, font.glyphCount, font.baseSize, font.glyphPadding, 0);
-        if (isGpuReady) font.texture = LoadTextureFromImage(&atlas);
+        if (isGpuReady) font.texture = LoadTextureFromImage(atlas);
 
         // Update glyphs[i].image to use alpha, required to be used on ImageDrawText()
         for (int i = 0; i < font.glyphCount; i++)
         {
             UnloadImage(&font.glyphs[i].image);
-            font.glyphs[i].image = ImageFromImage(&atlas, font.recs[i]);
+            font.glyphs[i].image = ImageFromImage(atlas, font.recs[i]);
         }
 
         UnloadImage(&atlas);
@@ -583,12 +583,12 @@ Font LoadFontFromMemory(const char *fileType, const unsigned char *fileData, int
 
 // Check if a font is valid (font data loaded)
 // WARNING: GPU texture not checked
-bool IsFontValid(Font *font)
+bool IsFontValid(Font font)
 {
-    return ((font->baseSize > 0) &&      // Validate font size
-            (font->glyphCount > 0) &&    // Validate font contains some glyph
-            (font->recs != NULL) &&      // Validate font recs defining glyphs on texture atlas
-            (font->glyphs != NULL));     // Validate glyph data is loaded
+    return ((font.baseSize > 0) &&      // Validate font size
+            (font.glyphCount > 0) &&    // Validate font contains some glyph
+            (font.recs != NULL) &&      // Validate font recs defining glyphs on texture atlas
+            (font.glyphs != NULL));     // Validate glyph data is loaded
 
     // NOTE: Further validations could be done to verify if recs and glyphs contain valid data (glyphs values, metrics...)
 }
@@ -999,7 +999,7 @@ bool ExportFontAsCode(Font font, const char *fileName)
 
     // Support font export and initialization
     // NOTE: This mechanism is highly coupled to raylib
-    Image image = LoadImageFromTexture(&font.texture);
+    Image image = LoadImageFromTexture(font.texture);
     if (image.format != PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA) TRACELOG(LOG_WARNING, "Font export as code: Font image format is not GRAY+ALPHA!");
     int imageDataSize = GetPixelDataSize(image.width, image.height, image.format);
 
@@ -1282,7 +1282,8 @@ Vector2 MeasureTextEx(Font font, const char *text, float fontSize, float spacing
 {
     Vector2 textSize = { 0 };
 
-    if ((isGpuReady && (font.texture.id == 0)) || (text == NULL)) return textSize; // Security check
+    if ((isGpuReady && (font.texture.id == 0)) || 
+        (text == NULL) || (text[0] == '\0')) return textSize; // Security check
 
     int size = TextLength(text);    // Get size in bytes of text
     int tempByteCounter = 0;        // Used to count longer text line num chars
@@ -2322,7 +2323,7 @@ static Font LoadBMFont(const char *fileName)
 
     RL_FREE(imFonts);
 
-    if (isGpuReady) font.texture = LoadTextureFromImage(&fullFont);
+    if (isGpuReady) font.texture = LoadTextureFromImage(fullFont);
 
     // Fill font characters info data
     font.baseSize = fontSize;
@@ -2352,7 +2353,7 @@ static Font LoadBMFont(const char *fileName)
             font.glyphs[i].advanceX = charAdvanceX;
 
             // Fill character image data from full font data
-            font.glyphs[i].image = ImageFromImage(&fullFont, font.recs[i]);
+            font.glyphs[i].image = ImageFromImage(fullFont, font.recs[i]);
         }
         else
         {

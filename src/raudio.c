@@ -896,15 +896,15 @@ Wave LoadWaveFromMemory(const char *fileType, const unsigned char *fileData, int
 }
 
 // Checks if wave data is valid (data loaded and parameters)
-bool IsWaveValid(Wave *wave)
+bool IsWaveValid(Wave wave)
 {
     bool result = false;
 
-    if ((wave->data != NULL) &&      // Validate wave data available
-        (wave->frameCount > 0) &&    // Validate frame count
-        (wave->sampleRate > 0) &&    // Validate sample rate is supported
-        (wave->sampleSize > 0) &&    // Validate sample size is supported
-        (wave->channels > 0)) result = true; // Validate number of channels supported
+    if ((wave.data != NULL) &&      // Validate wave data available
+        (wave.frameCount > 0) &&    // Validate frame count
+        (wave.sampleRate > 0) &&    // Validate sample rate is supported
+        (wave.sampleSize > 0) &&    // Validate sample size is supported
+        (wave.channels > 0)) result = true; // Validate number of channels supported
 
     return result;
 }
@@ -997,15 +997,15 @@ Sound LoadSoundAlias(Sound source)
 
 
 // Checks if a sound is valid (data loaded and buffers initialized)
-bool IsSoundValid(Sound *sound)
+bool IsSoundValid(Sound sound)
 {
     bool result = false;
 
-    if ((sound->frameCount > 0) &&           // Validate frame count
-        (sound->stream.buffer != NULL) &&    // Validate stream buffer
-        (sound->stream.sampleRate > 0) &&    // Validate sample rate is supported
-        (sound->stream.sampleSize > 0) &&    // Validate sample size is supported
-        (sound->stream.channels > 0)) result = true; // Validate number of channels supported
+    if ((sound.frameCount > 0) &&           // Validate frame count
+        (sound.stream.buffer != NULL) &&    // Validate stream buffer
+        (sound.stream.sampleRate > 0) &&    // Validate sample rate is supported
+        (sound.stream.sampleSize > 0) &&    // Validate sample size is supported
+        (sound.stream.channels > 0)) result = true; // Validate number of channels supported
 
     return result;
 }
@@ -1731,13 +1731,13 @@ Music LoadMusicStreamFromMemory(const char *fileType, const unsigned char *data,
 }
 
 // Checks if a music stream is valid (context and buffers initialized)
-bool IsMusicValid(Music *music)
+bool IsMusicValid(Music music)
 {
-    return ((music->ctxData != NULL) &&          // Validate context loaded
-            (music->frameCount > 0) &&           // Validate audio frame count
-            (music->stream.sampleRate > 0) &&    // Validate sample rate is supported
-            (music->stream.sampleSize > 0) &&    // Validate sample size is supported
-            (music->stream.channels > 0));       // Validate number of channels supported
+    return ((music.ctxData != NULL) &&          // Validate context loaded
+            (music.frameCount > 0) &&           // Validate audio frame count
+            (music.stream.sampleRate > 0) &&    // Validate sample rate is supported
+            (music.stream.sampleSize > 0) &&    // Validate sample size is supported
+            (music.stream.channels > 0));       // Validate number of channels supported
 }
 
 // Unload music stream
@@ -1860,6 +1860,8 @@ void SeekMusicStream(Music music, float position)
 
     ma_mutex_lock(&AUDIO.System.lock);
     music.stream.buffer->framesProcessed = positionInFrames;
+    music.stream.buffer->isSubBufferProcessed[0] = true;
+    music.stream.buffer->isSubBufferProcessed[1] = true;
     ma_mutex_unlock(&AUDIO.System.lock);
 }
 
@@ -2125,12 +2127,12 @@ AudioStream LoadAudioStream(unsigned int sampleRate, unsigned int sampleSize, un
 }
 
 // Checks if an audio stream is valid (buffers initialized)
-bool IsAudioStreamValid(AudioStream *stream)
+bool IsAudioStreamValid(AudioStream stream)
 {
-    return ((stream->buffer != NULL) &&    // Validate stream buffer
-            (stream->sampleRate > 0) &&    // Validate sample rate is supported
-            (stream->sampleSize > 0) &&    // Validate sample size is supported
-            (stream->channels > 0));       // Validate number of channels supported
+    return ((stream.buffer != NULL) &&    // Validate stream buffer
+            (stream.sampleRate > 0) &&    // Validate sample rate is supported
+            (stream.sampleSize > 0) &&    // Validate sample size is supported
+            (stream.channels > 0));       // Validate number of channels supported
 }
 
 // Unload audio stream and free memory

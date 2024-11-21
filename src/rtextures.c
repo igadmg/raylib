@@ -554,19 +554,19 @@ Image LoadImageFromMemory(const char *fileType, const unsigned char *fileData, i
 
 // Load image from GPU texture data
 // NOTE: Compressed texture formats not supported
-Image LoadImageFromTexture(Texture2D *texture)
+Image LoadImageFromTexture(Texture2D texture)
 {
     Image image = { 0 };
 
-    if (texture->format < PIXELFORMAT_COMPRESSED_DXT1_RGB)
+    if (texture.format < PIXELFORMAT_COMPRESSED_DXT1_RGB)
     {
-        image.data = rlReadTexturePixels(texture->id, texture->width, texture->height, texture->format);
+        image.data = rlReadTexturePixels(texture.id, texture.width, texture.height, texture.format);
 
         if (image.data != NULL)
         {
-            image.width = texture->width;
-            image.height = texture->height;
-            image.format = texture->format;
+            image.width = texture.width;
+            image.height = texture.height;
+            image.format = texture.format;
             image.mipmaps = 1;
 
 #if defined(GRAPHICS_API_OPENGL_ES2)
@@ -575,31 +575,31 @@ Image LoadImageFromTexture(Texture2D *texture)
             // original texture format is retrieved on RPI...
             image.format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
 #endif
-            TRACELOG(LOG_INFO, "TEXTURE: [ID %i] Pixel data retrieved successfully", texture->id);
+            TRACELOG(LOG_INFO, "TEXTURE: [ID %i] Pixel data retrieved successfully", texture.id);
         }
-        else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve pixel data", texture->id);
+        else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve pixel data", texture.id);
     }
-    else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve compressed pixel data", texture->id);
+    else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve compressed pixel data", texture.id);
 
     return image;
 }
 
 // Load image from GPU texture data
 // NOTE: Compressed texture formats not supported
-Image *ReloadImageFromTexture(Texture2D *texture, Image *image)
+Image *ReloadImageFromTexture(Texture2D texture, Image *image)
 {
-    if (texture->format < PIXELFORMAT_COMPRESSED_DXT1_RGB)
+    if (texture.format < PIXELFORMAT_COMPRESSED_DXT1_RGB)
     {
         if (image->data == NULL)
-            image->data = rlReadTexturePixels(texture->id, texture->width, texture->height, texture->format);
+            image->data = rlReadTexturePixels(texture.id, texture.width, texture.height, texture.format);
         else
-            image->data = rlReadTexturePixelsMemory(texture->id, texture->width, texture->height, texture->format, image->data);
+            image->data = rlReadTexturePixelsMemory(texture.id, texture.width, texture.height, texture.format, image->data);
 
         if (image->data != NULL)
         {
-            image->width = texture->width;
-            image->height = texture->height;
-            image->format = texture->format;
+            image->width = texture.width;
+            image->height = texture.height;
+            image->format = texture.format;
             image->mipmaps = 1;
 
 #if defined(GRAPHICS_API_OPENGL_ES2)
@@ -608,11 +608,11 @@ Image *ReloadImageFromTexture(Texture2D *texture, Image *image)
             // original texture format is retrieved on RPI...
             image->format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
 #endif
-            TRACELOG(LOG_INFO, "TEXTURE: [ID %i] Pixel data retrieved successfully", texture->id);
+            TRACELOG(LOG_INFO, "TEXTURE: [ID %i] Pixel data retrieved successfully", texture.id);
         }
-        else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve pixel data", texture->id);
+        else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve pixel data", texture.id);
     }
-    else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve compressed pixel data", texture->id);
+    else TRACELOG(LOG_WARNING, "TEXTURE: [ID %i] Failed to retrieve compressed pixel data", texture.id);
 
     return image;
 }
@@ -633,15 +633,15 @@ Image LoadImageFromScreen(void)
 }
 
 // Check if an image is ready
-bool IsImageValid(Image *image)
+bool IsImageValid(Image image)
 {
     bool result = false;
 
-    if ((image->data != NULL) &&     // Validate pixel data available
-        (image->width > 0) &&        // Validate image width
-        (image->height > 0) &&       // Validate image height
-        (image->format > 0) &&       // Validate image format
-        (image->mipmaps > 0)) result = true; // Validate image mipmaps (at least 1 for basic mipmap level)
+    if ((image.data != NULL) &&     // Validate pixel data available
+        (image.width > 0) &&        // Validate image width
+        (image.height > 0) &&       // Validate image height
+        (image.format > 0) &&       // Validate image format
+        (image.mipmaps > 0)) result = true; // Validate image mipmaps (at least 1 for basic mipmap level)
 
     return result;
 }
@@ -860,16 +860,27 @@ Image GenImageGradientLinear(int width, int height, int direction, Color start, 
     float cosDir = cosf(radianDirection);
     float sinDir = sinf(radianDirection);
 
+    // Calculate how far the top-left pixel is along the gradient direction from the center of said gradient
+    float startingPos = 0.5f - (cosDir*width/2) - (sinDir*height/2);
+    // With directions that lie in the first or third quadrant (i.e. from top-left to 
+    // bottom-right or vice-versa), pixel (0, 0) is the farthest point on the gradient
+    // (i.e. the pixel which should become one of the gradient's ends color); while for
+    // directions that lie in the second or fourth quadrant, that point is pixel (width, 0).
+    float maxPosValue = 
+            ((signbit(sinDir) != 0) == (signbit(cosDir) != 0))
+            ? fabsf(startingPos)
+            : fabsf(startingPos+width*cosDir);
     for (int i = 0; i < width; i++)
     {
         for (int j = 0; j < height; j++)
         {
             // Calculate the relative position of the pixel along the gradient direction
-            float pos = (i*cosDir + j*sinDir)/(width*cosDir + height*sinDir);
+            float pos = (startingPos + (i*cosDir + j*sinDir)) / maxPosValue;
 
             float factor = pos;
-            factor = (factor > 1.0f)? 1.0f : factor;  // Clamp to [0,1]
-            factor = (factor < 0.0f)? 0.0f : factor;  // Clamp to [0,1]
+            factor = (factor > 1.0f)? 1.0f : factor;  // Clamp to [-1,1]
+            factor = (factor < -1.0f)? -1.0f : factor;  // Clamp to [-1,1]
+            factor = factor / 2 + 0.5f;
 
             // Generate the color for this pixel
             pixels[j*width + i].r = (int)((float)end.r*factor + (float)start.r*(1.0f - factor));
@@ -1144,8 +1155,7 @@ Image GenImageText(int width, int height, const char *text)
 {
     Image image = { 0 };
 
-#if defined(SUPPORT_MODULE_RTEXT)
-    int textLength = TextLength(text);
+    int textLength = (int)strlen(text);
     int imageViewSize = width*height;
 
     image.width = width;
@@ -1155,10 +1165,6 @@ Image GenImageText(int width, int height, const char *text)
     image.mipmaps = 1;
 
     memcpy(image.data, text, (textLength > imageViewSize)? imageViewSize : textLength);
-#else
-    TRACELOG(LOG_WARNING, "IMAGE: GenImageText() requires module: rtext");
-    image = GenImageColor(width, height, BLACK);     // Generating placeholder black image rectangle
-#endif
 
     return image;
 }
@@ -1168,17 +1174,17 @@ Image GenImageText(int width, int height, const char *text)
 // Image manipulation functions
 //------------------------------------------------------------------------------------
 // Copy an image to a new image
-Image ImageCopy(Image *image)
+Image ImageCopy(Image image)
 {
     Image newImage = { 0 };
 
-    int width = image->width;
-    int height = image->height;
+    int width = image.width;
+    int height = image.height;
     int size = 0;
 
-    for (int i = 0; i < image->mipmaps; i++)
+    for (int i = 0; i < image.mipmaps; i++)
     {
-        size += GetPixelDataSize(width, height, image->format);
+        size += GetPixelDataSize(width, height, image.format);
 
         width /= 2;
         height /= 2;
@@ -1193,33 +1199,33 @@ Image ImageCopy(Image *image)
     if (newImage.data != NULL)
     {
         // NOTE: Size must be provided in bytes
-        memcpy(newImage.data, image->data, size);
+        memcpy(newImage.data, image.data, size);
 
-        newImage.width = image->width;
-        newImage.height = image->height;
-        newImage.mipmaps = image->mipmaps;
-        newImage.format = image->format;
+        newImage.width = image.width;
+        newImage.height = image.height;
+        newImage.mipmaps = image.mipmaps;
+        newImage.format = image.format;
     }
 
     return newImage;
 }
 
 // Create an image from another image piece
-Image ImageFromImage(Image *image, Rectangle rec)
+Image ImageFromImage(Image image, Rectangle rec)
 {
     Image result = { 0 };
 
-    int bytesPerPixel = GetPixelDataSize(1, 1, image->format);
+    int bytesPerPixel = GetPixelDataSize(1, 1, image.format);
 
     result.width = (int)rec.width;
     result.height = (int)rec.height;
     result.data = RL_CALLOC((int)rec.width*(int)rec.height*bytesPerPixel, 1);
-    result.format = image->format;
+    result.format = image.format;
     result.mipmaps = 1;
 
     for (int y = 0; y < (int)rec.height; y++)
     {
-        memcpy(((unsigned char *)result.data) + y*(int)rec.width*bytesPerPixel, ((unsigned char *)image->data) + ((y + (int)rec.y)*image->width + (int)rec.x)*bytesPerPixel, (int)rec.width*bytesPerPixel);
+        memcpy(((unsigned char *)result.data) + y*(int)rec.width*bytesPerPixel, ((unsigned char *)image.data) + ((y + (int)rec.y)*image.width + (int)rec.x)*bytesPerPixel, (int)rec.width*bytesPerPixel);
     }
 
     return result;
@@ -1567,12 +1573,12 @@ Image ImageTextEx(Font font, const char *text, float fontSize, float spacing, Co
 }
 
 // Create an image from a selected channel of another image
-Image ImageFromChannel(Image *image, int selectedChannel)
+Image ImageFromChannel(Image image, int selectedChannel)
 {
     Image result = { 0 };
 
     // Security check to avoid program crash
-    if ((image->data == NULL) || (image->width == 0) || (image->height == 0)) return result;
+    if ((image.data == NULL) || (image.width == 0) || (image.height == 0)) return result;
 
     // Check selected channel is valid
     if (selectedChannel < 0)
@@ -1581,9 +1587,9 @@ Image ImageFromChannel(Image *image, int selectedChannel)
         selectedChannel = 0;
     }
 
-    if (image->format == PIXELFORMAT_UNCOMPRESSED_GRAYSCALE ||
-        image->format == PIXELFORMAT_UNCOMPRESSED_R32 ||
-        image->format == PIXELFORMAT_UNCOMPRESSED_R16)
+    if (image.format == PIXELFORMAT_UNCOMPRESSED_GRAYSCALE ||
+        image.format == PIXELFORMAT_UNCOMPRESSED_R32 ||
+        image.format == PIXELFORMAT_UNCOMPRESSED_R16)
     {
         if (selectedChannel > 0)
         {
@@ -1591,7 +1597,7 @@ Image ImageFromChannel(Image *image, int selectedChannel)
             selectedChannel = 0;
         }
     }
-    else if (image->format == PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA)
+    else if (image.format == PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA)
     {
         if (selectedChannel > 1)
         {
@@ -1599,10 +1605,10 @@ Image ImageFromChannel(Image *image, int selectedChannel)
             selectedChannel = 1;
         }
     }
-    else if (image->format == PIXELFORMAT_UNCOMPRESSED_R5G6B5 ||
-             image->format == PIXELFORMAT_UNCOMPRESSED_R8G8B8 ||
-             image->format == PIXELFORMAT_UNCOMPRESSED_R32G32B32 ||
-             image->format == PIXELFORMAT_UNCOMPRESSED_R16G16B16)
+    else if (image.format == PIXELFORMAT_UNCOMPRESSED_R5G6B5 ||
+             image.format == PIXELFORMAT_UNCOMPRESSED_R8G8B8 ||
+             image.format == PIXELFORMAT_UNCOMPRESSED_R32G32B32 ||
+             image.format == PIXELFORMAT_UNCOMPRESSED_R16G16B16)
     {
         if (selectedChannel > 2)
         {
@@ -1620,34 +1626,34 @@ Image ImageFromChannel(Image *image, int selectedChannel)
 
     // TODO: Consider other one-channel formats: R16, R32
     result.format = PIXELFORMAT_UNCOMPRESSED_GRAYSCALE;
-    result.height = image->height;
-    result.width = image->width;
+    result.height = image.height;
+    result.width = image.width;
     result.mipmaps = 1;
 
-    unsigned char *pixels = (unsigned char *)RL_CALLOC(image->width*image->height, sizeof(unsigned char)); // Values from 0 to 255
+    unsigned char *pixels = (unsigned char *)RL_CALLOC(image.width*image.height, sizeof(unsigned char)); // Values from 0 to 255
 
-    if (image->format >= PIXELFORMAT_COMPRESSED_DXT1_RGB) TRACELOG(LOG_WARNING, "IMAGE: Pixel data retrieval not supported for compressed image formats");
+    if (image.format >= PIXELFORMAT_COMPRESSED_DXT1_RGB) TRACELOG(LOG_WARNING, "IMAGE: Pixel data retrieval not supported for compressed image formats");
     else
     {
-        for (int i = 0, k = 0; i < image->width*image->height; i++)
+        for (int i = 0, k = 0; i < image.width*image.height; i++)
         {
             float pixelValue = -1;
-            switch (image->format)
+            switch (image.format)
             {
                 case PIXELFORMAT_UNCOMPRESSED_GRAYSCALE:
                 {
-                    pixelValue = (float)((unsigned char *)image->data)[i + selectedChannel]/255.0f;
+                    pixelValue = (float)((unsigned char *)image.data)[i + selectedChannel]/255.0f;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA:
                 {
-                    pixelValue = (float)((unsigned char *)image->data)[k + selectedChannel]/255.0f;
+                    pixelValue = (float)((unsigned char *)image.data)[k + selectedChannel]/255.0f;
                     k += 2;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R5G5B5A1:
                 {
-                    unsigned short pixel = ((unsigned short *)image->data)[i];
+                    unsigned short pixel = ((unsigned short *)image.data)[i];
 
                     if (selectedChannel == 0) pixelValue = (float)((pixel & 0b1111100000000000) >> 11)*(1.0f/31);
                     else if (selectedChannel == 1) pixelValue = (float)((pixel & 0b0000011111000000) >> 6)*(1.0f/31);
@@ -1657,7 +1663,7 @@ Image ImageFromChannel(Image *image, int selectedChannel)
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R5G6B5:
                 {
-                    unsigned short pixel = ((unsigned short *)image->data)[i];
+                    unsigned short pixel = ((unsigned short *)image.data)[i];
 
                     if (selectedChannel == 0) pixelValue = (float)((pixel & 0b1111100000000000) >> 11)*(1.0f/31);
                     else if (selectedChannel == 1) pixelValue = (float)((pixel & 0b0000011111100000) >> 5)*(1.0f/63);
@@ -1666,7 +1672,7 @@ Image ImageFromChannel(Image *image, int selectedChannel)
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R4G4B4A4:
                 {
-                    unsigned short pixel = ((unsigned short *)image->data)[i];
+                    unsigned short pixel = ((unsigned short *)image.data)[i];
 
                     if (selectedChannel == 0) pixelValue = (float)((pixel & 0b1111000000000000) >> 12)*(1.0f/15);
                     else if (selectedChannel == 1) pixelValue = (float)((pixel & 0b0000111100000000) >> 8)*(1.0f/15);
@@ -1676,49 +1682,49 @@ Image ImageFromChannel(Image *image, int selectedChannel)
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R8G8B8A8:
                 {
-                    pixelValue = (float)((unsigned char *)image->data)[k + selectedChannel]/255.0f;
+                    pixelValue = (float)((unsigned char *)image.data)[k + selectedChannel]/255.0f;
                     k += 4;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R8G8B8:
                 {
-                    pixelValue = (float)((unsigned char *)image->data)[k + selectedChannel]/255.0f;
+                    pixelValue = (float)((unsigned char *)image.data)[k + selectedChannel]/255.0f;
                     k += 3;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R32:
                 {
-                    pixelValue = ((float *)image->data)[k];
+                    pixelValue = ((float *)image.data)[k];
                     k += 1;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R32G32B32:
                 {
-                    pixelValue = ((float *)image->data)[k + selectedChannel];
+                    pixelValue = ((float *)image.data)[k + selectedChannel];
                     k += 3;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R32G32B32A32:
                 {
-                    pixelValue = ((float *)image->data)[k + selectedChannel];
+                    pixelValue = ((float *)image.data)[k + selectedChannel];
                     k += 4;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R16:
                 {
-                    pixelValue = HalfToFloat(((unsigned short *)image->data)[k]);
+                    pixelValue = HalfToFloat(((unsigned short *)image.data)[k]);
                     k += 1;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R16G16B16:
                 {
-                    pixelValue = HalfToFloat(((unsigned short *)image->data)[k+selectedChannel]);
+                    pixelValue = HalfToFloat(((unsigned short *)image.data)[k+selectedChannel]);
                     k += 3;
 
                 } break;
                 case PIXELFORMAT_UNCOMPRESSED_R16G16B16A16:
                 {
-                    pixelValue = HalfToFloat(((unsigned short *)image->data)[k + selectedChannel]);
+                    pixelValue = HalfToFloat(((unsigned short *)image.data)[k + selectedChannel]);
                     k += 4;
 
                 } break;
@@ -2046,7 +2052,7 @@ void ImageAlphaMask(Image *image, Image alphaMask)
     else
     {
         // Force mask to be Grayscale
-        Image mask = ImageCopy(&alphaMask);
+        Image mask = ImageCopy(alphaMask);
         if (mask.format != PIXELFORMAT_UNCOMPRESSED_GRAYSCALE) ImageFormat(&mask, PIXELFORMAT_UNCOMPRESSED_GRAYSCALE);
 
         // In case image is only grayscale, we just add alpha channel
@@ -2428,22 +2434,16 @@ void ImageMipmaps(Image *image)
         else TRACELOG(LOG_WARNING, "IMAGE: Mipmaps required memory could not be allocated");
 
         // Pointer to allocated memory point where store next mipmap level data
-        unsigned char *nextmip = (unsigned char *)image->data + GetPixelDataSize(image->width, image->height, image->format);
+        unsigned char *nextmip = image->data;
 
-        mipWidth = image->width/2;
-        mipHeight = image->height/2;
+        mipWidth = image->width;
+        mipHeight = image->height;
         mipSize = GetPixelDataSize(mipWidth, mipHeight, image->format);
-        Image imCopy = ImageCopy(image);
+        Image imCopy = ImageCopy(*image);
 
         for (int i = 1; i < mipCount; i++)
         {
-            TRACELOGD("IMAGE: Generating mipmap level: %i (%i x %i) - size: %i - offset: 0x%x", i, mipWidth, mipHeight, mipSize, nextmip);
-
-            ImageResize(&imCopy, mipWidth, mipHeight);  // Uses internally Mitchell cubic downscale filter
-
-            memcpy(nextmip, imCopy.data, mipSize);
             nextmip += mipSize;
-            image->mipmaps++;
 
             mipWidth /= 2;
             mipHeight /= 2;
@@ -2453,9 +2453,19 @@ void ImageMipmaps(Image *image)
             if (mipHeight < 1) mipHeight = 1;
 
             mipSize = GetPixelDataSize(mipWidth, mipHeight, image->format);
+
+            if (i < image->mipmaps) continue;
+
+            TRACELOGD("IMAGE: Generating mipmap level: %i (%i x %i) - size: %i - offset: 0x%x", i, mipWidth, mipHeight, mipSize, nextmip);
+
+            ImageResize(&imCopy, mipWidth, mipHeight); // Uses internally Mitchell cubic downscale filter
+
+            memcpy(nextmip, imCopy.data, mipSize);
         }
 
         UnloadImage(&imCopy);
+
+        image->mipmaps = mipCount;
     }
     else TRACELOG(LOG_WARNING, "IMAGE: Mipmaps already available");
 }
@@ -3944,7 +3954,6 @@ void ImageDraw(Image *dst, Image src, Rectangle srcRec, Rectangle dstRec, Color 
     if ((dst->data == NULL) || (dst->width == 0) || (dst->height == 0) ||
         (src.data == NULL) || (src.width == 0) || (src.height == 0)) return;
 
-    if (dst->mipmaps > 1) TRACELOG(LOG_WARNING, "Image drawing only applied to base mipmap level");
     if (dst->format >= PIXELFORMAT_COMPRESSED_DXT1_RGB) TRACELOG(LOG_WARNING, "Image drawing not supported for compressed formats");
     else
     {
@@ -3962,7 +3971,7 @@ void ImageDraw(Image *dst, Image src, Rectangle srcRec, Rectangle dstRec, Color 
         // In that case, we make a copy of source, and we apply all required transform
         if (((int)srcRec.width != (int)dstRec.width) || ((int)srcRec.height != (int)dstRec.height))
         {
-            srcMod = ImageFromImage(&src, srcRec);   // Create image from another image
+            srcMod = ImageFromImage(src, srcRec);   // Create image from another image
             ImageResize(&srcMod, (int)dstRec.width, (int)dstRec.height);   // Resize to destination rectangle
             srcRec = (Rectangle){ 0, 0, (float)srcMod.width, (float)srcMod.height };
 
@@ -4057,6 +4066,35 @@ void ImageDraw(Image *dst, Image src, Rectangle srcRec, Rectangle dstRec, Color 
         }
 
         if (useSrcMod) UnloadImage(&srcMod);     // Unload source modified image
+
+        if ((dst->mipmaps > 1) && (src.mipmaps > 1))
+        {
+            Image mipmapDst = *dst;
+            mipmapDst.data = (char *)mipmapDst.data + GetPixelDataSize(mipmapDst.width, mipmapDst.height, mipmapDst.format);
+            mipmapDst.width /= 2;
+            mipmapDst.height /= 2;
+            mipmapDst.mipmaps--;
+
+            Image mipmapSrc = src;
+            mipmapSrc.data = (char *)mipmapSrc.data + GetPixelDataSize(mipmapSrc.width, mipmapSrc.height, mipmapSrc.format);
+            mipmapSrc.width /= 2;
+            mipmapSrc.height /= 2;
+            mipmapSrc.mipmaps--;
+
+            Rectangle mipmapSrcRec = srcRec;
+            mipmapSrcRec.width /= 2;
+            mipmapSrcRec.height /= 2;
+            mipmapSrcRec.x /= 2;
+            mipmapSrcRec.y /= 2;
+
+            Rectangle mipmapDstRec = dstRec;
+            mipmapDstRec.width /= 2;
+            mipmapDstRec.height /= 2;
+            mipmapDstRec.x /= 2;
+            mipmapDstRec.y /= 2;
+
+            ImageDraw(&mipmapDst, mipmapSrc, mipmapSrcRec, mipmapDstRec, tint);
+        }
     }
 }
 
@@ -4099,7 +4137,7 @@ Texture2D LoadTexture(const char *fileName)
 
     if (image.data != NULL)
     {
-        texture = LoadTextureFromImage(&image);
+        texture = LoadTextureFromImage(image);
         UnloadImage(&image);
     }
 
@@ -4108,51 +4146,49 @@ Texture2D LoadTexture(const char *fileName)
 
 // Load a texture from image data
 // NOTE: image is not unloaded, it must be done manually
-Texture2D LoadTextureFromImage(Image *image)
+Texture2D LoadTextureFromImage(Image image)
 {
     Texture2D texture = { 0 };
 
-    if ((image->width != 0) && (image->height != 0))
+    if ((image.width != 0) && (image.height != 0))
     {
-        texture.id = rlLoadTexture(image->data, image->width, image->height, image->format, image->mipmaps);
+        texture.id = rlLoadTexture(image.data, image.width, image.height, image.format, image.mipmaps);
     }
     else TRACELOG(LOG_WARNING, "IMAGE: Data is not valid to load texture");
 
-    texture.width = image->width;
-    texture.height = image->height;
-    texture.mipmaps = image->mipmaps;
-    texture.format = image->format;
+    texture.width = image.width;
+    texture.height = image.height;
+    texture.mipmaps = image.mipmaps;
+    texture.format = image.format;
 
     return texture;
 }
 
 // Load cubemap from image, multiple image cubemap layouts supported
-TextureCubemap LoadTextureCubemap(Image *image, int layout)
+TextureCubemap LoadTextureCubemap(Image image, int layout)
 {
     TextureCubemap cubemap = { 0 };
 
     if (layout == CUBEMAP_LAYOUT_AUTO_DETECT)      // Try to automatically guess layout type
     {
         // Check image width/height to determine the type of cubemap provided
-        if (image->width > image->height)
+        if (image.width > image.height)
         {
-            if ((image->width/6) == image->height) { layout = CUBEMAP_LAYOUT_LINE_HORIZONTAL; cubemap.width = image->width/6; }
-            else if ((image->width/4) == (image->height/3)) { layout = CUBEMAP_LAYOUT_CROSS_FOUR_BY_THREE; cubemap.width = image->width/4; }
-            else if (image->width >= (int)((float)image->height*1.85f)) { layout = CUBEMAP_LAYOUT_PANORAMA; cubemap.width = image->width/4; }
+            if ((image.width/6) == image.height) { layout = CUBEMAP_LAYOUT_LINE_HORIZONTAL; cubemap.width = image.width/6; }
+            else if ((image.width/4) == (image.height/3)) { layout = CUBEMAP_LAYOUT_CROSS_FOUR_BY_THREE; cubemap.width = image.width/4; }
         }
-        else if (image->height > image->width)
+        else if (image.height > image.width)
         {
-            if ((image->height/6) == image->width) { layout = CUBEMAP_LAYOUT_LINE_VERTICAL; cubemap.width = image->height/6; }
-            else if ((image->width/3) == (image->height/4)) { layout = CUBEMAP_LAYOUT_CROSS_THREE_BY_FOUR; cubemap.width = image->width/3; }
+            if ((image.height/6) == image.width) { layout = CUBEMAP_LAYOUT_LINE_VERTICAL; cubemap.width = image.height/6; }
+            else if ((image.width/3) == (image.height/4)) { layout = CUBEMAP_LAYOUT_CROSS_THREE_BY_FOUR; cubemap.width = image.width/3; }
         }
     }
     else
     {
-        if (layout == CUBEMAP_LAYOUT_LINE_VERTICAL) cubemap.width = image->height/6;
-        if (layout == CUBEMAP_LAYOUT_LINE_HORIZONTAL) cubemap.width = image->width/6;
-        if (layout == CUBEMAP_LAYOUT_CROSS_THREE_BY_FOUR) cubemap.width = image->width/3;
-        if (layout == CUBEMAP_LAYOUT_CROSS_FOUR_BY_THREE) cubemap.width = image->width/4;
-        if (layout == CUBEMAP_LAYOUT_PANORAMA) cubemap.width = image->width/4;
+        if (layout == CUBEMAP_LAYOUT_LINE_VERTICAL) cubemap.width = image.height/6;
+        if (layout == CUBEMAP_LAYOUT_LINE_HORIZONTAL) cubemap.width = image.width/6;
+        if (layout == CUBEMAP_LAYOUT_CROSS_THREE_BY_FOUR) cubemap.width = image.width/3;
+        if (layout == CUBEMAP_LAYOUT_CROSS_FOUR_BY_THREE) cubemap.width = image.width/4;
     }
 
     cubemap.height = cubemap.width;
@@ -4171,11 +4207,11 @@ TextureCubemap LoadTextureCubemap(Image *image, int layout)
         {
             faces = ImageCopy(image);       // Image data already follows expected convention
         }
-        else if (layout == CUBEMAP_LAYOUT_PANORAMA)
+        /*else if (layout == CUBEMAP_LAYOUT_PANORAMA)
         {
-            // TODO: Convert panorama image to square faces...
+            // TODO: implement panorama by converting image to square faces...
             // Ref: https://github.com/denivip/panorama/blob/master/panorama.cpp
-        }
+        } */
         else
         {
             if (layout == CUBEMAP_LAYOUT_LINE_HORIZONTAL) for (int i = 0; i < 6; i++) faceRecs[i].x = (float)size*i;
@@ -4200,16 +4236,22 @@ TextureCubemap LoadTextureCubemap(Image *image, int layout)
 
             // Convert image data to 6 faces in a vertical column, that's the optimum layout for loading
             faces = GenImageColor(size, size*6, MAGENTA);
-            ImageFormat(&faces, image->format);
+            ImageFormat(&faces, image.format);
+
+            Image mipmapped = ImageCopy(image);
+            ImageMipmaps(&mipmapped);
+            ImageMipmaps(&faces);
 
             // NOTE: Image formatting does not work with compressed textures
 
-            for (int i = 0; i < 6; i++) ImageDraw(&faces, *image, faceRecs[i], (Rectangle){ 0, (float)size*i, (float)size, (float)size }, WHITE);
+            for (int i = 0; i < 6; i++) ImageDraw(&faces, mipmapped, faceRecs[i], (Rectangle){ 0, (float)size*i, (float)size, (float)size }, WHITE);
+
+            UnloadImage(&mipmapped);
         }
 
         // NOTE: Cubemap data is expected to be provided as 6 images in a single data array,
         // one after the other (that's a vertical image), following convention: +X, -X, +Y, -Y, +Z, -Z
-        cubemap.id = rlLoadTextureCubemap(faces.data, size, faces.format);
+        cubemap.id = rlLoadTextureCubemap(faces.data, size, faces.format, faces.mipmaps);
 
         if (cubemap.id != 0)
         {
@@ -4266,17 +4308,17 @@ RenderTexture2D LoadRenderTexture(int width, int height)
 }
 
 // Check if a texture is valid (loaded in GPU)
-bool IsTextureValid(Texture2D *texture)
+bool IsTextureValid(Texture2D texture)
 {
     bool result = false;
 
     // TODO: Validate maximum texture size supported by GPU
 
-    if ((texture->id > 0) &&         // Validate OpenGL id (texture uplaoded to GPU)
-        (texture->width > 0) &&      // Validate texture width
-        (texture->height > 0) &&     // Validate texture height
-        (texture->format > 0) &&     // Validate texture pixel format
-        (texture->mipmaps > 0)) result = true;     // Validate texture mipmaps (at least 1 for basic mipmap level)
+    if ((texture.id > 0) &&         // Validate OpenGL id (texture uplaoded to GPU)
+        (texture.width > 0) &&      // Validate texture width
+        (texture.height > 0) &&     // Validate texture height
+        (texture.format > 0) &&     // Validate texture pixel format
+        (texture.mipmaps > 0)) result = true;     // Validate texture mipmaps (at least 1 for basic mipmap level)
 
     return result;
 }
@@ -4294,13 +4336,13 @@ void UnloadTexture(Texture2D *texture)
 }
 
 // Check if a render texture is valid (loaded in GPU)
-bool IsRenderTextureValid(RenderTexture2D *target)
+bool IsRenderTextureValid(RenderTexture2D target)
 {
     bool result = false;
 
-    if ((target->id > 0) &&                  // Validate OpenGL id (loaded on GPU)
-        IsTextureValid(&target->depth) &&    // Validate FBO depth texture/renderbuffer attachment
-        IsTextureValid(&target->texture))    // Validate FBO texture attachment
+    if ((target.id > 0) &&                  // Validate OpenGL id (loaded on GPU)
+        IsTextureValid(target.depth) &&     // Validate FBO depth texture/renderbuffer attachment
+        IsTextureValid(target.texture))     // Validate FBO texture attachment
         result = true; 
 
     return result;

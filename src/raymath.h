@@ -304,6 +304,14 @@ RMAPI float Vector2DotProduct(Vector2 v1, Vector2 v2)
     return result;
 }
 
+// Calculate two vectors cross product
+RMAPI float Vector2CrossProduct(Vector2 v1, Vector2 v2)
+{
+    float result = (v1.x*v2.y - v1.y*v2.x);
+
+    return result;
+}
+
 // Calculate distance between two vectors
 RMAPI float Vector2Distance(Vector2 v1, Vector2 v2)
 {
@@ -2569,7 +2577,13 @@ RMAPI void MatrixDecompose(Matrix mat, Vector3 *translation, Quaternion *rotatio
     if (!FloatEquals(det, 0))
     {
         clone.m0 /= s.x;
+        clone.m4 /= s.x;
+        clone.m8 /= s.x;
+        clone.m1 /= s.y;
         clone.m5 /= s.y;
+        clone.m9 /= s.y;
+        clone.m2 /= s.z;
+        clone.m6 /= s.z;
         clone.m10 /= s.z;
 
         // Extract rotation
