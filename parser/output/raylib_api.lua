@@ -3604,7 +3604,7 @@ return {
       description = "Check if a shader is valid (loaded on GPU)",
       returnType = "bool",
       params = {
-        {type = "Shader *", name = "shader"}
+        {type = "Shader", name = "shader"}
       }
     },
     {
@@ -5458,7 +5458,7 @@ return {
       description = "Load image from GPU texture data",
       returnType = "Image",
       params = {
-        {type = "Texture2D *", name = "texture"}
+        {type = "Texture2D", name = "texture"}
       }
     },
     {
@@ -5466,7 +5466,7 @@ return {
       description = "Load image from GPU texture data, reuse previous image memory",
       returnType = "Image *",
       params = {
-        {type = "Texture2D *", name = "texture"},
+        {type = "Texture2D", name = "texture"},
         {type = "Image *", name = "image"}
       }
     },
@@ -5480,7 +5480,7 @@ return {
       description = "Check if an image is valid (data and parameters)",
       returnType = "bool",
       params = {
-        {type = "Image *", name = "image"}
+        {type = "Image", name = "image"}
       }
     },
     {
@@ -5625,7 +5625,7 @@ return {
       description = "Create an image duplicate (useful for transformations)",
       returnType = "Image",
       params = {
-        {type = "Image *", name = "image"}
+        {type = "Image", name = "image"}
       }
     },
     {
@@ -5633,7 +5633,7 @@ return {
       description = "Create an image from another image piece",
       returnType = "Image",
       params = {
-        {type = "Image *", name = "image"},
+        {type = "Image", name = "image"},
         {type = "Rectangle", name = "rec"}
       }
     },
@@ -5642,7 +5642,7 @@ return {
       description = "Create an image from a selected channel of another image (GRAYSCALE)",
       returnType = "Image",
       params = {
-        {type = "Image *", name = "image"},
+        {type = "Image", name = "image"},
         {type = "int", name = "selectedChannel"}
       }
     },
@@ -6219,7 +6219,7 @@ return {
       description = "Load texture from image data",
       returnType = "Texture2D",
       params = {
-        {type = "Image *", name = "image"}
+        {type = "Image", name = "image"}
       }
     },
     {
@@ -6227,7 +6227,7 @@ return {
       description = "Load cubemap from image, multiple image cubemap layouts supported",
       returnType = "TextureCubemap",
       params = {
-        {type = "Image *", name = "image"},
+        {type = "Image", name = "image"},
         {type = "int", name = "layout"}
       }
     },
@@ -6245,7 +6245,7 @@ return {
       description = "Check if a texture is valid (loaded in GPU)",
       returnType = "bool",
       params = {
-        {type = "Texture2D *", name = "texture"}
+        {type = "Texture2D", name = "texture"}
       }
     },
     {
@@ -6261,7 +6261,7 @@ return {
       description = "Check if a render texture is valid (loaded in GPU)",
       returnType = "bool",
       params = {
-        {type = "RenderTexture2D *", name = "target"}
+        {type = "RenderTexture2D", name = "target"}
       }
     },
     {
@@ -6606,7 +6606,7 @@ return {
       description = "Check if a font is valid (font data loaded, WARNING: GPU texture not checked)",
       returnType = "bool",
       params = {
-        {type = "Font *", name = "font"}
+        {type = "Font", name = "font"}
       }
     },
     {
@@ -7305,7 +7305,7 @@ return {
       description = "Check if a model is valid (loaded in GPU, VAO/VBOs)",
       returnType = "bool",
       params = {
-        {type = "Model *", name = "model"}
+        {type = "Model", name = "model"}
       }
     },
     {
@@ -7659,7 +7659,7 @@ return {
       description = "Check if a material is valid (shader assigned, map textures loaded in GPU)",
       returnType = "bool",
       params = {
-        {type = "Material *", name = "material"}
+        {type = "Material", name = "material"}
       }
     },
     {
@@ -7878,7 +7878,7 @@ return {
       description = "Checks if wave data is valid (data loaded and parameters)",
       returnType = "bool",
       params = {
-        {type = "Wave *", name = "wave"}
+        {type = "Wave", name = "wave"}
       }
     },
     {
@@ -7910,7 +7910,7 @@ return {
       description = "Checks if a sound is valid (data loaded and buffers initialized)",
       returnType = "bool",
       params = {
-        {type = "Sound *", name = "sound"}
+        {type = "Sound", name = "sound"}
       }
     },
     {
@@ -8100,7 +8100,7 @@ return {
       description = "Checks if a music stream is valid (context and buffers initialized)",
       returnType = "bool",
       params = {
-        {type = "Music *", name = "music"}
+        {type = "Music", name = "music"}
       }
     },
     {
@@ -8226,7 +8226,7 @@ return {
       description = "Checks if an audio stream is valid (buffers initialized)",
       returnType = "bool",
       params = {
-        {type = "AudioStream *", name = "stream"}
+        {type = "AudioStream", name = "stream"}
       }
     },
     {

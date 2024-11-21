@@ -3779,7 +3779,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Shader *",
+          "type": "Shader",
           "name": "shader"
         }
       ]
@@ -6992,7 +6992,7 @@
       "returnType": "Image",
       "params": [
         {
-          "type": "Texture2D *",
+          "type": "Texture2D",
           "name": "texture"
         }
       ]
@@ -7003,7 +7003,7 @@
       "returnType": "Image *",
       "params": [
         {
-          "type": "Texture2D *",
+          "type": "Texture2D",
           "name": "texture"
         },
         {
@@ -7023,7 +7023,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Image *",
+          "type": "Image",
           "name": "image"
         }
       ]
@@ -7309,7 +7309,7 @@
       "returnType": "Image",
       "params": [
         {
-          "type": "Image *",
+          "type": "Image",
           "name": "image"
         }
       ]
@@ -7320,7 +7320,7 @@
       "returnType": "Image",
       "params": [
         {
-          "type": "Image *",
+          "type": "Image",
           "name": "image"
         },
         {
@@ -7335,7 +7335,7 @@
       "returnType": "Image",
       "params": [
         {
-          "type": "Image *",
+          "type": "Image",
           "name": "image"
         },
         {
@@ -8446,7 +8446,7 @@
       "returnType": "Texture2D",
       "params": [
         {
-          "type": "Image *",
+          "type": "Image",
           "name": "image"
         }
       ]
@@ -8457,7 +8457,7 @@
       "returnType": "TextureCubemap",
       "params": [
         {
-          "type": "Image *",
+          "type": "Image",
           "name": "image"
         },
         {
@@ -8487,7 +8487,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Texture2D *",
+          "type": "Texture2D",
           "name": "texture"
         }
       ]
@@ -8509,7 +8509,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "RenderTexture2D *",
+          "type": "RenderTexture2D",
           "name": "target"
         }
       ]
@@ -9139,7 +9139,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Font *",
+          "type": "Font",
           "name": "font"
         }
       ]
@@ -10465,7 +10465,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Model *",
+          "type": "Model",
           "name": "model"
         }
       ]
@@ -11152,7 +11152,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Material *",
+          "type": "Material",
           "name": "material"
         }
       ]
@@ -11527,7 +11527,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Wave *",
+          "type": "Wave",
           "name": "wave"
         }
       ]
@@ -11571,7 +11571,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Sound *",
+          "type": "Sound",
           "name": "sound"
         }
       ]
@@ -11869,7 +11869,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "Music *",
+          "type": "Music",
           "name": "music"
         }
       ]
@@ -12058,7 +12058,7 @@
       "returnType": "bool",
       "params": [
         {
-          "type": "AudioStream *",
+          "type": "AudioStream",
           "name": "stream"
         }
       ]
