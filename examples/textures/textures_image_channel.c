@@ -53,12 +53,12 @@ int main(void)
     Texture2D textureBlue = LoadTextureFromImage(imageBlue);
     Texture2D backgroundTexture = LoadTextureFromImage(backgroundImage);
 
-    UnloadImage(fudesumiImage);
-    UnloadImage(imageAlpha);
-    UnloadImage(imageRed);
-    UnloadImage(imageGreen);
-    UnloadImage(imageBlue);
-    UnloadImage(backgroundImage);
+    UnloadImage(&fudesumiImage);
+    UnloadImage(&imageAlpha);
+    UnloadImage(&imageRed);
+    UnloadImage(&imageGreen);
+    UnloadImage(&imageBlue);
+    UnloadImage(&backgroundImage);
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
@@ -93,12 +93,12 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadTexture(backgroundTexture);
-    UnloadTexture(fudesumiTexture);
-    UnloadTexture(textureRed);
-    UnloadTexture(textureGreen);
-    UnloadTexture(textureBlue);
-    UnloadTexture(textureAlpha);
+    UnloadTexture(&backgroundTexture);
+    UnloadTexture(&fudesumiTexture);
+    UnloadTexture(&textureRed);
+    UnloadTexture(&textureGreen);
+    UnloadTexture(&textureBlue);
+    UnloadTexture(&textureAlpha);
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
