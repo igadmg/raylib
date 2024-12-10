@@ -109,8 +109,8 @@ int main(void)
     // De-Initialization
     //--------------------------------------------------------------------------------------
     UnloadModelAnimations(modelAnimations, animsCount); // Unload model animation
-    UnloadModel(characterModel);    // Unload model and meshes/material
-    UnloadShader(skinningShader);   // Unload GPU skinning shader
+    UnloadModel(&characterModel);    // Unload model and meshes/material
+    UnloadShader(&skinningShader);   // Unload GPU skinning shader
     
     CloseWindow();                  // Close window and OpenGL context
     //--------------------------------------------------------------------------------------

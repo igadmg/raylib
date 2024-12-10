@@ -34,7 +34,7 @@ int main(void)
     camera.projection = CAMERA_PERSPECTIVE;                 // Camera projection type
 
     Image image = LoadImage("resources/cubicmap.png");      // Load cubicmap image (RAM)
-    Texture2D cubicmap = LoadTextureFromImage(&image);       // Convert image to texture to display (VRAM)
+    Texture2D cubicmap = LoadTextureFromImage(image);       // Convert image to texture to display (VRAM)
 
     Mesh mesh = GenMeshCubicmap(image, (Vector3){ 1.0f, 1.0f, 1.0f });
     Model model = LoadModelFromMesh(mesh);

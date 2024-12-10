@@ -87,7 +87,7 @@ int main(void)
     else
     {
         Image img = LoadImage("resources/skybox.png");
-        skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(&img, CUBEMAP_LAYOUT_AUTO_DETECT);    // CUBEMAP_LAYOUT_PANORAMA
+        skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(img, CUBEMAP_LAYOUT_AUTO_DETECT);    // CUBEMAP_LAYOUT_PANORAMA
         UnloadImage(&img);
     }
 
@@ -128,7 +128,7 @@ int main(void)
                     else
                     {
                         Image img = LoadImage(droppedFiles.paths[0]);
-                        skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(&img, CUBEMAP_LAYOUT_AUTO_DETECT);
+                        skybox.materials[0].maps[MATERIAL_MAP_CUBEMAP].texture = LoadTextureCubemap(img, CUBEMAP_LAYOUT_AUTO_DETECT);
                         UnloadImage(&img);
                     }
 

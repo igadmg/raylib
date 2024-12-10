@@ -77,7 +77,7 @@ int main()
         // Upload a different point cloud size
         if (numPointsChanged)
         {
-            UnloadModel(model);
+            UnloadModel(&model);
             mesh = GenMeshPoints(numPoints);
             model = LoadModelFromMesh(mesh);
             numPointsChanged = false;
@@ -139,7 +139,7 @@ int main()
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadModel(model);
+    UnloadModel(&model);
 
     CloseWindow();
     //--------------------------------------------------------------------------------------

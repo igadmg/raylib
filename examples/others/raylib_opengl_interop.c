@@ -158,7 +158,7 @@ int main(void)
     glDeleteBuffers(1, &vbo);
     glDeleteVertexArrays(1, &vao);
 
-    UnloadShader(shader);   // Unload shader
+    UnloadShader(&shader);  // Unload shader
 
     CloseWindow();          // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
