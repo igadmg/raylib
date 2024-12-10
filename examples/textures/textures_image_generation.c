@@ -39,15 +39,15 @@ int main(void)
 
     Texture2D textures[NUM_TEXTURES] = { 0 };
 
-    textures[0] = LoadTextureFromImage(&verticalGradient);
-    textures[1] = LoadTextureFromImage(&horizontalGradient);
-    textures[2] = LoadTextureFromImage(&diagonalGradient);
-    textures[3] = LoadTextureFromImage(&radialGradient);
-    textures[4] = LoadTextureFromImage(&squareGradient);
-    textures[5] = LoadTextureFromImage(&checked);
-    textures[6] = LoadTextureFromImage(&whiteNoise);
-    textures[7] = LoadTextureFromImage(&perlinNoise);
-    textures[8] = LoadTextureFromImage(&cellular);
+    textures[0] = LoadTextureFromImage(verticalGradient);
+    textures[1] = LoadTextureFromImage(horizontalGradient);
+    textures[2] = LoadTextureFromImage(diagonalGradient);
+    textures[3] = LoadTextureFromImage(radialGradient);
+    textures[4] = LoadTextureFromImage(squareGradient);
+    textures[5] = LoadTextureFromImage(checked);
+    textures[6] = LoadTextureFromImage(whiteNoise);
+    textures[7] = LoadTextureFromImage(perlinNoise);
+    textures[8] = LoadTextureFromImage(cellular);
 
     // Unload image data (CPU RAM)
     UnloadImage(&verticalGradient);

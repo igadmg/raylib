@@ -187,9 +187,9 @@ int main(void)
     // De-Initialization
     //--------------------------------------------------------------------------------------
 
-    UnloadShader(shadowShader);
-    UnloadModel(cube);
-    UnloadModel(robot);
+    UnloadShader(&shadowShader);
+    UnloadModel(&cube);
+    UnloadModel(&robot);
     UnloadModelAnimations(robotAnimations, animCount);
     UnloadShadowmapRenderTexture(shadowMap);
 

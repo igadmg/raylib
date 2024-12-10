@@ -80,7 +80,7 @@ int main(void)
     // Create a white texture of the size of the window to update
     // each pixel of the window using the fragment shader: golRenderShader
     Image whiteImage = GenImageColor(GOL_WIDTH, GOL_WIDTH, WHITE);
-    Texture whiteTex = LoadTextureFromImage(&whiteImage);
+    Texture whiteTex = LoadTextureFromImage(whiteImage);
     UnloadImage(&whiteImage);
     //--------------------------------------------------------------------------------------
 

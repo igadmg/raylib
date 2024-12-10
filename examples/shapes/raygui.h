@@ -4587,7 +4587,7 @@ static void GuiLoadStyleFromMemory(const unsigned char *fileData, int dataSize)
             }
 
             if (font.texture.id != GetFontDefault().texture.id) UnloadTexture(&font.texture);
-            font.texture = LoadTextureFromImage(&imFont);
+            font.texture = LoadTextureFromImage(imFont);
 
             RAYGUI_FREE(imFont.data);
 
