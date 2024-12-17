@@ -7067,7 +7067,7 @@ return {
     },
     {
       name = "TextToInteger",
-      description = "Get integer value from text (negative values not supported)",
+      description = "Get integer value from text",
       returnType = "int",
       params = {
         {type = "const char *", name = "text"}
@@ -7075,7 +7075,7 @@ return {
     },
     {
       name = "TextToFloat",
-      description = "Get float value from text (negative values not supported)",
+      description = "Get float value from text",
       returnType = "float",
       params = {
         {type = "const char *", name = "text"}

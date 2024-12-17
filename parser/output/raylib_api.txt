@@ -3835,12 +3835,12 @@ Function 450: TextToCamel() (1 input parameters)
 Function 451: TextToInteger() (1 input parameters)
   Name: TextToInteger
   Return type: int
-  Description: Get integer value from text (negative values not supported)
+  Description: Get integer value from text
   Param[1]: text (type: const char *)
 Function 452: TextToFloat() (1 input parameters)
   Name: TextToFloat
   Return type: float
-  Description: Get float value from text (negative values not supported)
+  Description: Get float value from text
   Param[1]: text (type: const char *)
 Function 453: DrawLine3D() (3 input parameters)
   Name: DrawLine3D
