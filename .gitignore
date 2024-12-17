@@ -113,3 +113,5 @@ docgen_tmp/
 
 # Parser stuff
 parser/raylib_parser
+src/external/glfw/src/*-protocol.h
+src/external/glfw/src/*-protocol-code.h
