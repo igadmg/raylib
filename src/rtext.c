@@ -34,7 +34,7 @@
 *
 *   LICENSE: zlib/libpng
 *
-*   Copyright (c) 2013-2024 Ramon Santamaria (@raysan5)
+*   Copyright (c) 2013-2025 Ramon Santamaria (@raysan5)
 *
 *   This software is provided "as-is", without any express or implied warranty. In no event
 *   will the authors be held liable for any damages arising from the use of this software.
@@ -247,7 +247,11 @@ extern void LoadFontDefault(void)
                 // we must consider data as little-endian order (alpha + gray)
                 ((unsigned short *)imFont.data)[i + j] = 0xffff;
             }
-            else ((unsigned short *)imFont.data)[i + j] = 0x00ff;
+            else 
+            { 
+                ((unsigned char *)imFont.data)[(i + j)*sizeof(short)] = 0xFF;
+                ((unsigned char *)imFont.data)[(i + j)*sizeof(short) + 1] = 0x00;
+            }
         }
 
         counter++;
@@ -985,7 +989,7 @@ bool ExportFontAsCode(Font font, const char *fileName)
     byteCount += sprintf(txtData + byteCount, "// more info and bugs-report:  github.com/raysan5/raylib                              //\n");
     byteCount += sprintf(txtData + byteCount, "// feedback and support:       ray[at]raylib.com                                      //\n");
     byteCount += sprintf(txtData + byteCount, "//                                                                                    //\n");
-    byteCount += sprintf(txtData + byteCount, "// Copyright (c) 2018-2024 Ramon Santamaria (@raysan5)                                //\n");
+    byteCount += sprintf(txtData + byteCount, "// Copyright (c) 2018-2025 Ramon Santamaria (@raysan5)                                //\n");
     byteCount += sprintf(txtData + byteCount, "//                                                                                    //\n");
     byteCount += sprintf(txtData + byteCount, "// ---------------------------------------------------------------------------------- //\n");
     byteCount += sprintf(txtData + byteCount, "//                                                                                    //\n");

@@ -30,7 +30,7 @@
 *
 *   LICENSE: zlib/libpng
 *
-*   Copyright (c) 2013-2024 Ramon Santamaria (@raysan5) and contributors
+*   Copyright (c) 2013-2025 Ramon Santamaria (@raysan5) and contributors
 *
 *   This software is provided "as-is", without any express or implied warranty. In no event
 *   will the authors be held liable for any damages arising from the use of this software.
@@ -322,7 +322,7 @@ void SetWindowState(unsigned int flags)
     }
 
     // State change: FLAG_FULLSCREEN_MODE
-    if ((CORE.Window.flags & FLAG_FULLSCREEN_MODE) != (flags & FLAG_FULLSCREEN_MODE))
+    if ((CORE.Window.flags & FLAG_FULLSCREEN_MODE) != (flags & FLAG_FULLSCREEN_MODE) && ((flags & FLAG_FULLSCREEN_MODE) > 0))
     {
         ToggleFullscreen();     // NOTE: Window state flag updated inside function
     }
@@ -1248,11 +1248,12 @@ void PollInputEvents(void)
 
     CORE.Window.resizedLastFrame = false;
 
-    if (CORE.Window.eventWaiting) glfwWaitEvents();     // Wait for in input events before continue (drawing is paused)
+    if ((CORE.Window.eventWaiting) || (IsWindowState(FLAG_WINDOW_MINIMIZED) && !IsWindowState(FLAG_WINDOW_ALWAYS_RUN)))
+    {
+        glfwWaitEvents();     // Wait for in input events before continue (drawing is paused)
+        CORE.Time.previous = GetTime();
+    }
     else glfwPollEvents();      // Poll input events: keyboard/mouse/window events (callbacks) -> Update keys state
-
-    // While window minimized, stop loop execution
-    while (IsWindowState(FLAG_WINDOW_MINIMIZED) && !IsWindowState(FLAG_WINDOW_ALWAYS_RUN)) glfwWaitEvents();
 
     CORE.Window.shouldClose = glfwWindowShouldClose(platform.handle);
 
