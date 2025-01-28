@@ -1065,7 +1065,7 @@ RLAPI int GetShaderLocationAttrib(Shader shader, const char *attribName);  // Ge
 RLAPI void SetShaderValue(Shader shader, int locIndex, const void *value, int uniformType);               // Set shader uniform value
 RLAPI void SetShaderValueV(Shader shader, int locIndex, const void *value, int uniformType, int count);   // Set shader uniform value vector
 RLAPI void SetShaderValueMatrix(Shader shader, int locIndex, Matrix mat);         // Set shader uniform value (matrix 4x4)
-RLAPI void SetShaderValueTexture(Shader shader, int locIndex, Texture2D texture); // Set shader uniform value for texture (sampler2d)
+RLAPI void SetShaderValueTexture(Shader shader, int locIndex, Texture2D texture); // Set shader uniform value and bind the texture (sampler2d)
 RLAPI void UnloadShader(Shader *shader);                                   // Unload shader from GPU memory (VRAM)
 
 // Screen-space-related functions
@@ -1516,6 +1516,8 @@ RLAPI int GetCodepointPrevious(const char *text, int *codepointSize);           
 RLAPI const char *CodepointToUTF8(int codepoint, int *utf8Size);                            // Encode one codepoint into UTF-8 byte array (array length returned as parameter)
 
 // Text strings management functions (no UTF-8 strings, only byte chars)
+// WARNING 1: Most of these functions use internal static buffers, it's recommended to store returned data on user-side for re-use
+// WARNING 2: Some strings allocate memory internally for the returned strings, those strings must be free by user using MemFree()
 // NOTE: Some strings allocate memory internally for returned strings, just be careful!
 RLAPI const char *TextAlloc(const char *text, int *length);                                 // Allocate non null terminated string in internal buffer, for language interop
 RLAPI int TextCopy(char *dst, const char *src);                                             // Copy one string to another, returns bytes copied
