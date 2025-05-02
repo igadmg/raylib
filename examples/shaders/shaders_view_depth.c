@@ -76,7 +76,7 @@ int main(void)
         //----------------------------------------------------------------------------------
         BeginTextureMode(target);
             ClearBackground(WHITE);
-            
+
             BeginMode3D(camera);
                 DrawModel(cube,  (Vector3){ 0.0f, 0.0f, 0.0f },  3.0f, YELLOW);
                 DrawModel(floor, (Vector3){ 10.0f, 0.0f, 2.0f }, 2.0f, RED);
@@ -104,10 +104,10 @@ int main(void)
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
-    UnloadModel(cube);              // Unload model
-    UnloadModel(floor);             // Unload model
-    UnloadRenderTexture(target);    // Unload render texture
-    UnloadShader(depthShader);      // Unload shader
+    UnloadModel(&cube);              // Unload model
+    UnloadModel(&floor);             // Unload model
+    UnloadRenderTexture(&target);    // Unload render texture
+    UnloadShader(&depthShader);      // Unload shader
 
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
