@@ -3150,7 +3150,7 @@
           "name": "fileName"
         },
         {
-          "type": "char *",
+          "type": "const char *",
           "name": "text"
         }
       ]
@@ -4430,7 +4430,7 @@
           "name": "fileName"
         },
         {
-          "type": "char *",
+          "type": "const char *",
           "name": "text"
         }
       ]
@@ -4705,7 +4705,7 @@
     },
     {
       "name": "EncodeDataBase64",
-      "description": "Encode data to Base64 string, memory must be MemFree()",
+      "description": "Encode data to Base64 string (includes NULL terminator), memory must be MemFree()",
       "returnType": "char *",
       "params": [
         {
@@ -4728,7 +4728,7 @@
       "returnType": "unsigned char *",
       "params": [
         {
-          "type": "const unsigned char *",
+          "type": "const char *",
           "name": "data"
         },
         {

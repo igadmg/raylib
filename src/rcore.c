@@ -524,25 +524,25 @@ const char *TextFormat(const char *text, ...);              // Formatting of tex
     #define PLATFORM_DESKTOP_GLFW
 #endif
 
-// We're using `#pragma message` because `#warning` is not adopted by MSVC.
+// We're using '#pragma message' because '#warning' is not adopted by MSVC
 #if defined(SUPPORT_CLIPBOARD_IMAGE)
     #if !defined(SUPPORT_MODULE_RTEXTURES)
-        #pragma message ("Warning: Enabling SUPPORT_CLIPBOARD_IMAGE requires SUPPORT_MODULE_RTEXTURES to work properly")
+        #pragma message ("WARNING: Enabling SUPPORT_CLIPBOARD_IMAGE requires SUPPORT_MODULE_RTEXTURES to work properly")
     #endif
 
     // It's nice to have support Bitmap on Linux as well, but not as necessary as Windows
     #if !defined(SUPPORT_FILEFORMAT_BMP) && defined(_WIN32)
-        #pragma message ("Warning: Enabling SUPPORT_CLIPBOARD_IMAGE requires SUPPORT_FILEFORMAT_BMP, specially on Windows")
+        #pragma message ("WARNING: Enabling SUPPORT_CLIPBOARD_IMAGE requires SUPPORT_FILEFORMAT_BMP, specially on Windows")
     #endif
 
-    // From what I've tested applications on Wayland saves images on clipboard as PNG.
+    // From what I've tested applications on Wayland saves images on clipboard as PNG
     #if (!defined(SUPPORT_FILEFORMAT_PNG) || !defined(SUPPORT_FILEFORMAT_JPG)) && !defined(_WIN32)
-        #pragma message ("Warning: Getting image from the clipboard might not work without SUPPORT_FILEFORMAT_PNG or SUPPORT_FILEFORMAT_JPG")
+        #pragma message ("WARNING: Getting image from the clipboard might not work without SUPPORT_FILEFORMAT_PNG or SUPPORT_FILEFORMAT_JPG")
     #endif
 
-    // Not needed because `rtexture.c` will automatically defined STBI_REQUIRED when any SUPPORT_FILEFORMAT_* is defined.
+    // Not needed because `rtexture.c` will automatically defined STBI_REQUIRED when any SUPPORT_FILEFORMAT_* is defined
     // #if !defined(STBI_REQUIRED)
-    //     #pragma message ("Warning: "STBI_REQUIRED is not defined, that means we can't load images from clipbard"
+    //     #pragma message ("WARNING: "STBI_REQUIRED is not defined, that means we can't load images from clipbard"
     // #endif
 
 #endif // SUPPORT_CLIPBOARD_IMAGE
@@ -2323,9 +2323,12 @@ FilePathList LoadDirectoryFilesEx(const char *basePath, const char *filter, bool
 // WARNING: files.count is not reseted to 0 after unloading
 void UnloadDirectoryFiles(FilePathList files)
 {
-    for (unsigned int i = 0; i < files.capacity; i++) RL_FREE(files.paths[i]);
+    if (files.paths != NULL)
+    {
+        for (unsigned int i = 0; i < files.capacity; i++) RL_FREE(files.paths[i]);
 
-    RL_FREE(files.paths);
+        RL_FREE(files.paths);
+    }
 }
 
 // Create directories (including full path requested), returns 0 on success
@@ -2545,6 +2548,7 @@ unsigned char *DecompressData(const unsigned char *compData, int compDataSize, i
 }
 
 // Encode data to Base64 string
+// NOTE: Returned string includes NULL terminator, considered on outputSize
 char *EncodeDataBase64(const unsigned char *data, int dataSize, int *outputSize)
 {
     static const unsigned char base64encodeTable[] = {
@@ -2555,7 +2559,7 @@ char *EncodeDataBase64(const unsigned char *data, int dataSize, int *outputSize)
 
     static const int modTable[] = { 0, 2, 1 };
 
-    *outputSize = 4*((dataSize + 2)/3);
+    *outputSize = 4*((dataSize + 2)/3) + 1; // Adding +1 for NULL terminator
 
     char *encodedData = (char *)RL_MALLOC(*outputSize);
 
@@ -2577,11 +2581,13 @@ char *EncodeDataBase64(const unsigned char *data, int dataSize, int *outputSize)
 
     for (int i = 0; i < modTable[dataSize%3]; i++) encodedData[*outputSize - 1 - i] = '=';  // Padding character
 
+    encodedData[*outputSize - 1] = '\0';
+
     return encodedData;
 }
 
 // Decode Base64 string data
-unsigned char *DecodeDataBase64(const unsigned char *data, int *outputSize)
+unsigned char *DecodeDataBase64(const char *data, int *outputSize)
 {
     static const unsigned char base64decodeTable[] = {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -3758,7 +3764,7 @@ static void ScanDirectoryFiles(const char *basePath, FilePathList *files, const 
 // Scan all files and directories recursively from a base path
 static void ScanDirectoryFilesRecursively(const char *basePath, FilePathList *files, const char *filter)
 {
-    char path[MAX_FILEPATH_LENGTH] = { 0 };
+    static char path[MAX_FILEPATH_LENGTH] = { 0 };
     memset(path, 0, MAX_FILEPATH_LENGTH);
 
     struct dirent *dp = NULL;
