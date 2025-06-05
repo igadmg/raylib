@@ -269,7 +269,7 @@ extern void LoadFontDefault(void)
         // if we don't do this, we will leak memory by reallocating the glyphs and rects
         if (defaultFont.glyphs != NULL)
         {
-            UnloadImage(imFont);
+            UnloadImage(&imFont);
             return;
         }
     }
