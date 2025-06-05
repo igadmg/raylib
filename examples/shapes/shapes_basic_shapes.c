@@ -58,12 +58,15 @@ int main(void)
 
             DrawCircleLines(screenWidth / 5, 220, 60, DARKGREEN);
             DrawCircleGradient(screenWidth/5, 220, 60, GREEN, SKYBLUE);
+
             DrawLine(screenWidth / 5, 220, screenWidth / 5, 220 - 60, BLACK);
             DrawLine(screenWidth / 5, 220, screenWidth / 5 - 60, 220, BLACK);
             DrawLine(screenWidth / 5, 220, screenWidth / 5, 220 + 60, BLACK);
             DrawLine(screenWidth / 5, 220, screenWidth / 5 + 60, 220, BLACK);
 
-            DrawCircleLines(screenWidth/5, 340, 80, DARKGREEN);
+            DrawCircleLines(screenWidth/5, 340, 80, DARKBLUE);
+            DrawEllipse(screenWidth/5, 120, 25, 20, YELLOW);
+            DrawEllipseLines(screenWidth/5, 120, 30, 25, YELLOW);
 
             // Rectangle shapes and lines
             DrawRectangleLines(0, 0, screenWidth, screenHeight, ORANGE);

@@ -2306,7 +2306,7 @@ return {
     },
     {
       name = "GamepadAxis",
-      description = "Gamepad axis",
+      description = "Gamepad axes",
       values = {
         {
           name = "GAMEPAD_AXIS_LEFT_X",
@@ -4229,10 +4229,10 @@ return {
     },
     {
       name = "DecodeDataBase64",
-      description = "Decode Base64 string data, memory must be MemFree()",
+      description = "Decode Base64 string (expected NULL terminated), memory must be MemFree()",
       returnType = "unsigned char *",
       params = {
-        {type = "const char *", name = "data"},
+        {type = "const char *", name = "text"},
         {type = "int *", name = "outputSize"}
       }
     },
@@ -4452,7 +4452,7 @@ return {
     },
     {
       name = "GetGamepadAxisCount",
-      description = "Get gamepad axis count for a gamepad",
+      description = "Get axis count for a gamepad",
       returnType = "int",
       params = {
         {type = "int", name = "gamepad"}
@@ -4460,7 +4460,7 @@ return {
     },
     {
       name = "GetGamepadAxisMovement",
-      description = "Get axis movement value for a gamepad axis",
+      description = "Get movement value for a gamepad axis",
       returnType = "float",
       params = {
         {type = "int", name = "gamepad"},
@@ -4895,12 +4895,34 @@ return {
       }
     },
     {
+      name = "DrawEllipseV",
+      description = "Draw ellipse (Vector version)",
+      returnType = "void",
+      params = {
+        {type = "Vector2", name = "center"},
+        {type = "float", name = "radiusH"},
+        {type = "float", name = "radiusV"},
+        {type = "Color", name = "color"}
+      }
+    },
+    {
       name = "DrawEllipseLines",
       description = "Draw ellipse outline",
       returnType = "void",
       params = {
         {type = "int", name = "centerX"},
         {type = "int", name = "centerY"},
+        {type = "float", name = "radiusH"},
+        {type = "float", name = "radiusV"},
+        {type = "Color", name = "color"}
+      }
+    },
+    {
+      name = "DrawEllipseLinesV",
+      description = "Draw ellipse outline (Vector version)",
+      returnType = "void",
+      params = {
+        {type = "Vector2", name = "center"},
         {type = "float", name = "radiusH"},
         {type = "float", name = "radiusV"},
         {type = "Color", name = "color"}
@@ -5010,8 +5032,8 @@ return {
         {type = "Rectangle", name = "rec"},
         {type = "Color", name = "topLeft"},
         {type = "Color", name = "bottomLeft"},
-        {type = "Color", name = "topRight"},
-        {type = "Color", name = "bottomRight"}
+        {type = "Color", name = "bottomRight"},
+        {type = "Color", name = "topRight"}
       }
     },
     {
@@ -6184,7 +6206,7 @@ return {
       returnType = "void",
       params = {
         {type = "Image *", name = "dst"},
-        {type = "Vector2 *", name = "points"},
+        {type = "const Vector2 *", name = "points"},
         {type = "int", name = "pointCount"},
         {type = "Color", name = "color"}
       }
@@ -6195,7 +6217,7 @@ return {
       returnType = "void",
       params = {
         {type = "Image *", name = "dst"},
-        {type = "Vector2 *", name = "points"},
+        {type = "const Vector2 *", name = "points"},
         {type = "int", name = "pointCount"},
         {type = "Color", name = "color"}
       }

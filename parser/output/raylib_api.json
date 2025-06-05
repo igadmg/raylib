@@ -2306,7 +2306,7 @@
     },
     {
       "name": "GamepadAxis",
-      "description": "Gamepad axis",
+      "description": "Gamepad axes",
       "values": [
         {
           "name": "GAMEPAD_AXIS_LEFT_X",
@@ -4724,12 +4724,12 @@
     },
     {
       "name": "DecodeDataBase64",
-      "description": "Decode Base64 string data, memory must be MemFree()",
+      "description": "Decode Base64 string (expected NULL terminated), memory must be MemFree()",
       "returnType": "unsigned char *",
       "params": [
         {
           "type": "const char *",
-          "name": "data"
+          "name": "text"
         },
         {
           "type": "int *",
@@ -5043,7 +5043,7 @@
     },
     {
       "name": "GetGamepadAxisCount",
-      "description": "Get gamepad axis count for a gamepad",
+      "description": "Get axis count for a gamepad",
       "returnType": "int",
       "params": [
         {
@@ -5054,7 +5054,7 @@
     },
     {
       "name": "GetGamepadAxisMovement",
-      "description": "Get axis movement value for a gamepad axis",
+      "description": "Get movement value for a gamepad axis",
       "returnType": "float",
       "params": [
         {
@@ -5768,6 +5768,29 @@
       ]
     },
     {
+      "name": "DrawEllipseV",
+      "description": "Draw ellipse (Vector version)",
+      "returnType": "void",
+      "params": [
+        {
+          "type": "Vector2",
+          "name": "center"
+        },
+        {
+          "type": "float",
+          "name": "radiusH"
+        },
+        {
+          "type": "float",
+          "name": "radiusV"
+        },
+        {
+          "type": "Color",
+          "name": "color"
+        }
+      ]
+    },
+    {
       "name": "DrawEllipseLines",
       "description": "Draw ellipse outline",
       "returnType": "void",
@@ -5779,6 +5802,29 @@
         {
           "type": "int",
           "name": "centerY"
+        },
+        {
+          "type": "float",
+          "name": "radiusH"
+        },
+        {
+          "type": "float",
+          "name": "radiusV"
+        },
+        {
+          "type": "Color",
+          "name": "color"
+        }
+      ]
+    },
+    {
+      "name": "DrawEllipseLinesV",
+      "description": "Draw ellipse outline (Vector version)",
+      "returnType": "void",
+      "params": [
+        {
+          "type": "Vector2",
+          "name": "center"
         },
         {
           "type": "float",
@@ -6029,11 +6075,11 @@
         },
         {
           "type": "Color",
-          "name": "topRight"
+          "name": "bottomRight"
         },
         {
           "type": "Color",
-          "name": "bottomRight"
+          "name": "topRight"
         }
       ]
     },
@@ -8336,7 +8382,7 @@
           "name": "dst"
         },
         {
-          "type": "Vector2 *",
+          "type": "const Vector2 *",
           "name": "points"
         },
         {
@@ -8359,7 +8405,7 @@
           "name": "dst"
         },
         {
-          "type": "Vector2 *",
+          "type": "const Vector2 *",
           "name": "points"
         },
         {
