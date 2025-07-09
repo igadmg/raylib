@@ -81,7 +81,7 @@
     #include "utils.h"          // Required for: fopen() Android mapping
 #endif
 
-#if defined(SUPPORT_MODULE_RAUDIO)
+#if defined(SUPPORT_MODULE_RAUDIO) || defined(RAUDIO_STANDALONE)
 
 #if defined(_WIN32)
 // To avoid conflicting windows.h symbols with raylib, some flags are defined
@@ -1041,6 +1041,8 @@ void UnloadSoundAlias(Sound *alias)
 }
 
 // Update sound buffer with new data
+// NOTE 1: data format must match sound.stream.sampleSize
+// NOTE 2: frameCount must not exceed sound.frameCount
 void UpdateSound(Sound sound, const void *data, int frameCount)
 {
     if (sound.stream.buffer != NULL)
@@ -1341,7 +1343,7 @@ Music LoadMusicStream(const char *fileName)
 #if defined(SUPPORT_FILEFORMAT_WAV)
     else if (IsFileExtension(fileName, ".wav"))
     {
-        drwav *ctxWav = RL_CALLOC(1, sizeof(drwav));
+        drwav *ctxWav = (drwav *)RL_CALLOC(1, sizeof(drwav));
         bool success = drwav_init_file(ctxWav, fileName, NULL);
 
         if (success)
@@ -1391,7 +1393,7 @@ Music LoadMusicStream(const char *fileName)
 #if defined(SUPPORT_FILEFORMAT_MP3)
     else if (IsFileExtension(fileName, ".mp3"))
     {
-        drmp3 *ctxMp3 = RL_CALLOC(1, sizeof(drmp3));
+        drmp3 *ctxMp3 = (drmp3 *)RL_CALLOC(1, sizeof(drmp3));
         int result = drmp3_init_file(ctxMp3, fileName, NULL);
 
         if (result > 0)
@@ -1482,7 +1484,7 @@ Music LoadMusicStream(const char *fileName)
 #if defined(SUPPORT_FILEFORMAT_MOD)
     else if (IsFileExtension(fileName, ".mod"))
     {
-        jar_mod_context_t *ctxMod = RL_CALLOC(1, sizeof(jar_mod_context_t));
+        jar_mod_context_t *ctxMod = (jar_mod_context_t *)RL_CALLOC(1, sizeof(jar_mod_context_t));
         jar_mod_init(ctxMod);
         int result = jar_mod_load_file(ctxMod, fileName);
 
@@ -1533,7 +1535,7 @@ Music LoadMusicStreamFromMemory(const char *fileType, const unsigned char *data,
 #if defined(SUPPORT_FILEFORMAT_WAV)
     else if ((strcmp(fileType, ".wav") == 0) || (strcmp(fileType, ".WAV") == 0))
     {
-        drwav *ctxWav = RL_CALLOC(1, sizeof(drwav));
+        drwav *ctxWav = (drwav *)RL_CALLOC(1, sizeof(drwav));
 
         bool success = drwav_init_memory(ctxWav, (const void *)data, dataSize, NULL);
 
@@ -1584,7 +1586,7 @@ Music LoadMusicStreamFromMemory(const char *fileType, const unsigned char *data,
 #if defined(SUPPORT_FILEFORMAT_MP3)
     else if ((strcmp(fileType, ".mp3") == 0) || (strcmp(fileType, ".MP3") == 0))
     {
-        drmp3 *ctxMp3 = RL_CALLOC(1, sizeof(drmp3));
+        drmp3 *ctxMp3 = (drmp3 *)RL_CALLOC(1, sizeof(drmp3));
         int success = drmp3_init_memory(ctxMp3, (const void*)data, dataSize, NULL);
 
         if (success)

@@ -6329,7 +6329,7 @@ return {
     },
     {
       name = "UpdateTexture",
-      description = "Update GPU texture with new data",
+      description = "Update GPU texture with new data (pixels should be able to fill texture)",
       returnType = "void",
       params = {
         {type = "Texture2D", name = "texture"},
@@ -6338,7 +6338,7 @@ return {
     },
     {
       name = "UpdateTextureRec",
-      description = "Update GPU texture rectangle with new data",
+      description = "Update GPU texture rectangle with new data (pixels and rec should fit in texture)",
       returnType = "void",
       params = {
         {type = "Texture2D", name = "texture"},
@@ -7970,7 +7970,7 @@ return {
     },
     {
       name = "UpdateSound",
-      description = "Update sound buffer with new data",
+      description = "Update sound buffer with new data (data and frame count should fit in sound)",
       returnType = "void",
       params = {
         {type = "Sound", name = "sound"},

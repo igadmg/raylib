@@ -2135,8 +2135,8 @@ void ImageBlurGaussian(Image *image, int blurSize)
     Color *pixels = LoadImageColors(*image);
 
     // Loop switches between pixelsCopy1 and pixelsCopy2
-    Vector4 *pixelsCopy1 = RL_MALLOC((image->height)*(image->width)*sizeof(Vector4));
-    Vector4 *pixelsCopy2 = RL_MALLOC((image->height)*(image->width)*sizeof(Vector4));
+    Vector4 *pixelsCopy1 = (Vector4 *)RL_MALLOC((image->height)*(image->width)*sizeof(Vector4));
+    Vector4 *pixelsCopy2 = (Vector4 *)RL_MALLOC((image->height)*(image->width)*sizeof(Vector4));
 
     for (int i = 0; i < (image->height*image->width); i++)
     {
@@ -2284,8 +2284,8 @@ void ImageKernelConvolution(Image *image, const float *kernel, int kernelSize)
 
     Color *pixels = LoadImageColors(*image);
 
-    Vector4 *imageCopy2 = RL_MALLOC((image->height)*(image->width)*sizeof(Vector4));
-    Vector4 *temp = RL_MALLOC(kernelSize*sizeof(Vector4));
+    Vector4 *imageCopy2 = (Vector4 *)RL_MALLOC((image->height)*(image->width)*sizeof(Vector4));
+    Vector4 *temp = (Vector4 *)RL_MALLOC(kernelSize*sizeof(Vector4));
 
     for (int i = 0; i < kernelSize; i++)
     {
@@ -4375,14 +4375,17 @@ void UnloadRenderTexture(RenderTexture2D *target)
 }
 
 // Update GPU texture with new data
-// NOTE: pixels data must match texture.format
+// NOTE 1: pixels data must match texture.format
+// NOTE 2: pixels data must contain at least as many pixels as texture
 void UpdateTexture(Texture2D texture, const void *pixels)
 {
     rlUpdateTexture(texture.id, 0, 0, texture.width, texture.height, texture.format, pixels);
 }
 
 // Update GPU texture rectangle with new data
-// NOTE: pixels data must match texture.format
+// NOTE 1: pixels data must match texture.format
+// NOTE 2: pixels data must contain as many pixels as rec contains
+// NOTE 3: rec must fit completely within texture's width and height
 void UpdateTextureRec(Texture2D texture, Rectangle rec, const void *pixels)
 {
     rlUpdateTexture(texture.id, (int)rec.x, (int)rec.y, (int)rec.width, (int)rec.height, texture.format, pixels);
