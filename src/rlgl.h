@@ -711,6 +711,7 @@ RLAPI void rlSetBlendColor(unsigned char r, unsigned char g, unsigned char b, un
 RLAPI void rlglInit(int width, int height);             // Initialize rlgl (buffers, shaders, textures, states)
 RLAPI void rlglClose(void);                             // De-initialize rlgl (buffers, shaders, textures)
 RLAPI void rlLoadExtensions(void *loader);              // Load OpenGL extensions (loader function required)
+RLAPI void *rlGetProcAddress(const char *procName);     // Get OpenGL procedure address
 RLAPI int rlGetVersion(void);                           // Get current OpenGL version
 RLAPI void rlSetFramebufferWidth(int width);            // Set current framebuffer width
 RLAPI int rlGetFramebufferWidth(void);                  // Get default framebuffer width
@@ -1043,9 +1044,14 @@ RLAPI void rlLoadDrawQuad(void);     // Load and draw a quad
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
 #if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
+
+typedef void *(*rlglLoadProc)(const char *name);   // OpenGL extension functions loader signature (same as GLADloadproc)
+
 typedef struct rlglData {
     rlRenderBatch *currentBatch;            // Current render batch
     rlRenderBatch defaultBatch;             // Default internal render batch
+
+    rlglLoadProc loader;                    // OpenGL function loader
 
     struct {
         int vertexCounter;                  // Current active render batch vertex counter (generic, used for all batches)
@@ -1116,8 +1122,6 @@ typedef struct rlglData {
     } ExtSupported;     // Extensions supported flags
 } rlglData;
 
-typedef void *(*rlglLoadProc)(const char *name);   // OpenGL extension functions loader signature (same as GLADloadproc)
-
 #endif  // GRAPHICS_API_OPENGL_33 || GRAPHICS_API_OPENGL_ES2
 
 //----------------------------------------------------------------------------------
@@ -1155,16 +1159,16 @@ static const char *rlGetCompressedFormatName(int format); // Get compressed form
 
 static int rlGetPixelDataSize(int width, int height, int format);   // Get pixel data size in bytes (image or texture)
 
+static Matrix rlMatrixIdentity(void);                       // Get identity matrix
+#if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
 // Auxiliar matrix math functions
-typedef struct rl_float16 {
-    float v[16];
-} rl_float16;
+typedef struct rl_float16 { float v[16]; } rl_float16;
 static rl_float16 rlMatrixToFloatV(Matrix mat);             // Get float array of matrix data
 #define rlMatrixToFloat(mat) (rlMatrixToFloatV(mat).v)      // Get float vector for Matrix
-static Matrix rlMatrixIdentity(void);                       // Get identity matrix
 static Matrix rlMatrixMultiply(Matrix left, Matrix right);  // Multiply two matrices
 static Matrix rlMatrixTranspose(Matrix mat);                // Transposes provided matrix
 static Matrix rlMatrixInvert(Matrix mat);                   // Invert provided matrix
+#endif
 
 //----------------------------------------------------------------------------------
 // Module Functions Definition - Matrix operations
@@ -2582,6 +2586,8 @@ void rlLoadExtensions(void *loader)
     TRACELOG(RL_LOG_INFO, "    > GLSL:     %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
 #if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
+    RLGL.loader = (rlglLoadProc)loader;
+
     // NOTE: Anisotropy levels capability is an extension
     #ifndef GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
         #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
@@ -2637,6 +2643,16 @@ void rlLoadExtensions(void *loader)
 #endif  // RLGL_SHOW_GL_DETAILS_INFO
 
 #endif  // GRAPHICS_API_OPENGL_33 || GRAPHICS_API_OPENGL_ES2
+}
+
+// Get OpenGL procedure address
+void *rlGetProcAddress(const char *procName)
+{
+    void *func = NULL;
+#if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
+    func = RLGL.loader(procName);
+#endif
+    return func;
 }
 
 // Get current OpenGL version
@@ -5200,7 +5216,20 @@ static int rlGetPixelDataSize(int width, int height, int format)
 }
 
 // Auxiliar math functions
+//-------------------------------------------------------------------------------
+// Get identity matrix
+static Matrix rlMatrixIdentity(void)
+{
+    Matrix result = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    };
 
+    return result;
+}
+#if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
 // Get float array of matrix data
 static rl_float16 rlMatrixToFloatV(Matrix mat)
 {
@@ -5222,19 +5251,6 @@ static rl_float16 rlMatrixToFloatV(Matrix mat)
     result.v[13] = mat.m13;
     result.v[14] = mat.m14;
     result.v[15] = mat.m15;
-
-    return result;
-}
-
-// Get identity matrix
-static Matrix rlMatrixIdentity(void)
-{
-    Matrix result = {
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f
-    };
 
     return result;
 }
@@ -5336,5 +5352,6 @@ static Matrix rlMatrixInvert(Matrix mat)
 
     return result;
 }
+#endif
 
 #endif  // RLGL_IMPLEMENTATION

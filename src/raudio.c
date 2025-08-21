@@ -15,8 +15,8 @@
 *           raudio module is included in the build
 *
 *       #define RAUDIO_STANDALONE
-*           Define to use the module as standalone library (independently of raylib).
-*           Required types and functions are defined in the same module.
+*           Define to use the module as standalone library (independently of raylib)
+*           Required types and functions are defined in the same module
 *
 *       #define SUPPORT_FILEFORMAT_WAV
 *       #define SUPPORT_FILEFORMAT_OGG
@@ -89,7 +89,7 @@
 // by user at some point and won't be included...
 //-------------------------------------------------------------------------------------
 
-// If defined, the following flags inhibit definition of the indicated items.
+// If defined, the following flags inhibit definition of the indicated items
 #define NOGDICAPMASKS     // CC_*, LC_*, PC_*, CP_*, TC_*, RC_
 #define NOVIRTUALKEYCODES // VK_*
 #define NOWINMESSAGES     // WM_*, EM_*, LB_*, CB_*
@@ -124,9 +124,9 @@
 #define NOWH              // SetWindowsHook and WH_*
 #define NOWINOFFSETS      // GWL_*, GCL_*, associated routines
 #define NOCOMM            // COMM driver routines
-#define NOKANJI           // Kanji support stuff.
-#define NOHELP            // Help engine interface.
-#define NOPROFILER        // Profiler interface.
+#define NOKANJI           // Kanji support stuff
+#define NOHELP            // Help engine interface
+#define NOPROFILER        // Profiler interface
 #define NODEFERWINDOWPOS  // DeferWindowPos routines
 #define NOMCX             // Modem Configuration Extensions
 
@@ -453,7 +453,6 @@ void SetAudioBufferPitch(AudioBuffer *buffer, float pitch);
 void SetAudioBufferPan(AudioBuffer *buffer, float pan);
 void TrackAudioBuffer(AudioBuffer *buffer);
 void UntrackAudioBuffer(AudioBuffer *buffer);
-
 
 //----------------------------------------------------------------------------------
 // Module Functions Definition - Audio Device initialization and Closing
@@ -986,8 +985,12 @@ Sound LoadSoundAlias(Sound source)
         }
 
         audioBuffer->sizeInFrames = source.stream.buffer->sizeInFrames;
-        audioBuffer->volume = source.stream.buffer->volume;
         audioBuffer->data = source.stream.buffer->data;
+
+        // initalize the buffer as if it was new
+        audioBuffer->volume = 1.0f;
+        audioBuffer->pitch = 1.0f;
+        audioBuffer->pan = 0.5f;
 
         sound.frameCount = source.frameCount;
         sound.stream.sampleRate = AUDIO.System.device.sampleRate;
@@ -998,7 +1001,6 @@ Sound LoadSoundAlias(Sound source)
 
     return sound;
 }
-
 
 // Checks if a sound is valid (data loaded and buffers initialized)
 bool IsSoundValid(Sound sound)
@@ -1124,7 +1126,7 @@ bool ExportWaveAsCode(Wave wave, const char *fileName)
 
     // NOTE: Text data buffer size is estimated considering wave data size in bytes
     // and requiring 12 char bytes for every byte; the actual size varies, but
-    // the longest possible char being appended is "%.4ff,\n    ", which is 12 bytes.
+    // the longest possible char being appended is "%.4ff,\n    ", which is 12 bytes
     char *txtData = (char *)RL_CALLOC(waveDataSize*12 + 2000, sizeof(char));
 
     int byteCount = 0;
@@ -1551,7 +1553,8 @@ Music LoadMusicStreamFromMemory(const char *fileType, const unsigned char *data,
             music.looping = true;   // Looping enabled by default
             musicLoaded = true;
         }
-        else {
+        else
+        {
             drwav_uninit(ctxWav);
             RL_FREE(ctxWav);
         }
@@ -2093,7 +2096,7 @@ float GetMusicTimePlayed(Music music)
             int framesInFirstBuffer = music.stream.buffer->isSubBufferProcessed[0]? 0 : subBufferSize;
             int framesInSecondBuffer = music.stream.buffer->isSubBufferProcessed[1]? 0 : subBufferSize;
             int framesInBuffers = framesInFirstBuffer + framesInSecondBuffer;
-            if (framesInBuffers > music.frameCount) {
+            if ((unsigned int)framesInBuffers > music.frameCount) {
                 if (!music.looping) framesInBuffers = music.frameCount;
             }
             int framesSentToMix = music.stream.buffer->frameCursorPos%subBufferSize;
@@ -2353,7 +2356,6 @@ void DetachAudioMixedProcessor(AudioCallback process)
 
     ma_mutex_unlock(&AUDIO.System.lock);
 }
-
 
 //----------------------------------------------------------------------------------
 // Module specific Functions Definition

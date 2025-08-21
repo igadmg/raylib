@@ -70,7 +70,7 @@ int main(void)
     SetShaderValue(shdrCubemap, GetShaderLocation(shdrCubemap, "equirectangularMap"), (int[1]){ 0 }, SHADER_UNIFORM_INT);
 
     char skyboxFileName[256] = { 0 };
-    
+
     if (useHDR)
     {
         TextCopy(skyboxFileName, "resources/dresden_square_2k.hdr");
@@ -223,7 +223,7 @@ static TextureCubemap GenTextureCubemap(Shader shader, Texture2D panorama, int s
     };
 
     rlViewport(0, 0, size, size);   // Set viewport to current fbo dimensions
-    
+
     // Activate and enable texture for drawing to cubemap faces
     rlActiveTextureSlot(0);
     rlEnableTexture(panorama.id);
@@ -232,7 +232,7 @@ static TextureCubemap GenTextureCubemap(Shader shader, Texture2D panorama, int s
     {
         // Set the view matrix for the current cube face
         rlSetUniformMatrix(shader.locs[SHADER_LOC_MATRIX_VIEW], fboViews[i]);
-        
+
         // Select the current cubemap face attachment for the fbo
         // WARNING: This function by default enables->attach->disables fbo!!!
         rlFramebufferAttach(fbo, cubemap.id, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_CUBEMAP_POSITIVE_X + i, 0);

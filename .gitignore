@@ -111,7 +111,8 @@ build/
 build-*/
 docgen_tmp/
 
-# Parser stuff
-parser/raylib_parser
-src/external/glfw/src/*-protocol.h
-src/external/glfw/src/*-protocol-code.h
+# Tools stuff
+tools/parser/raylib_parser
+tools/rexm/rexm.exe
+tools/rexm/rexm
+
