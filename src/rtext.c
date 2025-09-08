@@ -1448,7 +1448,7 @@ Rectangle GetGlyphAtlasRec(Font font, int codepoint)
 // Text strings management functions
 //----------------------------------------------------------------------------------
 
-const char *TextAlloc(const char *text, int *length)
+const char* TextAlloc(const char* text, int* length)
 {
 #ifndef MAX_TEXTALLOC_BUFFER_LENGTH
 #define MAX_TEXTALLOC_BUFFER_LENGTH 4 * MAX_TEXT_BUFFER_LENGTH        // Maximum static buffer for text allocating
@@ -1463,7 +1463,7 @@ const char *TextAlloc(const char *text, int *length)
     if (*length > MAX_TEXTALLOC_BUFFER_LENGTH - 1) *length = MAX_TEXTALLOC_BUFFER_LENGTH - 1;
     if (index + *length > MAX_TEXTALLOC_BUFFER_LENGTH - 1) index = 0;
 
-    char *currentBuffer = &buffer[index];
+    char* currentBuffer = &buffer[index];
     memcpy(currentBuffer, text, *length);
     currentBuffer[*length] = 0;
 
@@ -1471,7 +1471,7 @@ const char *TextAlloc(const char *text, int *length)
     if (requiredByteCount >= MAX_TEXT_BUFFER_LENGTH)
     {
         // Inserting "..." at the end of the string to mark as truncated
-        char *truncBuffer = currentBuffer + MAX_TEXT_BUFFER_LENGTH - 4; // Adding 4 bytes = "...\0"
+        char* truncBuffer = currentBuffer + MAX_TEXT_BUFFER_LENGTH - 4; // Adding 4 bytes = "...\0"
         sprintf(truncBuffer, "...");
     }
 
@@ -1479,6 +1479,8 @@ const char *TextAlloc(const char *text, int *length)
     // asset(index < MAX_TEXTALLOCATE_BUFFERS - 2);
 
     return currentBuffer;
+}
+
 // Load text as separate lines ('\n')
 // NOTE: Returned lines end with null terminator '\0'
 char **LoadTextLines(const char *text, int *count)
