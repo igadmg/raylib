@@ -6926,6 +6926,15 @@ return {
       }
     },
     {
+      name = "TextAlloc",
+      description = "Allocate non null terminated string in internal buffer, for language interop",
+      returnType = "const char *",
+      params = {
+        {type = "const char *", name = "text"},
+        {type = "int *", name = "length"}
+      }
+    },
+    {
       name = "LoadTextLines",
       description = "Load text as separate lines ('\\n')",
       returnType = "char **",
