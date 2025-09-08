@@ -759,7 +759,7 @@
         {
           "type": "float",
           "name": "fovy",
-          "description": "Camera field-of-view aperture in Y (degrees) in perspective, used as near plane width in orthographic"
+          "description": "Camera field-of-view aperture in Y (degrees) in perspective, used as near plane height in world units in orthographic"
         },
         {
           "type": "int",
@@ -9156,7 +9156,7 @@
           "name": "fontSize"
         },
         {
-          "type": "int *",
+          "type": "const int *",
           "name": "codepoints"
         },
         {
@@ -9206,7 +9206,7 @@
           "name": "fontSize"
         },
         {
-          "type": "int *",
+          "type": "const int *",
           "name": "codepoints"
         },
         {
@@ -9244,7 +9244,7 @@
           "name": "fontSize"
         },
         {
-          "type": "int *",
+          "type": "const int *",
           "name": "codepoints"
         },
         {
@@ -9254,6 +9254,10 @@
         {
           "type": "int",
           "name": "type"
+        },
+        {
+          "type": "int *",
+          "name": "glyphCount"
         }
       ]
     },
@@ -9721,9 +9725,9 @@
       ]
     },
     {
-      "name": "TextAlloc",
-      "description": "Allocate non null terminated string in internal buffer, for language interop",
-      "returnType": "const char *",
+      "name": "LoadTextLines",
+      "description": "Load text as separate lines ('\\n')",
+      "returnType": "char **",
       "params": [
         {
           "type": "const char *",
@@ -9731,7 +9735,22 @@
         },
         {
           "type": "int *",
-          "name": "length"
+          "name": "count"
+        }
+      ]
+    },
+    {
+      "name": "UnloadTextLines",
+      "description": "Unload text lines",
+      "returnType": "void",
+      "params": [
+        {
+          "type": "char **",
+          "name": "text"
+        },
+        {
+          "type": "int",
+          "name": "lineCount"
         }
       ]
     },

@@ -556,6 +556,8 @@ const char *TextFormat(const char *text, ...); // Formatting of text with variab
     #include "platforms/rcore_desktop_sdl.c"
 #elif (defined(PLATFORM_DESKTOP_RGFW) || defined(PLATFORM_WEB_RGFW))
     #include "platforms/rcore_desktop_rgfw.c"
+#elif defined(PLATFORM_DESKTOP_WIN32)
+    #include "platforms/rcore_desktop_win32.c"
 #elif defined(PLATFORM_WEB)
     #include "platforms/rcore_web.c"
 #elif defined(PLATFORM_DRM)
@@ -565,6 +567,7 @@ const char *TextFormat(const char *text, ...); // Formatting of text with variab
 #else
     // TODO: Include your custom platform backend!
     // i.e software rendering backend or console backend!
+    #pragma message ("WARNING: No [rcore] platform defined")
 #endif
 
 //----------------------------------------------------------------------------------
@@ -625,6 +628,8 @@ void InitWindow(int width, int height, const char *title)
     TRACELOG(LOG_INFO, "Platform backend: DESKTOP (SDL)");
 #elif defined(PLATFORM_DESKTOP_RGFW)
     TRACELOG(LOG_INFO, "Platform backend: DESKTOP (RGFW)");
+#elif defined(PLATFORM_DESKTOP_WIN32)
+    TRACELOG(LOG_INFO, "Platform backend: DESKTOP (WIN32)");
 #elif defined(PLATFORM_WEB_RGFW)
     TRACELOG(LOG_INFO, "Platform backend: WEB (RGFW) (HTML5)");
 #elif defined(PLATFORM_WEB)
@@ -2566,19 +2571,20 @@ unsigned char *DecompressData(const unsigned char *compData, int compDataSize, i
 
 #if defined(SUPPORT_COMPRESSION_API)
     // Decompress data from a valid DEFLATE stream
-    data = (unsigned char *)RL_CALLOC(MAX_DECOMPRESSION_SIZE*1024*1024, 1);
-    int length = sinflate(data, MAX_DECOMPRESSION_SIZE*1024*1024, compData, compDataSize);
+    unsigned char *data0 = (unsigned char *)RL_CALLOC(MAX_DECOMPRESSION_SIZE*1024*1024, 1);
+    int size = sinflate(data0, MAX_DECOMPRESSION_SIZE*1024*1024, compData, compDataSize);
 
-    // WARNING: RL_REALLOC can make (and leave) data copies in memory, be careful with sensitive compressed data!
-    // TODO: Use a different approach, create another buffer, copy data manually to it and wipe original buffer memory
-    unsigned char *temp = (unsigned char *)RL_REALLOC(data, length);
+    // WARNING: RL_REALLOC can make (and leave) data copies in memory, 
+    // that can be a security concern in case of compression of sensitive data
+    // So, we use a second buffer to copy data manually, wiping original buffer memory
+    data = (unsigned char *)RL_CALLOC(size, 1);
+    memcpy(data, data0, size);
+    memset(data0, 0, MAX_DECOMPRESSION_SIZE*1024*1024); // Wipe memory, is memset() safe?
+    RL_FREE(data0);
+    
+    TRACELOG(LOG_INFO, "SYSTEM: Decompress data: Comp. size: %i -> Original size: %i", compDataSize, size);
 
-    if (temp != NULL) data = temp;
-    else TRACELOG(LOG_WARNING, "SYSTEM: Failed to re-allocate required decompression memory");
-
-    *dataSize = length;
-
-    TRACELOG(LOG_INFO, "SYSTEM: Decompress data: Comp. size: %i -> Original size: %i", compDataSize, *dataSize);
+    *dataSize = size;
 #endif
 
     return data;
@@ -2674,13 +2680,25 @@ unsigned char *DecodeDataBase64(const char *text, int *outputSize)
     for (int i = 0; i < dataSize;)
     {
         // Every 4 sixtets must generate 3 octets
+        if ((i + 2) >= dataSize)
+        {
+            TRACELOG(LOG_WARNING, "BASE64: Decoding error: Input data size is not valid");
+            break;
+        }
+
         unsigned int sixtetA = base64DecodeTable[(unsigned char)text[i]];
         unsigned int sixtetB = base64DecodeTable[(unsigned char)text[i + 1]];
-        unsigned int sixtetC = ((unsigned char)text[i + 2] != '=')? base64DecodeTable[(unsigned char)text[i + 2]] : 0;
-        unsigned int sixtetD = ((unsigned char)text[i + 3] != '=')? base64DecodeTable[(unsigned char)text[i + 3]] : 0;
+        unsigned int sixtetC = (((i + 2) < dataSize) && (unsigned char)text[i + 2] != '=')? base64DecodeTable[(unsigned char)text[i + 2]] : 0;
+        unsigned int sixtetD = (((i + 3) < dataSize) && (unsigned char)text[i + 3] != '=')? base64DecodeTable[(unsigned char)text[i + 3]] : 0;
 
         unsigned int octetPack = (sixtetA << 18) | (sixtetB << 12)  | (sixtetC << 6) | sixtetD;
 
+        if ((outputCount + 3) > maxOutputSize)
+        {
+            TRACELOG(LOG_WARNING, "BASE64: Decoding error: Output data size is too small");
+            break;
+        }
+        
         decodedData[outputCount + 0] = (octetPack >> 16) & 0xff;
         decodedData[outputCount + 1] = (octetPack >> 8) & 0xff;
         decodedData[outputCount + 2] = octetPack & 0xff;
@@ -3007,8 +3025,9 @@ AutomationEventList LoadAutomationEventList(const char *fileName)
             char buffer[256] = { 0 };
             char eventDesc[64] = { 0 };
 
-            fgets(buffer, 256, raeFile);
-
+            char *result = fgets(buffer, 256, raeFile);
+            if (result != buffer) TRACELOG(LOG_WARNING, "AUTOMATION: [%s] Issue reading line to buffer", fileName);
+            
             while (!feof(raeFile))
             {
                 switch (buffer[0])
@@ -3024,7 +3043,8 @@ AutomationEventList LoadAutomationEventList(const char *fileName)
                     default: break;
                 }
 
-                fgets(buffer, 256, raeFile);
+                result = fgets(buffer, 256, raeFile);
+                if (result != buffer) TRACELOG(LOG_WARNING, "AUTOMATION: [%s] Issue reading line to buffer", fileName);
             }
 
             if (counter != list.count)

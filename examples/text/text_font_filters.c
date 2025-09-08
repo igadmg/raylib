@@ -1,6 +1,6 @@
 /*******************************************************************************************
 *
-*   raylib [text] example - font texture filters
+*   raylib [text] example - font filters
 *
 *   Example complexity rating: [★★☆☆] 2/4
 *

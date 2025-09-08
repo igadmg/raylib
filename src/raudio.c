@@ -410,7 +410,7 @@ static AudioData AUDIO = {          // Global AUDIO context
 };
 
 //----------------------------------------------------------------------------------
-// Module specific Functions Declaration
+// Module Internal Functions Declaration
 //----------------------------------------------------------------------------------
 static void OnLog(void *pUserData, ma_uint32 level, const char *pMessage);
 
@@ -457,6 +457,7 @@ void UntrackAudioBuffer(AudioBuffer *buffer);
 //----------------------------------------------------------------------------------
 // Module Functions Definition - Audio Device initialization and Closing
 //----------------------------------------------------------------------------------
+
 // Initialize audio device
 void InitAudioDevice(void)
 {
@@ -1771,7 +1772,7 @@ void UnloadMusicStream(Music *music)
         else if (music->ctxType == MUSIC_AUDIO_QOA) qoaplay_close((qoaplay_desc *)music->ctxData);
 #endif
 #if defined(SUPPORT_FILEFORMAT_FLAC)
-        else if (music->ctxType == MUSIC_AUDIO_FLAC) drflac_free((drflac *)music->ctxData, NULL);
+        else if (music->ctxType == MUSIC_AUDIO_FLAC) { drflac_close((drflac *)music->ctxData); drflac_free((drflac *)music->ctxData, NULL); }
 #endif
 #if defined(SUPPORT_FILEFORMAT_XM)
         else if (music->ctxType == MUSIC_MODULE_XM) jar_xm_free_context((jar_xm_context_t *)music->ctxData);
@@ -2358,9 +2359,8 @@ void DetachAudioMixedProcessor(AudioCallback process)
 }
 
 //----------------------------------------------------------------------------------
-// Module specific Functions Definition
+// Module Internal Functions Definition
 //----------------------------------------------------------------------------------
-
 // Log callback function
 static void OnLog(void *pUserData, ma_uint32 level, const char *pMessage)
 {

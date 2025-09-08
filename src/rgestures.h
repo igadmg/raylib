@@ -246,7 +246,7 @@ static GesturesData GESTURES = {
 };
 
 //----------------------------------------------------------------------------------
-// Module specific Functions Declaration
+// Module Internal Functions Declaration
 //----------------------------------------------------------------------------------
 static Vector2 rgVector2Subtract(Vector2 v1, Vector2 v2);
 static float rgVector2Direction(Vector2 v);
@@ -543,7 +543,7 @@ float GetGesturePinchAngle(void)
 }
 
 //----------------------------------------------------------------------------------
-// Module specific Functions Definition
+// Module Internal Functions Definition
 //----------------------------------------------------------------------------------
 static Vector2 rgVector2Subtract(Vector2 v1, Vector2 v2)
 {

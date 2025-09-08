@@ -1,20 +1,24 @@
 /*******************************************************************************************
 *
-*   raylib [core] example - HighDPI
+*   raylib [core] example - high dpi
 *
-*   Example complexity rating: [★☆☆☆] e/4
+*   Example complexity rating: [★★☆☆] 2/4
+*
+*   Example originally created with raylib 5.0, last time updated with raylib 5.5
+*
+*   Example contributed by Jonathan Marler (@marler8997) and reviewed by Ramon Santamaria (@raysan5)
 *
 *   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
 *   BSD-like license that allows static linking with closed source software
 *
-*   Copyright (c) 2013-2025 Ramon Santamaria (@raysan5)
+*   Copyright (c) 2025 Jonathan Marler (@marler8997)
 *
 ********************************************************************************************/
 
 #include "raylib.h"
 
 //------------------------------------------------------------------------------------
-// Module functions declaration
+// Module Functions Declaration
 //------------------------------------------------------------------------------------
 static void DrawTextCenter(const char *text, int x, int y, int fontSize, Color color);
 
@@ -29,7 +33,7 @@ int main(void)
     const int screenHeight = 450;
 
     SetConfigFlags(FLAG_WINDOW_HIGHDPI | FLAG_WINDOW_RESIZABLE);
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - highdpi");
+    InitWindow(screenWidth, screenHeight, "raylib [core] example - high dpi");
     SetWindowMinSize(450, 450);
 
     int logicalGridDescY = 120;
@@ -91,7 +95,7 @@ int main(void)
                 int x = (int)(((float)i)/dpiScale.x);
                 if (odd) DrawRectangle(x, pixelGridTop, (int)cellSizePx, pixelGridBottom - pixelGridTop, CLITERAL(Color){ 0, 121, 241, 100 });
 
-                DrawLine(x, pixelGridTop, (int)(((float)i) / dpiScale.x), pixelGridLabelY - 10, GRAY);
+                DrawLine(x, pixelGridTop, (int)(((float)i)/dpiScale.x), pixelGridLabelY - 10, GRAY);
 
                 if ((x - lastTextX) >= minTextSpace)
                 {
@@ -120,7 +124,7 @@ int main(void)
 }
 
 //------------------------------------------------------------------------------------
-// Module functions definition
+// Module Functions Definition
 //------------------------------------------------------------------------------------
 static void DrawTextCenter(const char *text, int x, int y, int fontSize, Color color)
 {
