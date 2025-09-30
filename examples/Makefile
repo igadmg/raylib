@@ -516,6 +516,7 @@ CORE = \
     core/core_custom_logging \
     core/core_drop_files \
     core/core_high_dpi \
+    core/core_input_actions \
     core/core_input_gamepad \
     core/core_input_gestures \
     core/core_input_gestures_testbed \
@@ -530,6 +531,7 @@ CORE = \
     core/core_scissor_test \
     core/core_smooth_pixelperfect \
     core/core_storage_values \
+    core/core_undo_redo \
     core/core_vr_simulator \
     core/core_window_flags \
     core/core_window_letterbox \
@@ -539,6 +541,7 @@ CORE = \
 SHAPES = \
     shapes/shapes_basic_shapes \
     shapes/shapes_bouncing_ball \
+    shapes/shapes_bullet_hell \
     shapes/shapes_circle_sector_drawing \
     shapes/shapes_collision_area \
     shapes/shapes_colors_palette \
@@ -603,14 +606,15 @@ TEXT = \
     text/text_writing_anim
 
 MODELS = \
+    models/models_animation_gpu_skinning \
     models/models_animation_playing \
+    models/models_basic_voxel \
     models/models_billboard_rendering \
     models/models_bone_socket \
     models/models_box_collisions \
     models/models_cubicmap_rendering \
     models/models_first_person_maze \
     models/models_geometric_shapes \
-    models/models_gpu_skinning \
     models/models_heightmap_rendering \
     models/models_loading \
     models/models_loading_gltf \
@@ -633,6 +637,7 @@ SHADERS = \
     shaders/shaders_custom_uniform \
     shaders/shaders_deferred_rendering \
     shaders/shaders_depth_rendering \
+    shaders/shaders_depth_writing \
     shaders/shaders_eratosthenes_sieve \
     shaders/shaders_fog_rendering \
     shaders/shaders_hot_reloading \
@@ -655,8 +660,7 @@ SHADERS = \
     shaders/shaders_texture_rendering \
     shaders/shaders_texture_tiling \
     shaders/shaders_texture_waves \
-    shaders/shaders_vertex_displacement \
-    shaders/shaders_write_depth
+    shaders/shaders_vertex_displacement
 
 AUDIO = \
     audio/audio_mixed_processor \
