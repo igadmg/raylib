@@ -337,7 +337,7 @@ static void ResizeRenderSize(enum ViewportType viewportType, int *screenWidth, i
         }
         default: {}
     }
-    UnloadRenderTexture(*target);
+    UnloadRenderTexture(target);
     *target = LoadRenderTexture(sourceRect->width, -sourceRect->height);
 }
 

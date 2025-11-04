@@ -137,7 +137,7 @@ int main(void)
 	// De-Initialization
 	//--------------------------------------------------------------------------------------
 	// Unload the canvas render texture
-	UnloadRenderTexture(canvas);
+	UnloadRenderTexture(&canvas);
 
 	CloseWindow();        // Close window and OpenGL context
 	//--------------------------------------------------------------------------------------

@@ -82,7 +82,7 @@ int main(void)
             if (IsImageValid(image))
             {
                 // Unload the image
-                UnloadImage(image);
+                UnloadImage(&image);
                 // Update visuals
                 popupText = "clipboard contains image";
             }
