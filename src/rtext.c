@@ -1760,9 +1760,9 @@ char *GetTextBetween(const char *text, const char *begin, const char *end)
 char *TextReplace(const char *text, const char *search, const char *replacement)
 {
     char *result = NULL;
-    
+
     if (!text || !search) return NULL; // Sanity check
-    
+
     char *insertPoint = NULL;   // Next insert point
     char *temp = NULL;          // Temp pointer
     int searchLen = 0;          // Search string length of (the string to remove)
@@ -1790,7 +1790,7 @@ char *TextReplace(const char *text, const char *search, const char *replacement)
     //  - 'text' points to the remainder of text after "end of replace"
     while (count--)
     {
-        insertPoint = strstr(text, search);
+        insertPoint = (char *)strstr(text, search);
         lastReplacePos = (int)(insertPoint - text);
         temp = strncpy(temp, text, lastReplacePos) + lastReplacePos;
         temp = strcpy(temp, replacement) + replaceLen;
@@ -1812,7 +1812,7 @@ char *TextReplaceBetween(const char *text, const char *begin, const char *end, c
     char *result = NULL;
 
     if (!text || !begin || !end) return NULL; // Sanity check
-    
+
     int beginIndex = TextFindIndex(text, begin);
 
     if (beginIndex > -1)
@@ -1946,7 +1946,7 @@ int TextFindIndex(const char *text, const char *search)
 {
     int position = -1;
 
-    char *ptr = strstr(text, search);
+    char *ptr = (char *)strstr(text, search);
 
     if (ptr != NULL) position = (int)(ptr - text);
 
@@ -2013,6 +2013,7 @@ char *TextToPascal(const char *text)
             {
                 j++;
                 if ((text[j] >= 'a') && (text[j] <= 'z')) buffer[i] = text[j] - 32;
+                else if ((text[j] >= '0') && (text[j] <= '9')) buffer[i] = text[j];
             }
         }
     }

@@ -51,7 +51,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{02D003FC-C333-46C6-AD66-E382A59DB0A9}</ProjectGuid>
+    <ProjectGuid>{19CA0070-B4B2-4394-90B7-D0C259AA35BA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>core_delta_time</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
