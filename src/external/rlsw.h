@@ -7,7 +7,7 @@
 *       functionality available on rlgl.h library used by raylib, becoming a direct software
 *       rendering replacement for OpenGL 1.1 backend and allowing to run raylib on GPU-less
 *       devices when required
-* 
+*
 *   FEATURES:
 *       - Rendering to custom internal framebuffer with multiple color modes supported:
 *           - Color buffer: RGB - 8-bit (3:3:2) | RGB - 16-bit (5:6:5) | RGB - 24-bit (8:8:8)
@@ -50,7 +50,7 @@
 *
 *       rlsw capabilities could be customized just defining some internal
 *       values before library inclusion (default values listed):
-* 
+*
 *           #define SW_GL_FRAMEBUFFER_COPY_BGRA     true
 *           #define SW_GL_BINDING_COPY_TEXTURE      true
 *           #define SW_COLOR_BUFFER_BITS            24
@@ -60,7 +60,7 @@
 *           #define SW_MAX_TEXTURE_STACK_SIZE       2
 *           #define SW_MAX_TEXTURES                 128
 *
-* 
+*
 *   LICENSE: MIT
 *
 *   Copyright (c) 2025-2026 Le Juez Victor (@Bigfoot71), reviewed by Ramon Santamaria (@raysan5)
@@ -71,10 +71,10 @@
 *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 *   copies of the Software, and to permit persons to whom the Software is
 *   furnished to do so, subject to the following conditions:
-*   
+*
 *   The above copyright notice and this permission notice shall be included in all
 *   copies or substantial portions of the Software.
-*   
+*
 *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -145,7 +145,7 @@
     #define SW_MAX_TEXTURES                 128
 #endif
 
-// Under normal circumstances, clipping a polygon can add at most one vertex per clipping plane.
+// Under normal circumstances, clipping a polygon can add at most one vertex per clipping plane
 // Considering the largest polygon involved is a quadrilateral (4 vertices),
 // and that clipping occurs against both the frustum (6 planes) and the scissors (4 planes),
 // the maximum number of vertices after clipping is:
@@ -648,7 +648,7 @@ SWAPI void swBindTexture(uint32_t id);
     // Check for SIMD vector instructions
     // NOTE: Compiler is responsible to enable required flags for host device,
     // supported features are detected at compiler init but varies depending on compiler
-    // TODO: This logic must be reviewed to avoid the inclusion of multiple headers 
+    // TODO: This logic must be reviewed to avoid the inclusion of multiple headers
     // and enable the higher level of SIMD available
     #if defined(__FMA__) && defined(__AVX2__)
         #define SW_HAS_FMA_AVX2
@@ -896,7 +896,7 @@ typedef struct {
     int vertexCounter;                                          // Number of vertices in 'ctx.vertexBuffer'
 
     SWdraw drawMode;                                            // Current primitive mode (e.g., lines, triangles)
-    SWpoly polyMode;                                            // Current polygon filling mode (e.g., lines, triangles) 
+    SWpoly polyMode;                                            // Current polygon filling mode (e.g., lines, triangles)
     int reqVertices;                                            // Number of vertices required for the primitive being drawn
     float pointRadius;                                          // Rasterized point radius
     float lineWidth;                                            // Rasterized line width
@@ -1123,9 +1123,9 @@ static inline void sw_float_to_unorm8_simd(uint8_t dst[4], const float src[4])
     float32x4_t values = vld1q_f32(src);
     float32x4_t scaled = vmulq_n_f32(values, 255.0f);
     int32x4_t clamped_s32 = vcvtq_s32_f32(scaled);  // f32 -> s32 (truncated)
-    int16x4_t narrow16_s = vqmovn_s32(clamped_s32); 
+    int16x4_t narrow16_s = vqmovn_s32(clamped_s32);
     int16x8_t combined16_s = vcombine_s16(narrow16_s, narrow16_s);
-    uint8x8_t narrow8_u = vqmovun_s16(combined16_s); 
+    uint8x8_t narrow8_u = vqmovun_s16(combined16_s);
     vst1_lane_u32((uint32_t*)dst, vreinterpret_u32_u8(narrow8_u), 0);
 #elif defined(SW_HAS_SSE41)
     __m128 values = _mm_loadu_ps(src);
@@ -1530,7 +1530,7 @@ DEFINE_FRAMEBUFFER_COPY_BEGIN(R5G5B5A1, uint16_t)
     uint8_t r5 = (color[0]*31 + 127)/255;
     uint8_t g5 = (color[1]*31 + 127)/255;
     uint8_t b5 = (color[2]*31 + 127)/255;
-    uint8_t a1 = color[3] >= 128 ? 1 : 0;
+    uint8_t a1 = (color[3] >= 128)? 1 : 0;
 
 #if SW_GL_FRAMEBUFFER_COPY_BGRA
     uint16_t pixel = (b5 << 11) | (g5 << 6) | (r5 << 1) | a1;
@@ -1661,7 +1661,7 @@ DEFINE_FRAMEBUFFER_BLIT_BEGIN(R5G5B5A1, uint16_t)
     uint8_t r5 = (color[0]*31 + 127)/255;
     uint8_t g5 = (color[1]*31 + 127)/255;
     uint8_t b5 = (color[2]*31 + 127)/255;
-    uint8_t a1 = color[3] >= 128 ? 1 : 0;
+    uint8_t a1 = (color[3] >= 128)? 1 : 0;
 
 #if SW_GL_FRAMEBUFFER_COPY_BGRA
     uint16_t pixel = (b5 << 11) | (g5 << 6) | (r5 << 1) | a1;
@@ -1919,7 +1919,7 @@ static inline void sw_texture_sample_nearest(float *color, const sw_texture_t *t
 static inline void sw_texture_sample_linear(float *color, const sw_texture_t *tex, float u, float v)
 {
     // TODO: With a bit more cleverness we could clearly reduce the
-    // number of operations here, but for now it works fine.
+    // number of operations here, but for now it works fine
 
     float xf = (u*tex->width) - 0.5f;
     float yf = (v*tex->height) - 0.5f;
@@ -2118,12 +2118,12 @@ static inline int sw_clip_##name(                                               
 // Frustum cliping functions
 //-------------------------------------------------------------------------------------------
 #define IS_INSIDE_PLANE_W(h) ((h)[3] >= SW_CLIP_EPSILON)
-#define IS_INSIDE_PLANE_X_POS(h) ((h)[0] <= (h)[3])
-#define IS_INSIDE_PLANE_X_NEG(h) (-(h)[0] <= (h)[3])
-#define IS_INSIDE_PLANE_Y_POS(h) ((h)[1] <= (h)[3])
-#define IS_INSIDE_PLANE_Y_NEG(h) (-(h)[1] <= (h)[3])
-#define IS_INSIDE_PLANE_Z_POS(h) ((h)[2] <= (h)[3])
-#define IS_INSIDE_PLANE_Z_NEG(h) (-(h)[2] <= (h)[3])
+#define IS_INSIDE_PLANE_X_POS(h) ( (h)[0] <  (h)[3])        // Exclusive for +X
+#define IS_INSIDE_PLANE_X_NEG(h) (-(h)[0] <  (h)[3])        // Exclusive for -X
+#define IS_INSIDE_PLANE_Y_POS(h) ( (h)[1] <  (h)[3])        // Exclusive for +Y
+#define IS_INSIDE_PLANE_Y_NEG(h) (-(h)[1] <  (h)[3])        // Exclusive for -Y
+#define IS_INSIDE_PLANE_Z_POS(h) ( (h)[2] <= (h)[3])        // Inclusive for +Z
+#define IS_INSIDE_PLANE_Z_NEG(h) (-(h)[2] <= (h)[3])        // Inclusive for -Z
 
 #define COMPUTE_T_PLANE_W(hPrev, hCurr) ((SW_CLIP_EPSILON - (hPrev)[3])/((hCurr)[3] - (hPrev)[3]))
 #define COMPUTE_T_PLANE_X_POS(hPrev, hCurr) (((hPrev)[3] - (hPrev)[0])/(((hPrev)[3] - (hPrev)[0]) - ((hCurr)[3] - (hCurr)[0])))
@@ -2203,13 +2203,13 @@ static inline bool sw_polygon_clip(sw_vertex_t polygon[SW_MAX_CLIPPED_POLYGON_VE
 //-------------------------------------------------------------------------------------------
 static inline bool sw_triangle_face_culling(void)
 {
-    // NOTE: Face culling is done before clipping to avoid unnecessary computations.
+    // NOTE: Face culling is done before clipping to avoid unnecessary computations
     //       To handle triangles crossing the w=0 plane correctly,
     //       we perform the winding order test in homogeneous coordinates directly,
-    //       before the perspective division (division by w).
+    //       before the perspective division (division by w)
     //       This test determines the orientation of the triangle in the (x,y,w) plane,
     //       which corresponds to the projected 2D winding order sign,
-    //       even with negative w values.
+    //       even with negative w values
 
     // Preload homogeneous coordinates into local variables
     const float *h0 = RLSW.vertexBuffer[0].homogeneous;
@@ -2221,7 +2221,7 @@ static inline bool sw_triangle_face_culling(void)
     // This is the determinant of the matrix formed by the (x, y, w) components
     // of the vertices, which correctly captures the winding order in homogeneous
     // space and its relationship to the projected 2D winding order, even with
-    // negative w values.
+    // negative w values
     // The determinant formula used here is:
     // h0.x*(h1.y*h2.w - h2.y*h1.w) +
     // h1.x*(h2.y*h0.w - h0.y*h2.w) +
@@ -2233,20 +2233,18 @@ static inline bool sw_triangle_face_culling(void)
         h2[0]*(h0[1]*h1[3] - h1[1]*h0[3]);
 
     // Discard the triangle if its winding order (determined by the sign
-    // of the homogeneous area/determinant) matches the culled direction.
+    // of the homogeneous area/determinant) matches the culled direction
     // A positive hSgnArea typically corresponds to a counter-clockwise
     // winding in the projected space when all w > 0.
     // This test is robust for points with w > 0 or w < 0, correctly
-    // capturing the change in orientation when crossing the w=0 plane.
+    // capturing the change in orientation when crossing the w=0 plane
 
-    // The culling logic remains the same based on the signed area/determinant.
+    // The culling logic remains the same based on the signed area/determinant
     // A value of 0 for hSgnArea means the points are collinear in (x, y, w)
     // space, which corresponds to a degenerate triangle projection.
     // Such triangles are typically not culled by this test (0 < 0 is false, 0 > 0 is false)
-    // and should be handled by the clipper if necessary.
-    return (RLSW.cullFace == SW_FRONT)
-        ? (hSgnArea < 0) // Cull if winding is "clockwise" in the projected sense
-        : (hSgnArea > 0); // Cull if winding is "counter-clockwise" in the projected sense
+    // and should be handled by the clipper if necessary
+    return (RLSW.cullFace == SW_FRONT)? (hSgnArea < 0) : (hSgnArea > 0); // Cull if winding is "clockwise" : "counter-clockwise"
 }
 
 static inline void sw_triangle_clip_and_project(void)
@@ -2559,14 +2557,14 @@ static inline void sw_triangle_render(void)
 //-------------------------------------------------------------------------------------------
 static inline bool sw_quad_face_culling(void)
 {
-    // NOTE: Face culling is done before clipping to avoid unnecessary computations.
+    // NOTE: Face culling is done before clipping to avoid unnecessary computations
     //       To handle quads crossing the w=0 plane correctly,
     //       we perform the winding order test in homogeneous coordinates directly,
-    //       before the perspective division (division by w).
+    //       before the perspective division (division by w)
     //       For a convex quad with vertices P0, P1, P2, P3 in sequential order,
     //       the winding order of the quad is the same as the winding order
     //       of the triangle P0 P1 P2. We use the homogeneous triangle
-    //       winding test on this first triangle.
+    //       winding test on this first triangle
 
     // Preload homogeneous coordinates into local variables
     const float *h0 = RLSW.vertexBuffer[0].homogeneous;
@@ -2578,11 +2576,11 @@ static inline bool sw_quad_face_culling(void)
 
     // Compute a value proportional to the signed area of the triangle P0 P1 P2
     // in the projected 2D plane, calculated directly using homogeneous coordinates
-    // BEFORE division by w.
+    // BEFORE division by w
     // This is the determinant of the matrix formed by the (x, y, w) components
     // of the vertices P0, P1, and P2. Its sign correctly indicates the winding order
     // in homogeneous space and its relationship to the projected 2D winding order,
-    // even with negative w values.
+    // even with negative w values
     // The determinant formula used here is:
     // h0.x*(h1.y*h2.w - h2.y*h1.w) +
     // h1.x*(h2.y*h0.w - h0.y*h2.w) +
@@ -2594,21 +2592,19 @@ static inline bool sw_quad_face_culling(void)
         h2[0]*(h0[1]*h1[3] - h1[1]*h0[3]);
 
     // Perform face culling based on the winding order determined by the sign
-    // of the homogeneous area/determinant of triangle P0 P1 P2.
+    // of the homogeneous area/determinant of triangle P0 P1 P2
     // This test is robust for points with w > 0 or w < 0 within the triangle,
-    // correctly capturing the change in orientation when crossing the w=0 plane.
+    // correctly capturing the change in orientation when crossing the w=0 plane
 
     // A positive hSgnArea typically corresponds to a counter-clockwise
-    // winding in the projected space when all w > 0.
+    // winding in the projected space when all w > 0
     // A value of 0 for hSgnArea means P0, P1, P2 are collinear in (x, y, w)
-    // space, which corresponds to a degenerate triangle projection.
+    // space, which corresponds to a degenerate triangle projection
     // Such quads might also be degenerate or non-planar. They are typically
     // not culled by this test (0 < 0 is false, 0 > 0 is false)
     // and should be handled by the clipper if necessary.
 
-    return (RLSW.cullFace == SW_FRONT)
-        ? (hSgnArea < 0.0f) // Cull if winding is "clockwise" in the projected sense
-        : (hSgnArea > 0.0f); // Cull if winding is "counter-clockwise" in the projected sense
+    return (RLSW.cullFace == SW_FRONT)? (hSgnArea < 0.0f) : (hSgnArea > 0.0f); // Cull if winding is "clockwise" : "counter-clockwise"
 }
 
 static inline void sw_quad_clip_and_project(void)
@@ -2690,9 +2686,9 @@ static inline void sw_quad_sort_cw(const sw_vertex_t* *output)
     const sw_vertex_t *input = RLSW.vertexBuffer;
 
     // Calculate the centroid of the quad
-    float cx = (input[0].screen[0] + input[1].screen[0] + 
+    float cx = (input[0].screen[0] + input[1].screen[0] +
                 input[2].screen[0] + input[3].screen[0])*0.25f;
-    float cy = (input[0].screen[1] + input[1].screen[1] + 
+    float cy = (input[0].screen[1] + input[1].screen[1] +
                 input[2].screen[1] + input[3].screen[1])*0.25f;
 
     // Calculate the angle of each vertex relative to the center
@@ -3615,7 +3611,7 @@ bool swInit(int w, int h)
     RLSW.loadedTextures[0].ty = 0.5f;
 
     RLSW.loadedTextureCount = 1;
-    
+
     SW_LOG("INFO: RLSW: Software renderer initialized successfully\n");
 #if defined(SW_HAS_FMA_AVX) && defined(SW_HAS_FMA_AVX2)
     SW_LOG("INFO: RLSW: Using SIMD instructions: FMA AVX\n");
@@ -3672,9 +3668,9 @@ void swCopyFramebuffer(int x, int y, int w, int h, SWformat format, SWtype type,
     x = sw_clampi(x, 0, w);
     y = sw_clampi(y, 0, h);
 
-    if (x >= w || y >= h) return;
+    if ((x >= w) || (y >= h)) return;
 
-    if (x == 0 && y == 0 && w == RLSW.framebuffer.width && h == RLSW.framebuffer.height)
+    if ((x == 0) && (y == 0) && (w == RLSW.framebuffer.width) && (h == RLSW.framebuffer.height))
     {
         #if SW_COLOR_BUFFER_BITS == 32
             if (pFormat == SW_PIXELFORMAT_UNCOMPRESSED_R8G8B8A8)
@@ -3699,7 +3695,7 @@ void swCopyFramebuffer(int x, int y, int w, int h, SWformat format, SWtype type,
         case SW_PIXELFORMAT_UNCOMPRESSED_R8G8B8: sw_framebuffer_copy_to_R8G8B8(x, y, w, h, (uint8_t *)pixels); break;
         case SW_PIXELFORMAT_UNCOMPRESSED_R5G5B5A1: sw_framebuffer_copy_to_R5G5B5A1(x, y, w, h, (uint16_t *)pixels); break;
         case SW_PIXELFORMAT_UNCOMPRESSED_R4G4B4A4: sw_framebuffer_copy_to_R4G4B4A4(x, y, w, h, (uint16_t *)pixels); break;
-        case SW_PIXELFORMAT_UNCOMPRESSED_R8G8B8A8: sw_framebuffer_copy_to_R8G8B8A8(x, y, w, h, (uint8_t *)pixels); break;
+        //case SW_PIXELFORMAT_UNCOMPRESSED_R8G8B8A8: sw_framebuffer_copy_to_R8G8B8A8(x, y, w, h, (uint8_t *)pixels); break;
         // Below: not implemented
         case SW_PIXELFORMAT_UNCOMPRESSED_R32:
         case SW_PIXELFORMAT_UNCOMPRESSED_R32G32B32:
@@ -3707,9 +3703,7 @@ void swCopyFramebuffer(int x, int y, int w, int h, SWformat format, SWtype type,
         case SW_PIXELFORMAT_UNCOMPRESSED_R16:
         case SW_PIXELFORMAT_UNCOMPRESSED_R16G16B16:
         case SW_PIXELFORMAT_UNCOMPRESSED_R16G16B16A16:
-        default:
-            RLSW.errCode = SW_INVALID_ENUM;
-            break;
+        default: RLSW.errCode = SW_INVALID_ENUM; break;
     }
 }
 
@@ -4334,7 +4328,7 @@ void swVertex2f(float x, float y)
 void swVertex2fv(const float *v)
 {
     const float v4[4] = { v[0], v[1], 0.0f, 1.0f };
-    sw_immediate_push_vertex(v, RLSW.current.color, RLSW.current.texcoord);
+    sw_immediate_push_vertex(v4, RLSW.current.color, RLSW.current.texcoord);
 }
 
 void swVertex3i(int x, int y, int z)
@@ -4352,7 +4346,7 @@ void swVertex3f(float x, float y, float z)
 void swVertex3fv(const float *v)
 {
     const float v4[4] = { v[0], v[1], v[2], 1.0f };
-    sw_immediate_push_vertex(v, RLSW.current.color, RLSW.current.texcoord);
+    sw_immediate_push_vertex(v4, RLSW.current.color, RLSW.current.texcoord);
 }
 
 void swVertex4i(int x, int y, int z, int w)
@@ -4494,13 +4488,13 @@ void swDrawArrays(SWdraw mode, int offset, int count)
         const float *texMatrix = RLSW.stackTexture[RLSW.stackTextureCounter - 1];
         const float *defaultTexcoord = RLSW.current.texcoord;
         const float *defaultColor = RLSW.current.color;
-        
+
         const float *positions = RLSW.array.positions;
         const float *texcoords = RLSW.array.texcoords;
         const uint8_t *colors = RLSW.array.colors;
 
         int end = offset + count;
-        
+
         for (int i = offset; i < end; i++)
         {
             float u, v;
@@ -4589,16 +4583,16 @@ void swDrawElements(SWdraw mode, int count, int type, const void *indices)
         const float *texMatrix = RLSW.stackTexture[RLSW.stackTextureCounter - 1];
         const float *defaultTexcoord = RLSW.current.texcoord;
         const float *defaultColor = RLSW.current.color;
-        
+
         const float *positions = RLSW.array.positions;
         const float *texcoords = RLSW.array.texcoords;
         const uint8_t *colors = RLSW.array.colors;
-        
+
         for (int i = 0; i < count; i++)
         {
-            int index = indicesUb ? indicesUb[i] : 
-                       (indicesUs ? indicesUs[i] : indicesUi[i]);
-            
+            int index = indicesUb? indicesUb[i] :
+                       (indicesUs? indicesUs[i] : indicesUi[i]);
+
             float u, v;
             if (texcoords)
             {

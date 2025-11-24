@@ -463,7 +463,7 @@ void ToggleFullscreen(void)
     const int monitorCount = SDL_GetNumVideoDisplays();
 
 #if defined(USING_VERSION_SDL3) // SDL3 Migration: Monitor is an id instead of index now, returns 0 on failure
-    if ((monitor > 0) && (monitor <= monitorCount))
+    if (SDL_GetDisplayProperties(monitor) != 0) // Returns 0 on failure, so a value other than zero indicates that the monitor id is valid
 #else
     if ((monitor >= 0) && (monitor < monitorCount))
 #endif
@@ -491,7 +491,7 @@ void ToggleBorderlessWindowed(void)
     const int monitorCount = SDL_GetNumVideoDisplays();
 
 #if defined(USING_VERSION_SDL3) // SDL3 Migration: Monitor is an id instead of index now, returns 0 on failure
-    if ((monitor > 0) && (monitor <= monitorCount))
+    if (SDL_GetDisplayProperties(monitor) != 0) // Returns 0 on failure, so a value other than zero indicates that the monitor id is valid
 #else
     if ((monitor >= 0) && (monitor < monitorCount))
 #endif
@@ -548,7 +548,7 @@ void SetWindowState(unsigned int flags)
         const int monitorCount = SDL_GetNumVideoDisplays();
 
     #if defined(USING_VERSION_SDL3) // SDL3 Migration: Monitor is an id instead of index now, returns 0 on failure
-        if ((monitor > 0) && (monitor <= monitorCount))
+        if (SDL_GetDisplayProperties(monitor) != 0) // Returns 0 on failure, so a value other than zero indicates that the monitor id is valid
     #else
         if ((monitor >= 0) && (monitor < monitorCount))
     #endif
@@ -612,7 +612,7 @@ void SetWindowState(unsigned int flags)
         const int monitorCount = SDL_GetNumVideoDisplays();
 
     #if defined(USING_VERSION_SDL3) // SDL3 Migration: Monitor is an id instead of index now, returns 0 on failure
-        if ((monitor > 0) && (monitor <= monitorCount))
+        if (SDL_GetDisplayProperties(monitor) != 0) // Returns 0 on failure, so a value other than zero indicates that the monitor id is valid
     #else
         if ((monitor >= 0) && (monitor < monitorCount))
     #endif
@@ -833,7 +833,7 @@ void SetWindowMonitor(int monitor)
 {
     const int monitorCount = SDL_GetNumVideoDisplays();
 #if defined(USING_VERSION_SDL3) // SDL3 Migration: Monitor is an id instead of index now, returns 0 on failure
-    if ((monitor > 0) && (monitor <= monitorCount))
+    if (SDL_GetDisplayProperties(monitor) != 0) // Returns 0 on failure, so a value other than zero indicates that the monitor id is valid
 #else
     if ((monitor >= 0) && (monitor < monitorCount))
 #endif
@@ -961,7 +961,7 @@ Vector2 GetMonitorPosition(int monitor)
 {
     const int monitorCount = SDL_GetNumVideoDisplays();
 #if defined(USING_VERSION_SDL3) // SDL3 Migration: Monitor is an id instead of index now, returns 0 on failure
-    if ((monitor > 0) && (monitor <= monitorCount))
+    if (SDL_GetDisplayProperties(monitor) != 0) // Returns 0 on failure, so a value other than zero indicates that the monitor id is valid
 #else
     if ((monitor >= 0) && (monitor < monitorCount))
 #endif
@@ -989,7 +989,7 @@ int GetMonitorWidth(int monitor)
 
     const int monitorCount = SDL_GetNumVideoDisplays();
 #if defined(USING_VERSION_SDL3) // SDL3 Migration: Monitor is an id instead of index now, returns 0 on failure
-    if ((monitor > 0) && (monitor <= monitorCount))
+    if (SDL_GetDisplayProperties(monitor) != 0) // Returns 0 on failure, so a value other than zero indicates that the monitor id is valid
 #else
     if ((monitor >= 0) && (monitor < monitorCount))
 #endif
@@ -1010,7 +1010,7 @@ int GetMonitorHeight(int monitor)
 
     const int monitorCount = SDL_GetNumVideoDisplays();
 #if defined(USING_VERSION_SDL3) // SDL3 Migration: Monitor is an id instead of index now, returns 0 on failure
-    if ((monitor > 0) && (monitor <= monitorCount))
+    if (SDL_GetDisplayProperties(monitor) != 0) // Returns 0 on failure, so a value other than zero indicates that the monitor id is valid
 #else
     if ((monitor >= 0) && (monitor < monitorCount))
 #endif
@@ -1031,7 +1031,7 @@ int GetMonitorPhysicalWidth(int monitor)
 
     const int monitorCount = SDL_GetNumVideoDisplays();
 #if defined(USING_VERSION_SDL3) // SDL3 Migration: Monitor is an id instead of index now, returns 0 on failure
-    if ((monitor > 0) && (monitor <= monitorCount))
+    if (SDL_GetDisplayProperties(monitor) != 0) // Returns 0 on failure, so a value other than zero indicates that the monitor id is valid
 #else
     if ((monitor >= 0) && (monitor < monitorCount))
 #endif
@@ -1055,7 +1055,7 @@ int GetMonitorPhysicalHeight(int monitor)
 
     const int monitorCount = SDL_GetNumVideoDisplays();
 #if defined(USING_VERSION_SDL3) // SDL3 Migration: Monitor is an id instead of index now, returns 0 on failure
-    if ((monitor > 0) && (monitor <= monitorCount))
+    if (SDL_GetDisplayProperties(monitor) != 0) // Returns 0 on failure, so a value other than zero indicates that the monitor id is valid
 #else
     if ((monitor >= 0) && (monitor < monitorCount))
 #endif
@@ -1079,7 +1079,7 @@ int GetMonitorRefreshRate(int monitor)
 
     const int monitorCount = SDL_GetNumVideoDisplays();
 #if defined(USING_VERSION_SDL3) // SDL3 Migration: Monitor is an id instead of index now, returns 0 on failure
-    if ((monitor > 0) && (monitor <= monitorCount))
+    if (SDL_GetDisplayProperties(monitor) != 0) // Returns 0 on failure, so a value other than zero indicates that the monitor id is valid
 #else
     if ((monitor >= 0) && (monitor < monitorCount))
 #endif
@@ -1099,7 +1099,7 @@ const char *GetMonitorName(int monitor)
     const int monitorCount = SDL_GetNumVideoDisplays();
 
 #if defined(USING_VERSION_SDL3) // SDL3 Migration: Monitor is an id instead of index now, returns 0 on failure
-    if ((monitor > 0) && (monitor <= monitorCount))
+    if (SDL_GetDisplayProperties(monitor) != 0) // Returns 0 on failure, so a value other than zero indicates that the monitor id is valid
 #else
     if ((monitor >= 0) && (monitor < monitorCount))
 #endif
@@ -1129,7 +1129,7 @@ Vector2 GetWindowScaleDPI(void)
 
 #ifndef USING_VERSION_SDL3
     // NOTE: SDL_GetWindowDisplayScale was only added on SDL3
-    //       see https://wiki.libsdl.org/SDL3/SDL_GetWindowDisplayScale
+    // Ref: https://wiki.libsdl.org/SDL3/SDL_GetWindowDisplayScale
     // TODO: Implement the window scale factor calculation manually
     TRACELOG(LOG_WARNING, "GetWindowScaleDPI() not implemented on target platform");
 #else
@@ -1188,7 +1188,7 @@ Image GetClipboardImage(void)
     size_t dataSize = 0;
     void  *fileData = NULL;
 
-    for (int i = 0; i < SDL_arraysize(imageFormats); ++i)
+    for (int i = 0; i < SDL_arraysize(imageFormats); i++)
     {
         // NOTE: This pointer should be free with SDL_free() at some point
         fileData = SDL_GetClipboardData(imageFormats[i], &dataSize);
@@ -1395,7 +1395,7 @@ void PollInputEvents(void)
     //-----------------------------------------------------------------------------
     // WARNING: Indexes into this array are obtained by using SDL_Scancode values, not SDL_Keycode values
     //const Uint8 *keys = SDL_GetKeyboardState(NULL);
-    //for (int i = 0; i < 256; ++i) CORE.Input.Keyboard.currentKeyState[i] = keys[i];
+    //for (int i = 0; i < 256; i++) CORE.Input.Keyboard.currentKeyState[i] = keys[i];
 
     CORE.Window.resizedLastFrame = false;
 
@@ -1425,8 +1425,10 @@ void PollInputEvents(void)
                     CORE.Window.dropFilepaths[CORE.Window.dropFileCount] = (char *)RL_CALLOC(MAX_FILEPATH_LENGTH, sizeof(char));
 
                 #if defined(USING_VERSION_SDL3)
-                    // const char *data;   /**< The text for SDL_EVENT_DROP_TEXT and the file name for SDL_EVENT_DROP_FILE, NULL for other events */
-                    // Event memory is now managed by SDL, so you should not free the data in SDL_EVENT_DROP_FILE, and if you want to hold onto the text in SDL_EVENT_TEXT_EDITING and SDL_EVENT_TEXT_INPUT events, you should make a copy of it. SDL_TEXTINPUTEVENT_TEXT_SIZE is no longer necessary and has been removed.
+                    // const char *data;   // The text for SDL_EVENT_DROP_TEXT and the file name for SDL_EVENT_DROP_FILE, NULL for other events
+                    // Event memory is now managed by SDL, so you should not free the data in SDL_EVENT_DROP_FILE, 
+                    // and if you want to hold onto the text in SDL_EVENT_TEXT_EDITING and SDL_EVENT_TEXT_INPUT events, 
+                    // you should make a copy of it. SDL_TEXTINPUTEVENT_TEXT_SIZE is no longer necessary and has been removed
                     strcpy(CORE.Window.dropFilepaths[CORE.Window.dropFileCount], event.drop.data);
                 #else
                     strcpy(CORE.Window.dropFilepaths[CORE.Window.dropFileCount], event.drop.file);
@@ -1458,7 +1460,7 @@ void PollInputEvents(void)
             // SDL3 states:
             // The SDL_WINDOWEVENT_* events have been moved to top level events, and SDL_WINDOWEVENT has been removed
             // In general, handling this change just means checking for the individual events instead of first checking for SDL_WINDOWEVENT
-            // and then checking for window events. You can compare the event >= SDL_EVENT_WINDOW_FIRST and <= SDL_EVENT_WINDOW_LAST if you need to see whether it's a window event.
+            // and then checking for window events. You can compare the event >= SDL_EVENT_WINDOW_FIRST and <= SDL_EVENT_WINDOW_LAST if you need to see whether it's a window event
             case SDL_WINDOWEVENT:
             {
                 switch (event.window.event)
@@ -1562,7 +1564,7 @@ void PollInputEvents(void)
             case SDL_KEYDOWN:
             {
             #if defined(USING_VERSION_SDL3)
-                // SDL3 Migration: The following structures have been removed: * SDL_Keysym
+                // SDL3 Migration: The following structures have been removed: SDL_Keysym
                 KeyboardKey key = ConvertScancodeToKey(event.key.scancode);
             #else
                 KeyboardKey key = ConvertScancodeToKey(event.key.keysym.scancode);
@@ -1582,11 +1584,9 @@ void PollInputEvents(void)
 
                 if (event.key.repeat) CORE.Input.Keyboard.keyRepeatInFrame[key] = 1;
 
-                // TODO: Put exitKey verification outside the switch?
-                if (CORE.Input.Keyboard.currentKeyState[CORE.Input.Keyboard.exitKey])
-                {
-                    CORE.Window.shouldClose = true;
-                }
+                // Check for registered exit key to request exit game loop on next iteration
+                if (CORE.Input.Keyboard.currentKeyState[CORE.Input.Keyboard.exitKey]) CORE.Window.shouldClose = true;
+
             } break;
 
             case SDL_KEYUP:
@@ -1697,7 +1697,7 @@ void PollInputEvents(void)
                 int jid = event.jdevice.which; // Joystick device index
 
                 // check if already added at InitPlatform
-                for (int i = 0; i < MAX_GAMEPADS; ++i)
+                for (int i = 0; i < MAX_GAMEPADS; i++)
                 {
                     if (jid == platform.gamepadId[i])
                     {
@@ -1723,12 +1723,11 @@ void PollInputEvents(void)
                         CORE.Input.Gamepad.axisState[nextAvailableSlot][GAMEPAD_AXIS_LEFT_TRIGGER] = -1.0f;
                         CORE.Input.Gamepad.axisState[nextAvailableSlot][GAMEPAD_AXIS_RIGHT_TRIGGER] = -1.0f;
                         memset(CORE.Input.Gamepad.name[nextAvailableSlot], 0, MAX_GAMEPAD_NAME_LENGTH);
-                        strncpy(CORE.Input.Gamepad.name[nextAvailableSlot], SDL_GameControllerNameForIndex(nextAvailableSlot), MAX_GAMEPAD_NAME_LENGTH - 1);
+                        const char *controllerName = SDL_GameControllerNameForIndex(nextAvailableSlot);
+                        if (controllerName != NULL) strncpy(CORE.Input.Gamepad.name[nextAvailableSlot], controllerName, MAX_GAMEPAD_NAME_LENGTH - 1);
+                        else strncpy(CORE.Input.Gamepad.name[nextAvailableSlot], "noname", 6);
                     }
-                    else
-                    {
-                        TRACELOG(LOG_WARNING, "PLATFORM: Unable to open game controller [ERROR: %s]", SDL_GetError());
-                    }
+                    else TRACELOG(LOG_WARNING, "PLATFORM: Unable to open game controller [ERROR: %s]", SDL_GetError());
                 }
             } break;
             case SDL_JOYDEVICEREMOVED:
@@ -2081,7 +2080,7 @@ int InitPlatform(void)
 
     // Disable mouse events being interpreted as touch events
     // NOTE: This is wanted because there are SDL_FINGER* events available which provide unique data
-    //       Due to the way PollInputEvents() and rgestures.h are currently implemented, setting this won't break SUPPORT_MOUSE_GESTURES
+    // Due to the way PollInputEvents() and rgestures.h are currently implemented, setting this won't break SUPPORT_MOUSE_GESTURES
     SDL_SetHint(SDL_HINT_TOUCH_MOUSE_EVENTS, "0");
 
     SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
