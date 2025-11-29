@@ -107,7 +107,7 @@ int main(void)
     // De-Initialization
     //--------------------------------------------------------------------------------------
     // Unload billboard texture
-    UnloadTexture(skillbot);
+    UnloadTexture(&skillbot);
 
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
