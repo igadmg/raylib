@@ -4,33 +4,33 @@ Defines found: 58
 Define 001: RAYLIB_H
   Name: RAYLIB_H
   Type: GUARD
-  Value:
-  Description:
+  Value: 
+  Description: 
 Define 002: RAYLIB_VERSION_MAJOR
   Name: RAYLIB_VERSION_MAJOR
   Type: INT
   Value: 5
-  Description:
+  Description: 
 Define 003: RAYLIB_VERSION_MINOR
   Name: RAYLIB_VERSION_MINOR
   Type: INT
   Value: 6
-  Description:
+  Description: 
 Define 004: RAYLIB_VERSION_PATCH
   Name: RAYLIB_VERSION_PATCH
   Type: INT
   Value: 0
-  Description:
+  Description: 
 Define 005: RAYLIB_VERSION
   Name: RAYLIB_VERSION
   Type: STRING
   Value: "5.6-dev"
-  Description:
+  Description: 
 Define 006: __declspec(x)
   Name: __declspec(x)
   Type: MACRO
   Value: __attribute__((x))
-  Description:
+  Description: 
 Define 007: RLAPI
   Name: RLAPI
   Type: UNKNOWN
@@ -40,82 +40,82 @@ Define 008: PI
   Name: PI
   Type: FLOAT
   Value: 3.14159265358979323846
-  Description:
+  Description: 
 Define 009: DEG2RAD
   Name: DEG2RAD
   Type: FLOAT_MATH
   Value: (PI/180.0f)
-  Description:
+  Description: 
 Define 010: RAD2DEG
   Name: RAD2DEG
   Type: FLOAT_MATH
   Value: (180.0f/PI)
-  Description:
+  Description: 
 Define 011: RL_MALLOC(sz)
   Name: RL_MALLOC(sz)
   Type: MACRO
   Value: malloc(sz)
-  Description:
+  Description: 
 Define 012: RL_CALLOC(n,sz)
   Name: RL_CALLOC(n,sz)
   Type: MACRO
   Value: calloc(n,sz)
-  Description:
+  Description: 
 Define 013: RL_REALLOC(ptr,sz)
   Name: RL_REALLOC(ptr,sz)
   Type: MACRO
   Value: realloc(ptr,sz)
-  Description:
+  Description: 
 Define 014: RL_FREE(ptr)
   Name: RL_FREE(ptr)
   Type: MACRO
   Value: free(ptr)
-  Description:
+  Description: 
 Define 015: RL_FREE_NULL(ptr)
   Name: RL_FREE_NULL(ptr)
   Type: MACRO
   Value: RL_FREE(ptr); ptr = NULL
-  Description:
+  Description: 
 Define 016: CLITERAL(type)
   Name: CLITERAL(type)
   Type: MACRO
   Value: type
-  Description:
+  Description: 
 Define 017: RL_COLOR_TYPE
   Name: RL_COLOR_TYPE
   Type: GUARD
-  Value:
-  Description:
+  Value: 
+  Description: 
 Define 018: RL_RECTANGLE_TYPE
   Name: RL_RECTANGLE_TYPE
   Type: GUARD
-  Value:
-  Description:
+  Value: 
+  Description: 
 Define 019: RL_VECTOR2_TYPE
   Name: RL_VECTOR2_TYPE
   Type: GUARD
-  Value:
-  Description:
+  Value: 
+  Description: 
 Define 020: RL_VECTOR3_TYPE
   Name: RL_VECTOR3_TYPE
   Type: GUARD
-  Value:
-  Description:
+  Value: 
+  Description: 
 Define 021: RL_VECTOR4_TYPE
   Name: RL_VECTOR4_TYPE
   Type: GUARD
-  Value:
-  Description:
+  Value: 
+  Description: 
 Define 022: RL_QUATERNION_TYPE
   Name: RL_QUATERNION_TYPE
   Type: GUARD
-  Value:
-  Description:
+  Value: 
+  Description: 
 Define 023: RL_MATRIX_TYPE
   Name: RL_MATRIX_TYPE
   Type: GUARD
-  Value:
-  Description:
+  Value: 
+  Description: 
 Define 024: LIGHTGRAY
   Name: LIGHTGRAY
   Type: COLOR
@@ -249,43 +249,43 @@ Define 049: RAYWHITE
 Define 050: RL_BOOL_TYPE
   Name: RL_BOOL_TYPE
   Type: GUARD
-  Value:
-  Description:
+  Value: 
+  Description: 
 Define 051: MOUSE_LEFT_BUTTON
   Name: MOUSE_LEFT_BUTTON
   Type: UNKNOWN
   Value: MOUSE_BUTTON_LEFT
-  Description:
+  Description: 
 Define 052: MOUSE_RIGHT_BUTTON
   Name: MOUSE_RIGHT_BUTTON
   Type: UNKNOWN
   Value: MOUSE_BUTTON_RIGHT
-  Description:
+  Description: 
 Define 053: MOUSE_MIDDLE_BUTTON
   Name: MOUSE_MIDDLE_BUTTON
   Type: UNKNOWN
   Value: MOUSE_BUTTON_MIDDLE
-  Description:
+  Description: 
 Define 054: MATERIAL_MAP_DIFFUSE
   Name: MATERIAL_MAP_DIFFUSE
   Type: UNKNOWN
   Value: MATERIAL_MAP_ALBEDO
-  Description:
+  Description: 
 Define 055: MATERIAL_MAP_SPECULAR
   Name: MATERIAL_MAP_SPECULAR
   Type: UNKNOWN
   Value: MATERIAL_MAP_METALNESS
-  Description:
+  Description: 
 Define 056: SHADER_LOC_MAP_DIFFUSE
   Name: SHADER_LOC_MAP_DIFFUSE
   Type: UNKNOWN
   Value: SHADER_LOC_MAP_ALBEDO
-  Description:
+  Description: 
 Define 057: SHADER_LOC_MAP_SPECULAR
   Name: SHADER_LOC_MAP_SPECULAR
   Type: UNKNOWN
   Value: SHADER_LOC_MAP_METALNESS
-  Description:
+  Description: 
 Define 058: GetMouseRay
   Name: GetMouseRay
   Type: UNKNOWN
@@ -995,7 +995,7 @@ Callback 005: SaveFileTextCallback() (2 input parameters)
 Callback 006: AudioCallback() (2 input parameters)
   Name: AudioCallback
   Return type: void
-  Description:
+  Description: 
   Param[1]: bufferData (type: void *)
   Param[2]: frames (type: unsigned int)
 
@@ -1780,7 +1780,7 @@ Function 145: ChangeDirectory() (1 input parameters)
   Return type: bool
   Description: Change working directory, return true on success
   Param[1]: dirPath (type: const char *)
-Function 144: IsPathFile() (1 input parameters)
+Function 146: IsPathFile() (1 input parameters)
   Name: IsPathFile
   Return type: bool
   Description: Check if a given path is a file or a directory
