@@ -1155,6 +1155,7 @@ static double rlCullDistanceFar = RL_CULL_DISTANCE_FAR;
 #if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
 static rlglData RLGL = { 0 };
 #endif  // GRAPHICS_API_OPENGL_33 || GRAPHICS_API_OPENGL_ES2
+static bool isGpuReady = false;
 
 #if defined(GRAPHICS_API_OPENGL_ES2) && !defined(GRAPHICS_API_OPENGL_ES3)
 // NOTE: VAO functionality is exposed through extensions (OES)
@@ -1763,11 +1764,6 @@ void rlTextureParameters(unsigned int id, int param, int value)
 {
     glBindTexture(GL_TEXTURE_2D, id);
 
-#if !defined(GRAPHICS_API_OPENGL_11)
-    // Reset anisotropy filter, in case it was set
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
-#endif
-
     switch (param)
     {
         case RL_TEXTURE_WRAP_S:
@@ -1787,6 +1783,9 @@ void rlTextureParameters(unsigned int id, int param, int value)
         case RL_TEXTURE_FILTER_ANISOTROPIC:
         {
 #if !defined(GRAPHICS_API_OPENGL_11)
+            // Reset anisotropy filter, in case it was set
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0f);
+
             if (value <= RLGL.ExtSupported.maxAnisotropyLevel) glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (float)value);
             else if (RLGL.ExtSupported.maxAnisotropyLevel > 0.0f)
             {
@@ -2297,6 +2296,8 @@ static void GLAPIENTRY rlDebugMessageCallback(GLenum source, GLenum type, GLuint
 // Initialize rlgl: OpenGL extensions, default buffers/shaders/textures, OpenGL states
 void rlglInit(int width, int height)
 {
+    isGpuReady = true;
+
     // Enable OpenGL debug context if required
 #if defined(RLGL_ENABLE_OPENGL_DEBUG_CONTEXT) && defined(GRAPHICS_API_OPENGL_43)
     if ((glDebugMessageCallback != NULL) && (glDebugMessageControl != NULL))
@@ -2409,6 +2410,7 @@ void rlglClose(void)
 #if defined(GRAPHICS_API_OPENGL_11_SOFTWARE)
     swClose(); // Unload sofware renderer resources
 #endif
+    isGpuReady = false;
 }
 
 // Load OpenGL extensions
@@ -2506,12 +2508,12 @@ void rlLoadExtensions(void *loader)
     const char *extensions = (const char *)glGetString(GL_EXTENSIONS);  // One big const string
 
     // NOTE: We have to duplicate string because glGetString() returns a const string
-    int size = strlen(extensions) + 1;      // Get extensions string size in bytes
-    char *extensionsDup = (char *)RL_CALLOC(size, sizeof(char));
-    strcpy(extensionsDup, extensions);
+    int extensionsLength = (int)strlen(extensions); // Get extensions string size in bytes
+    char *extensionsDup = (char *)RL_CALLOC(extensionsLength + 1, sizeof(char)); // Allocate space for copy with additional EOL byte
+    strncpy(extensionsDup, extensions, extensionsLength);
     extList[numExt] = extensionsDup;
 
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < extensionsLength; i++)
     {
         if (extensionsDup[i] == ' ')
         {
@@ -2813,6 +2815,7 @@ int *rlGetShaderLocsDefault(void)
 rlRenderBatch rlLoadRenderBatch(int numBuffers, int bufferElements)
 {
     rlRenderBatch batch = { 0 };
+    if (!isGpuReady) { TRACELOG(RL_LOG_WARNING, "GL: GPU is not ready to load data, trying to load before InitWindow()?"); return batch; }
 
 #if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
     // Initialize CPU (RAM) vertex buffers (position, texcoord, color data and indexes)
@@ -3267,6 +3270,7 @@ bool rlCheckRenderBatchLimit(int vCount)
 unsigned int rlLoadTexture(const void *data, int width, int height, int format, int mipmapCount)
 {
     unsigned int id = 0;
+    if (!isGpuReady) { TRACELOG(RL_LOG_WARNING, "GL: GPU is not ready to load data, trying to load before InitWindow()?"); return id; }
 
     glBindTexture(GL_TEXTURE_2D, 0);    // Free any old binding
 
@@ -3363,8 +3367,8 @@ unsigned int rlLoadTexture(const void *data, int width, int height, int format, 
 
         mipWidth /= 2;
         mipHeight /= 2;
-        mipOffset += mipSize;       // Increment offset position to next mipmap
-        if (data != NULL) dataPtr += mipSize;         // Increment data pointer to next mipmap
+        mipOffset += mipSize; // Increment offset position to next mipmap
+        if (data != NULL) dataPtr += mipSize; // Increment data pointer to next mipmap
 
         // Security check for NPOT textures
         if (mipWidth < 1) mipWidth = 1;
@@ -3398,10 +3402,18 @@ unsigned int rlLoadTexture(const void *data, int width, int height, int format, 
 #if defined(GRAPHICS_API_OPENGL_33)
     if (mipmapCount > 1)
     {
-        // Activate Trilinear filtering if mipmaps are available
+        // Activate trilinear filtering if mipmaps are available
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmapCount); // Required for user-defined mip count
+        
+        // Define the maximum number of mipmap levels to be used, 0 is base texture size
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmapCount - 1);
+
+        // Check if the loaded texture with mipmaps is complete,
+        // uncomplete textures will draw in black if mipmap filtering is required
+        //GLint complete = 0;
+        //glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_IMMUTABLE_FORMAT, &complete);
     }
 #endif
 
@@ -3423,6 +3435,7 @@ unsigned int rlLoadTexture(const void *data, int width, int height, int format, 
 unsigned int rlLoadTextureDepth(int width, int height, bool useRenderBuffer)
 {
     unsigned int id = 0;
+    if (!isGpuReady) { TRACELOG(RL_LOG_WARNING, "GL: GPU is not ready to load data, trying to load before InitWindow()?"); return id; }
 
 #if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
     // In case depth textures not supported, we force renderbuffer usage
@@ -3481,6 +3494,7 @@ unsigned int rlLoadTextureDepth(int width, int height, bool useRenderBuffer)
 unsigned int rlLoadTextureCubemap(const void *data, int size, int format, int mipmapCount)
 {
     unsigned int id = 0;
+    if (!isGpuReady) { TRACELOG(RL_LOG_WARNING, "GL: GPU is not ready to load data, trying to load before InitWindow()?"); return id; }
 
 #if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
     int mipSize = size;
@@ -3884,6 +3898,7 @@ unsigned char *rlReadScreenPixels(int width, int height)
 unsigned int rlLoadFramebuffer(void)
 {
     unsigned int fboId = 0;
+    if (!isGpuReady) { TRACELOG(RL_LOG_WARNING, "GL: GPU is not ready to load data, trying to load before InitWindow()?"); return fboId; }
 
 #if (defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)) && defined(RLGL_RENDER_TEXTURES_HINT)
     glGenFramebuffers(1, &fboId);       // Create the framebuffer object
@@ -3976,7 +3991,7 @@ void rlUnloadFramebuffer(unsigned int id)
 
     // TODO: Review warning retrieving object name in WebGL
     // WARNING: WebGL: INVALID_ENUM: getFramebufferAttachmentParameter: invalid parameter name
-    // Ref: https://registry.khronos.org/webgl/specs/latest/1.0/
+    // REF: https://registry.khronos.org/webgl/specs/latest/1.0/
     glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &depthId);
 
     unsigned int depthIdU = (unsigned int)depthId;
@@ -3999,6 +4014,7 @@ void rlUnloadFramebuffer(unsigned int id)
 unsigned int rlLoadVertexBuffer(const void *buffer, int size, bool dynamic)
 {
     unsigned int id = 0;
+    if (!isGpuReady) { TRACELOG(RL_LOG_WARNING, "GL: GPU is not ready to load data, trying to load before InitWindow()?"); return id; }
 
 #if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
     glGenBuffers(1, &id);
@@ -4013,6 +4029,7 @@ unsigned int rlLoadVertexBuffer(const void *buffer, int size, bool dynamic)
 unsigned int rlLoadVertexBufferElement(const void *buffer, int size, bool dynamic)
 {
     unsigned int id = 0;
+    if (!isGpuReady) { TRACELOG(RL_LOG_WARNING, "GL: GPU is not ready to load data, trying to load before InitWindow()?"); return id; }
 
 #if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
     glGenBuffers(1, &id);
@@ -4178,12 +4195,12 @@ void rlDisableStatePointer(int vertexAttribType)
 unsigned int rlLoadVertexArray(void)
 {
     unsigned int vaoId = 0;
+    if (!isGpuReady) { TRACELOG(RL_LOG_WARNING, "GL: GPU is not ready to load data, trying to load before InitWindow()?"); return vaoId; }
+
 #if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
-    if (RLGL.ExtSupported.vao)
-    {
-        glGenVertexArrays(1, &vaoId);
-    }
+    if (RLGL.ExtSupported.vao) glGenVertexArrays(1, &vaoId);
 #endif
+
     return vaoId;
 }
 
@@ -4236,6 +4253,7 @@ void rlUnloadVertexBuffer(unsigned int vboId)
 unsigned int rlLoadShaderCode(const char *vsCode, const char *fsCode)
 {
     unsigned int id = 0;
+    if (!isGpuReady) { TRACELOG(RL_LOG_WARNING, "GL: GPU is not ready to load data, trying to load before InitWindow()?"); return id; }
 
 #if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
     unsigned int vertexShaderId = 0;
@@ -4378,6 +4396,7 @@ unsigned int rlCompileShader(const char *shaderCode, int type)
 unsigned int rlLoadShaderProgram(unsigned int vShaderId, unsigned int fShaderId)
 {
     unsigned int programId = 0;
+    if (!isGpuReady) { TRACELOG(RL_LOG_WARNING, "GL: GPU is not ready to load data, trying to load before InitWindow()?"); return programId; }
 
 #if defined(GRAPHICS_API_OPENGL_33) || defined(GRAPHICS_API_OPENGL_ES2)
     GLint success = 0;
@@ -4541,7 +4560,7 @@ void rlSetUniformMatrices(int locIndex, const Matrix *matrices, int count)
     glUniformMatrix4fv(locIndex, count, true, (const float *)matrices);
 #elif defined(GRAPHICS_API_OPENGL_ES2)
     // WARNING: WebGL does not support Matrix transpose ("true" parameter)
-    // Ref: https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/uniformMatrix
+    // REF: https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/uniformMatrix
     glUniformMatrix4fv(locIndex, count, false, (const float *)matrices);
 #endif
 }
@@ -5276,24 +5295,36 @@ static int rlGetPixelDataSize(int width, int height, int format)
         case RL_PIXELFORMAT_COMPRESSED_ETC1_RGB:
         case RL_PIXELFORMAT_COMPRESSED_ETC2_RGB:
         case RL_PIXELFORMAT_COMPRESSED_PVRT_RGB:
-        case RL_PIXELFORMAT_COMPRESSED_PVRT_RGBA: bpp = 4; break;
+        case RL_PIXELFORMAT_COMPRESSED_PVRT_RGBA: // 8 bytes per each 4x4 block
+        {
+            int blockWidth = (width + 3)/4;
+            int blockHeight = (height + 3)/4;
+            dataSize = blockWidth*blockHeight*8;
+        } break;
         case RL_PIXELFORMAT_COMPRESSED_DXT3_RGBA:
         case RL_PIXELFORMAT_COMPRESSED_DXT5_RGBA:
         case RL_PIXELFORMAT_COMPRESSED_ETC2_EAC_RGBA:
-        case RL_PIXELFORMAT_COMPRESSED_ASTC_4x4_RGBA: bpp = 8; break;
-        case RL_PIXELFORMAT_COMPRESSED_ASTC_8x8_RGBA: bpp = 2; break;
+        case RL_PIXELFORMAT_COMPRESSED_ASTC_4x4_RGBA: // 16 bytes per each 4x4 block
+        {
+            int blockWidth = (width + 3)/4;
+            int blockHeight = (height + 3)/4;
+            dataSize = blockWidth*blockHeight*16;
+        } break;
+        case RL_PIXELFORMAT_COMPRESSED_ASTC_8x8_RGBA: // 4 bytes per each 4x4 block
+        {
+            int blockWidth = (width + 3)/4;
+            int blockHeight = (height + 3)/4;
+            dataSize = blockWidth*blockHeight*4;
+        } break;
         default: break;
     }
 
-    double bytesPerPixel = (double)bpp/8.0;
-    dataSize = (int)(bytesPerPixel*width*height); // Total data size in bytes
-
-    // Most compressed formats works on 4x4 blocks,
-    // if texture is smaller, minimum dataSize is 8 or 16
-    if ((width < 4) && (height < 4))
+    // Compute dataSize for uncompressed texture data (no blocks)
+    if ((format >= RL_PIXELFORMAT_UNCOMPRESSED_GRAYSCALE) &&
+        (format <= RL_PIXELFORMAT_UNCOMPRESSED_R16G16B16A16))
     {
-        if ((format >= RL_PIXELFORMAT_COMPRESSED_DXT1_RGB) && (format < RL_PIXELFORMAT_COMPRESSED_DXT3_RGBA)) dataSize = 8;
-        else if ((format >= RL_PIXELFORMAT_COMPRESSED_DXT3_RGBA) && (format < RL_PIXELFORMAT_COMPRESSED_ASTC_8x8_RGBA)) dataSize = 16;
+        double bytesPerPixel = (double)bpp/8.0;
+        dataSize = (int)(bytesPerPixel*width*height); // Total data size in bytes
     }
 
     return dataSize;
