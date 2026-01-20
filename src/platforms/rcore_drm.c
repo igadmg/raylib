@@ -13,9 +13,6 @@
 *       - Improvement 01
 *       - Improvement 02
 *
-*   ADDITIONAL NOTES:
-*       - TRACELOG() function is located in raylib [utils] module
-*
 *   CONFIGURATION:
 *       #define SUPPORT_SSH_KEYBOARD_RPI (Raspberry Pi only)
 *           Reconfigure standard input to receive key inputs, works with SSH connection
@@ -29,7 +26,7 @@
 *
 *   LICENSE: zlib/libpng
 *
-*   Copyright (c) 2013-2025 Ramon Santamaria (@raysan5) and contributors
+*   Copyright (c) 2013-2026 Ramon Santamaria (@raysan5) and contributors
 *
 *   This software is provided "as-is", without any express or implied warranty. In no event
 *   will the authors be held liable for any damages arising from the use of this software.
@@ -87,6 +84,10 @@
 
 #ifndef EGL_OPENGL_ES3_BIT
     #define EGL_OPENGL_ES3_BIT  0x40
+#endif
+
+#ifndef EGL_PLATFORM_GBM_KHR
+    #define EGL_PLATFORM_GBM_KHR  0x31D7
 #endif
 
 //----------------------------------------------------------------------------------
@@ -1160,7 +1161,8 @@ int InitPlatform(void)
     platform.fd = open("/dev/dri/by-path/platform-gpu-card", O_RDWR); // VideoCore VI (Raspberry Pi 4)
     if (platform.fd != -1) TRACELOG(LOG_INFO, "DISPLAY: platform-gpu-card opened successfully");
 
-    if ((platform.fd == -1) || (drmModeGetResources(platform.fd) == NULL))
+    drmModeRes *res = NULL;
+    if ((platform.fd == -1) || ((res = drmModeGetResources(platform.fd)) == NULL))
     {
         if (platform.fd != -1) close(platform.fd);
         TRACELOG(LOG_WARNING, "DISPLAY: Failed to open platform-gpu-card, trying card1");
@@ -1168,7 +1170,7 @@ int InitPlatform(void)
         if (platform.fd != -1) TRACELOG(LOG_INFO, "DISPLAY: card1 opened successfully");
     }
 
-    if ((platform.fd == -1) || (drmModeGetResources(platform.fd) == NULL))
+    if ((platform.fd == -1) || ((res = drmModeGetResources(platform.fd)) == NULL))
     {
         if (platform.fd != -1) close(platform.fd);
         TRACELOG(LOG_WARNING, "DISPLAY: Failed to open graphic card1, trying card0");
@@ -1176,7 +1178,7 @@ int InitPlatform(void)
         if (platform.fd != -1) TRACELOG(LOG_INFO, "DISPLAY: card0 opened successfully");
     }
 
-    if ((platform.fd == -1) || (drmModeGetResources(platform.fd) == NULL))
+    if ((platform.fd == -1) || ((res = drmModeGetResources(platform.fd)) == NULL))
     {
         if (platform.fd != -1) close(platform.fd);
         TRACELOG(LOG_WARNING, "DISPLAY: Failed to open graphic card0, trying card2");
@@ -1191,7 +1193,6 @@ int InitPlatform(void)
         return -1;
     }
 
-    drmModeRes *res = drmModeGetResources(platform.fd);
     if (!res)
     {
         TRACELOG(LOG_WARNING, "DISPLAY: Failed get DRM resources");
@@ -1414,9 +1415,27 @@ int InitPlatform(void)
     };
 
     EGLint numConfigs = 0;
+    const char *eglClientExtensions = NULL;
 
     // Get an EGL device connection
-    platform.device = eglGetDisplay((EGLNativeDisplayType)platform.gbmDevice);
+    // NOTE: eglGetPlatformDisplay() is preferred over eglGetDisplay() legacy call
+    platform.device = EGL_NO_DISPLAY;
+#if defined(EGL_VERSION_1_5)
+    platform.device = eglGetPlatformDisplay(EGL_PLATFORM_GBM_KHR, platform.gbmDevice, NULL);
+#else
+    // Check if extension is available for eglGetPlatformDisplayEXT()
+    // NOTE: Better compatibility with some drivers (e.g. Mali Midgard)
+    eglClientExtensions = eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
+    if ((eglClientExtensions != NULL) && (strstr(eglClientExtensions, "EGL_EXT_platform_base") != NULL))
+    {
+        PFNEGLGETPLATFORMDISPLAYEXTPROC eglGetPlatformDisplayEXT = (PFNEGLGETPLATFORMDISPLAYEXTPROC)eglGetProcAddress("eglGetPlatformDisplayEXT");
+        
+        if (eglGetPlatformDisplayEXT != NULL) platform.device = eglGetPlatformDisplayEXT(EGL_PLATFORM_GBM_KHR, platform.gbmDevice, NULL);
+    }
+
+    // In case extension not found or display could not be retrieved, try useing legacy version
+    if (platform.device == EGL_NO_DISPLAY) platform.device = eglGetDisplay((EGLNativeDisplayType)platform.gbmDevice);
+#endif
     if (platform.device == EGL_NO_DISPLAY)
     {
         TRACELOG(LOG_WARNING, "DISPLAY: Failed to initialize EGL device");
@@ -1496,8 +1515,21 @@ int InitPlatform(void)
     }
 
     // Create an EGL window surface
-    platform.surface = eglCreateWindowSurface(platform.device, platform.config, (EGLNativeWindowType)platform.gbmSurface, NULL);
-    if (EGL_NO_SURFACE == platform.surface)
+    platform.surface = EGL_NO_SURFACE;
+
+    if ((eglClientExtensions != NULL) && (strstr(eglClientExtensions, "EGL_EXT_platform_base") != NULL))
+    {
+        PFNEGLCREATEPLATFORMWINDOWSURFACEEXTPROC eglCreatePlatformWindowSurfaceEXT = (PFNEGLCREATEPLATFORMWINDOWSURFACEEXTPROC)eglGetProcAddress("eglCreatePlatformWindowSurfaceEXT");
+
+        if (eglCreatePlatformWindowSurfaceEXT != NULL) platform.surface = eglCreatePlatformWindowSurfaceEXT(platform.device, platform.config, platform.gbmSurface, NULL);
+    }
+
+    if (platform.surface == EGL_NO_SURFACE)
+    {
+        platform.surface = eglCreateWindowSurface(platform.device, platform.config, (EGLNativeWindowType)platform.gbmSurface, NULL);
+    }
+
+    if (platform.surface == EGL_NO_SURFACE)
     {
         TRACELOG(LOG_WARNING, "DISPLAY: Failed to create EGL window surface: 0x%04x", eglGetError());
         return -1;
@@ -1566,10 +1598,10 @@ int InitPlatform(void)
     if (FLAG_IS_SET(CORE.Window.flags, FLAG_WINDOW_MINIMIZED)) MinimizeWindow();
 
     // If graphic device is no properly initialized, we end program
-    if (!CORE.Window.ready) 
-    { 
-        TRACELOG(LOG_FATAL, "PLATFORM: Failed to initialize graphic device"); 
-        return -1; 
+    if (!CORE.Window.ready)
+    {
+        TRACELOG(LOG_FATAL, "PLATFORM: Failed to initialize graphic device");
+        return -1;
     }
     else SetWindowPosition(GetMonitorWidth(GetCurrentMonitor())/2 - CORE.Window.screen.width/2, GetMonitorHeight(GetCurrentMonitor())/2 - CORE.Window.screen.height/2);
 
@@ -1893,7 +1925,7 @@ static void InitEvdevInput(void)
         platform.touchPosition[i].y = -1;
         platform.touchId[i] = -1;
     }
-    
+
     // Initialize touch slot
     platform.touchSlot = 0;
 
@@ -2076,13 +2108,13 @@ static void ConfigureEvdevDevice(char *device)
         if (prioritize)
         {
             deviceKindStr = isTouch? "touchscreen" : "mouse";
-            
-            if (platform.mouseFd != -1) 
+
+            if (platform.mouseFd != -1)
             {
                 TRACELOG(LOG_INFO, "INPUT: Overwriting previous input device with new %s", deviceKindStr);
                 close(platform.mouseFd);
             }
-            
+
             platform.mouseFd = fd;
             platform.mouseIsTouch = isTouch;
 
@@ -2094,7 +2126,7 @@ static void ConfigureEvdevDevice(char *device)
                 platform.absRange.y = absinfo[ABS_Y].info.minimum;
                 platform.absRange.height = absinfo[ABS_Y].info.maximum - absinfo[ABS_Y].info.minimum;
             }
-            
+
             TRACELOG(LOG_INFO, "INPUT: Initialized input device %s as %s", device, deviceKindStr);
         }
         else
@@ -2317,9 +2349,9 @@ static void PollMouseEvents(void)
             if (event.code == ABS_X)
             {
                 CORE.Input.Mouse.currentPosition.x = (event.value - platform.absRange.x)*CORE.Window.screen.width/platform.absRange.width;    // Scale according to absRange
-                
+
                 // Update single touch position only if it's active and no MT events are being used
-                if (platform.touchActive[0] && !isMultitouch) 
+                if (platform.touchActive[0] && !isMultitouch)
                 {
                     platform.touchPosition[0].x = (event.value - platform.absRange.x)*CORE.Window.screen.width/platform.absRange.width;
                     if (touchAction == -1) touchAction = 2;    // TOUCH_ACTION_MOVE
@@ -2329,9 +2361,9 @@ static void PollMouseEvents(void)
             if (event.code == ABS_Y)
             {
                 CORE.Input.Mouse.currentPosition.y = (event.value - platform.absRange.y)*CORE.Window.screen.height/platform.absRange.height;  // Scale according to absRange
-                
+
                 // Update single touch position only if it's active and no MT events are being used
-                if (platform.touchActive[0] && !isMultitouch) 
+                if (platform.touchActive[0] && !isMultitouch)
                 {
                     platform.touchPosition[0].y = (event.value - platform.absRange.y)*CORE.Window.screen.height/platform.absRange.height;
                     if (touchAction == -1) touchAction = 2;    // TOUCH_ACTION_MOVE
@@ -2339,9 +2371,9 @@ static void PollMouseEvents(void)
             }
 
             // Multitouch movement
-            if (event.code == ABS_MT_SLOT) 
+            if (event.code == ABS_MT_SLOT)
             {
-                platform.touchSlot = event.value;  
+                platform.touchSlot = event.value;
                 isMultitouch = true;
             }
 
@@ -2351,7 +2383,7 @@ static void PollMouseEvents(void)
                 if (platform.touchSlot < MAX_TOUCH_POINTS)
                 {
                     platform.touchPosition[platform.touchSlot].x = (event.value - platform.absRange.x)*CORE.Window.screen.width/platform.absRange.width;
-                    
+
                     // If this slot is active, it's a move. If not, we are just updating the buffer for when it becomes active.
                     // Only set to MOVE if we haven't already detected a DOWN or UP event this frame
                     if (platform.touchActive[platform.touchSlot] && touchAction == -1) touchAction = 2;    // TOUCH_ACTION_MOVE
@@ -2363,7 +2395,7 @@ static void PollMouseEvents(void)
                 if (platform.touchSlot < MAX_TOUCH_POINTS)
                 {
                     platform.touchPosition[platform.touchSlot].y = (event.value - platform.absRange.y)*CORE.Window.screen.height/platform.absRange.height;
-                    
+
                     // If this slot is active, it's a move. If not, we are just updating the buffer for when it becomes active.
                     // Only set to MOVE if we haven't already detected a DOWN or UP event this frame
                     if (platform.touchActive[platform.touchSlot] && touchAction == -1) touchAction = 2;    // TOUCH_ACTION_MOVE
@@ -2379,7 +2411,7 @@ static void PollMouseEvents(void)
 
                         platform.touchActive[platform.touchSlot] = true;
                         platform.touchId[platform.touchSlot] = event.value; // Use Tracking ID for unique IDs
-                        
+
                         touchAction = 1; // TOUCH_ACTION_DOWN
                     }
                     else
@@ -2389,7 +2421,7 @@ static void PollMouseEvents(void)
                         platform.touchPosition[platform.touchSlot].x = -1;
                         platform.touchPosition[platform.touchSlot].y = -1;
                         platform.touchId[platform.touchSlot] = -1;
-                        
+
                         // Force UP action if we haven't already set a DOWN action
                         // (DOWN takes priority over UP if both happen in one frame, though rare)
                         if (touchAction != 1) touchAction = 0; // TOUCH_ACTION_UP
@@ -2446,7 +2478,7 @@ static void PollMouseEvents(void)
                 if (event.value > 0)
                 {
                     bool activateSlot0 = false;
-                    
+
                     if (event.code == BTN_LEFT) activateSlot0 = true; // Mouse click always activates
                     else if (event.code == BTN_TOUCH)
                     {
@@ -2494,11 +2526,11 @@ static void PollMouseEvents(void)
         if (!CORE.Input.Mouse.cursorLocked)
         {
             if (CORE.Input.Mouse.currentPosition.x < 0) CORE.Input.Mouse.currentPosition.x = 0;
-            if (CORE.Input.Mouse.currentPosition.x > CORE.Window.screen.width/CORE.Input.Mouse.scale.x) 
+            if (CORE.Input.Mouse.currentPosition.x > CORE.Window.screen.width/CORE.Input.Mouse.scale.x)
                 CORE.Input.Mouse.currentPosition.x = CORE.Window.screen.width/CORE.Input.Mouse.scale.x;
 
             if (CORE.Input.Mouse.currentPosition.y < 0) CORE.Input.Mouse.currentPosition.y = 0;
-            if (CORE.Input.Mouse.currentPosition.y > CORE.Window.screen.height/CORE.Input.Mouse.scale.y) 
+            if (CORE.Input.Mouse.currentPosition.y > CORE.Window.screen.height/CORE.Input.Mouse.scale.y)
                 CORE.Input.Mouse.currentPosition.y = CORE.Window.screen.height/CORE.Input.Mouse.scale.y;
         }
 
@@ -2513,9 +2545,9 @@ static void PollMouseEvents(void)
                 k++;
             }
         }
-        
+
         CORE.Input.Touch.pointCount = k;
-        
+
         // Clear remaining slots
         for (int i = k; i < MAX_TOUCH_POINTS; i++)
         {

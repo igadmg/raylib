@@ -11,9 +11,6 @@
 *   POSSIBLE IMPROVEMENTS:
 *       - TBD
 *
-*   ADDITIONAL NOTES:
-*       - TRACELOG() function is located in raylib [utils] module
-*
 *   CONFIGURATION:
 *       #define RCORE_PLATFORM_CUSTOM_FLAG
 *           Custom flag for rcore on target platform -not used-
@@ -25,7 +22,7 @@
 *
 *   LICENSE: zlib/libpng
 *
-*   Copyright (c) 2025 Ramon Santamaria (@raysan5) and contributors
+*   Copyright (c) 2025-2026 Ramon Santamaria (@raysan5) and contributors
 *
 *   This software is provided "as-is", without any express or implied warranty. In no event
 *   will the authors be held liable for any damages arising from the use of this software.
@@ -140,7 +137,7 @@ bool WindowShouldClose(void)
     // and encapsulating one frame execution on a UpdateDrawFrame() function,
     // allowing the browser to manage execution asynchronously
 
-    // Optionally we can manage the time we give-control-back-to-browser if required,
+    // NOTE: Optionally, time can be managed, giving control back-to-browser as required,
     // but it seems below line could generate stuttering on some browsers
     emscripten_sleep(12);
 
@@ -636,25 +633,25 @@ void SetWindowSize(int width, int height)
     // - CSS canvas size: Web layout size, logical pixels
     // - Canvas contained framebuffer resolution
     // * Browser monitor, device pixel ratio (HighDPI)
-    
-    double canvasCssWidth = 0.0; 
+
+    double canvasCssWidth = 0.0;
     double canvasCssHeight = 0.0;
     emscripten_get_element_css_size(platform.canvasId, &canvasCssWidth, &canvasCssHeight);
-    
+
     // NOTE: emscripten_get_canvas_element_size() returns canvas framebuffer size, not CSS canvas size
-    
+
     // Get device pixel ratio
     // TODO: Should DPI be considered at this point?
     double dpr = emscripten_get_device_pixel_ratio();
 
     // Set canvas framebuffer size
     emscripten_set_canvas_element_size(platform.canvasId, width*dpr, height*dpr);
-    
+
     // Set canvas CSS size
     // TODO: Consider canvas CSS style if already scaled 100%
     EM_ASM({ Module.canvas.style.width = $0; }, width*dpr);
     EM_ASM({ Module.canvas.style.height = $0; }, height*dpr);
-    
+
     SetupViewport(width*dpr, height*dpr); // Reset viewport and projection matrix for new size
 }
 
@@ -704,7 +701,7 @@ Vector2 GetMonitorPosition(int monitor)
 // Get selected monitor width (currently used by monitor)
 int GetMonitorWidth(int monitor)
 {
-    // Get the width of the user's entire screen in CSS logical pixels, 
+    // Get the width of the user's entire screen in CSS logical pixels,
     // no physical pixels, it would require multiplying by device pixel ratio
     // NOTE: Returned value is limited to the current monitor where the browser window is located
     int width = 0;
@@ -715,7 +712,7 @@ int GetMonitorWidth(int monitor)
 // Get selected monitor height (currently used by monitor)
 int GetMonitorHeight(int monitor)
 {
-    // Get the height of the user's entire screen in CSS logical pixels, 
+    // Get the height of the user's entire screen in CSS logical pixels,
     // no physical pixels, it would require multiplying by device pixel ratio
     // NOTE: Returned value is limited to the current monitor where the browser window is located
     int height = 0;
@@ -865,7 +862,7 @@ void SwapScreenBuffer(void)
 #if defined(GRAPHICS_API_OPENGL_11_SOFTWARE)
     // Update framebuffer
     rlCopyFramebuffer(0, 0, CORE.Window.render.width, CORE.Window.render.height, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, platform.pixels);
-    
+
     // Copy framebuffer data into canvas
     EM_ASM({
         const width = $0;
@@ -904,7 +901,7 @@ double GetTime(void)
     time = (double)(nanoSeconds - CORE.Time.base)*1e-9;  // Elapsed time since InitTimer()
     */
     time = emscripten_get_now()*1000.0;
-    
+
     return time;
 }
 
@@ -1076,7 +1073,7 @@ void PollInputEvents(void)
                     else CORE.Input.Gamepad.currentButtonState[i][button] = 0;
                 }
 
-                //TRACELOGD("INPUT: Gamepad %d, button %d: Digital: %d, Analog: %g", gamepadState.index, j, gamepadState.digitalButton[j], gamepadState.analogButton[j]);
+                //TRACELOG(LOG_DEBUG, "INPUT: Gamepad %d, button %d: Digital: %d, Analog: %g", gamepadState.index, j, gamepadState.digitalButton[j], gamepadState.analogButton[j]);
             }
 
             // Register axis data for every connected gamepad
@@ -1137,7 +1134,7 @@ int InitPlatform(void)
             const canvas = document.getElementById(platform.canvasId);
             Module.canvas = canvas;
         });
-        
+
         // Load memory framebuffer with desired screen size
         platform.pixels = (unsigned int *)RL_CALLOC(CORE.Window.screen.width*CORE.Window.screen.height, sizeof(unsigned int));
     }
@@ -1145,7 +1142,7 @@ int InitPlatform(void)
     {
         attribs.majorVersion = 1; // WebGL 1.0 requested
         attribs.minorVersion = 0;
-        
+
         // Create WebGL context
         platform.glContext = emscripten_webgl_create_context(platform.canvasId, &attribs);
         if (platform.glContext == 0) return 0;
@@ -1156,7 +1153,7 @@ int InitPlatform(void)
     {
         attribs.majorVersion = 2; // WebGL 2.0 requested
         attribs.minorVersion = 0;
-        
+
         // Create WebGL context
         platform.glContext = emscripten_webgl_create_context(platform.canvasId, &attribs);
         if (platform.glContext == 0) return 0;
@@ -1216,7 +1213,7 @@ int InitPlatform(void)
     emscripten_set_keypress_callback(platform.canvasId, NULL, 1, EmscriptenKeyboardCallback);
     emscripten_set_keydown_callback(platform.canvasId, NULL, 1, EmscriptenKeyboardCallback);
     emscripten_set_keyup_callback(platform.canvasId, NULL, 1, EmscriptenKeyboardCallback);
-    
+
     emscripten_set_click_callback(platform.canvasId, NULL, 1, EmscriptenMouseCallback);
     //emscripten_set_dblclick_callback(platform.canvasId, NULL, 1, EmscriptenMouseCallback);
     emscripten_set_mousedown_callback(platform.canvasId, NULL, 1, EmscriptenMouseCallback);
@@ -1225,15 +1222,15 @@ int InitPlatform(void)
     emscripten_set_mousemove_callback(platform.canvasId, NULL, 1, EmscriptenMouseMoveCallback);
     emscripten_set_wheel_callback(platform.canvasId, NULL, 1, EmscriptenMouseWheelCallback);
     emscripten_set_pointerlockchange_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, 1, EmscriptenPointerlockCallback);
-    
+
     emscripten_set_touchstart_callback(platform.canvasId, NULL, 1, EmscriptenTouchCallback);
     emscripten_set_touchend_callback(platform.canvasId, NULL, 1, EmscriptenTouchCallback);
     emscripten_set_touchmove_callback(platform.canvasId, NULL, 1, EmscriptenTouchCallback);
     emscripten_set_touchcancel_callback(platform.canvasId, NULL, 1, EmscriptenTouchCallback);
-    
+
     emscripten_set_gamepadconnected_callback(NULL, 1, EmscriptenGamepadCallback);
     emscripten_set_gamepaddisconnected_callback(NULL, 1, EmscriptenGamepadCallback);
-    
+
     // Trigger resize callback to force initial size
     EmscriptenResizeCallback(EMSCRIPTEN_EVENT_RESIZE, NULL, NULL);
     //----------------------------------------------------------------------------
@@ -1256,7 +1253,7 @@ int InitPlatform(void)
 // Close platform
 // NOTE: Platform closing is managed by browser, so,
 // this function is actually not required, but still
-// implementing some logic behaviour 
+// implementing some logic behaviour
 void ClosePlatform(void)
 {
     if (platform.pixels != NULL) RL_FREE(platform.pixels);
@@ -1319,14 +1316,14 @@ static EM_BOOL EmscriptenResizeCallback(int eventType, const EmscriptenUiEvent *
 static EM_BOOL EmscriptenFocusCallback(int eventType, const EmscriptenFocusEvent *focusEvent, void *userData)
 {
     EM_BOOL consumed = 1;
-    
+
     switch (eventType)
     {
         case EMSCRIPTEN_EVENT_BLUR: FLAG_CLEAR(CORE.Window.flags, FLAG_WINDOW_UNFOCUSED); break; // The canvas lost focus
         case EMSCRIPTEN_EVENT_FOCUS: FLAG_SET(CORE.Window.flags, FLAG_WINDOW_UNFOCUSED); break;
         default: consumed = 0; break;
     }
-    
+
     return consumed;
 }
 
@@ -1335,7 +1332,7 @@ static EM_BOOL EmscriptenVisibilityChangeCallback(int eventType, const Emscripte
 {
     if (visibilityChangeEvent->hidden) FLAG_SET(CORE.Window.flags, FLAG_WINDOW_HIDDEN); // The window was hidden
     else FLAG_CLEAR(CORE.Window.flags, FLAG_WINDOW_HIDDEN); // The window was restored
-    
+
     return 1; // The event was consumed by the callback handler
 }
 
@@ -1361,7 +1358,7 @@ static void WindowDropCallback(GLFWwindow *window, int count, const char **paths
 {
     if (count > 0)
     {
-        // In case previous dropped filepaths have not been freed, we free them
+        // In case previous dropped filepaths have not been freed, free them
         if (CORE.Window.dropFileCount > 0)
         {
             for (unsigned int i = 0; i < CORE.Window.dropFileCount; i++) RL_FREE(CORE.Window.dropFilepaths[i]);
@@ -1372,7 +1369,7 @@ static void WindowDropCallback(GLFWwindow *window, int count, const char **paths
             CORE.Window.dropFilepaths = NULL;
         }
 
-        // WARNING: Paths are freed by GLFW when the callback returns, we must keep an internal copy
+        // WARNING: Paths are freed by GLFW when the callback returns, an internal copy should be kept
         CORE.Window.dropFileCount = count;
         CORE.Window.dropFilepaths = (char **)RL_CALLOC(CORE.Window.dropFileCount, sizeof(char *));
 
@@ -1405,7 +1402,7 @@ static EM_BOOL EmscriptenKeyboardCallback(int eventType, const EmscriptenKeyboar
         } break;
         default: break;
     }
-    
+
     // TODO: Add char codes
     //unsigned int charCode
     // Check if there is space available in the queue for characters to be added
@@ -1457,7 +1454,7 @@ static EM_BOOL EmscriptenMouseCallback(int eventType, const EmscriptenMouseEvent
         } break;
         default: break;
     }
-    
+
 #if defined(SUPPORT_GESTURES_SYSTEM) && defined(SUPPORT_MOUSE_GESTURES)
     // Process mouse events as touches to be able to use mouse-gestures
     GestureEvent gestureEvent = { 0 };
@@ -1508,7 +1505,7 @@ static EM_BOOL EmscriptenMouseMoveCallback(int eventType, const EmscriptenMouseE
         double cssHeight = 0.0;
         emscripten_get_element_css_size(platform.canvasId, &cssWidth, &cssHeight);
 
-        int fbWidth = 0; 
+        int fbWidth = 0;
         int fbHeight = 0;
         emscripten_get_canvas_element_size(platform.canvasId, &fbWidth, &fbHeight);
 
@@ -1518,15 +1515,15 @@ static EM_BOOL EmscriptenMouseMoveCallback(int eventType, const EmscriptenMouseE
 
         int mouseX = (int)(mouseCssX*scaleX);
         int mouseY = (int)(mouseCssY*scaleY);
-        
+
         CORE.Input.Mouse.currentPosition.x = mouseX;//(float)mouseEvent->canvasX;
         CORE.Input.Mouse.currentPosition.y = mouseY;//(float)mouseEvent->canvasY;
-        
+
         // Shorter alternative:
         //double dpr = emscripten_get_device_pixel_ratio();
         //int mouseX = (int)(e->canvasX*dpr);
         //int mouseY = (int)(e->canvasY*dpr);
-        
+
         CORE.Input.Touch.position[0] = CORE.Input.Mouse.currentPosition;
     }
 
@@ -1564,7 +1561,7 @@ static EM_BOOL EmscriptenMouseWheelCallback(int eventType, const EmscriptenWheel
         CORE.Input.Mouse.currentWheelMove.x = (float)wheelEvent->deltaX;
         CORE.Input.Mouse.currentWheelMove.y = (float)wheelEvent->deltaY;
     }
-    
+
     return 1; // The event was consumed by the callback handler
 }
 
@@ -1586,12 +1583,12 @@ static EM_BOOL EmscriptenPointerlockCallback(int eventType, const EmscriptenPoin
 static EM_BOOL EmscriptenGamepadCallback(int eventType, const EmscriptenGamepadEvent *gamepadEvent, void *userData)
 {
     /*
-    TRACELOGD("%s: timeStamp: %g, connected: %d, index: %ld, numAxes: %d, numButtons: %d, id: \"%s\", mapping: \"%s\"",
+    TRACELOG(LOG_DEBUG, "%s: timeStamp: %g, connected: %d, index: %ld, numAxes: %d, numButtons: %d, id: \"%s\", mapping: \"%s\"",
            eventType != 0? emscripten_event_type_to_string(eventType) : "Gamepad state",
            gamepadEvent->timestamp, gamepadEvent->connected, gamepadEvent->index, gamepadEvent->numAxes, gamepadEvent->numButtons, gamepadEvent->id, gamepadEvent->mapping);
 
-    for (int i = 0; i < gamepadEvent->numAxes; i++) TRACELOGD("Axis %d: %g", i, gamepadEvent->axis[i]);
-    for (int i = 0; i < gamepadEvent->numButtons; i++) TRACELOGD("Button %d: Digital: %d, Analog: %g", i, gamepadEvent->digitalButton[i], gamepadEvent->analogButton[i]);
+    for (int i = 0; i < gamepadEvent->numAxes; i++) TRACELOG(LOG_DEBUG, "Axis %d: %g", i, gamepadEvent->axis[i]);
+    for (int i = 0; i < gamepadEvent->numButtons; i++) TRACELOG(LOG_DEBUG, "Button %d: Digital: %d, Analog: %g", i, gamepadEvent->digitalButton[i], gamepadEvent->analogButton[i]);
     */
 
     if (gamepadEvent->connected && (gamepadEvent->index < MAX_GAMEPADS))
@@ -1613,7 +1610,7 @@ static EM_BOOL EmscriptenTouchCallback(int eventType, const EmscriptenTouchEvent
     double canvasWidth = 0.0;
     double canvasHeight = 0.0;
     // NOTE: emscripten_get_canvas_element_size() returns canvas.width and canvas.height but
-    // we are looking for actual CSS size: canvas.style.width and canvas.style.height
+    // looking for actual CSS size: canvas.style.width and canvas.style.height
     // EMSCRIPTEN_RESULT res = emscripten_get_canvas_element_size("#canvas", &canvasWidth, &canvasHeight);
     emscripten_get_element_css_size(platform.canvasId, &canvasWidth, &canvasHeight);
 
@@ -1633,7 +1630,7 @@ static EM_BOOL EmscriptenTouchCallback(int eventType, const EmscriptenTouchEvent
         else if (eventType == EMSCRIPTEN_EVENT_TOUCHEND) CORE.Input.Touch.currentTouchState[i] = 0;
     }
 
-    // Update mouse position if we detect a single touch
+    // Update mouse position if a single touch is detected
     if (CORE.Input.Touch.pointCount == 1)
     {
         CORE.Input.Mouse.currentPosition.x = CORE.Input.Touch.position[0].x;

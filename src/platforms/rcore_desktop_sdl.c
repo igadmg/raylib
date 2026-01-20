@@ -15,9 +15,6 @@
 *       - Improvement 01
 *       - Improvement 02
 *
-*   ADDITIONAL NOTES:
-*       - TRACELOG() function is located in raylib [utils] module
-*
 *   CONFIGURATION:
 *       #define RCORE_PLATFORM_CUSTOM_FLAG
 *           Custom flag for rcore on target platform -not used-
@@ -29,7 +26,7 @@
 *
 *   LICENSE: zlib/libpng
 *
-*   Copyright (c) 2013-2025 Ramon Santamaria (@raysan5) and contributors
+*   Copyright (c) 2013-2026 Ramon Santamaria (@raysan5) and contributors
 *
 *   This software is provided "as-is", without any express or implied warranty. In no event
 *   will the authors be held liable for any damages arising from the use of this software.
@@ -52,7 +49,7 @@
     #define USING_SDL3_PROJECT
 #endif
 #ifndef SDL_ENABLE_OLD_NAMES
-    #define SDL_ENABLE_OLD_NAMES    // Just in case we're on SDL3, we need some in-between compatibily
+    #define SDL_ENABLE_OLD_NAMES    // Just in case on SDL3, some in-between compatibily is needed
 #endif
 // SDL base library (window/rendered, input, timing... functionality)
 #ifdef USING_SDL3_PROJECT
@@ -257,10 +254,10 @@ static const int CursorsLUT[] = {
 #if defined(USING_VERSION_SDL3)
 
 // SDL3 Migration:
-//     SDL_WINDOW_FULLSCREEN_DESKTOP has been removed,
-//     and you can call SDL_GetWindowFullscreenMode()
-//     to see whether an exclusive fullscreen mode will be used
-//     or the borderless fullscreen desktop mode will be used
+// SDL_WINDOW_FULLSCREEN_DESKTOP has been removed,
+// and you can call SDL_GetWindowFullscreenMode()
+// to see whether an exclusive fullscreen mode will be used
+// or the borderless fullscreen desktop mode will be used
 #define SDL_WINDOW_FULLSCREEN_DESKTOP SDL_WINDOW_FULLSCREEN
 
 #define SDL_IGNORE  false
@@ -343,9 +340,8 @@ SDL_Surface *SDL_CreateRGBSurface(Uint32 flags, int width, int height, int depth
 }
 
 // SDL3 Migration:
-//     SDL_GetDisplayDPI() -
-//     not reliable across platforms, approximately replaced by multiplying
-//     SDL_GetWindowDisplayScale() times 160 on iPhone and Android, and 96 on other platforms
+// SDL_GetDisplayDPI() not reliable across platforms, approximately replaced by multiplying
+// SDL_GetWindowDisplayScale() times 160 on iPhone and Android, and 96 on other platforms
 // returns 0 on success or a negative error code on failure
 int SDL_GetDisplayDPI(int displayIndex, float *ddpi, float *hdpi, float *vdpi)
 {
@@ -416,7 +412,7 @@ int SDL_GetNumTouchFingers(SDL_TouchID touchID)
     return count;
 }
 
-#else // We're on SDL2
+#else // SDL2 fallback
 
 // Since SDL2 doesn't have this function we leave a stub
 // SDL_GetClipboardData function is available since SDL 3.1.3. (e.g. SDL3)
@@ -836,10 +832,9 @@ void SetWindowMonitor(int monitor)
     if ((monitor >= 0) && (monitor < monitorCount))
 #endif
     {
-        // NOTE:
-        // 1. SDL started supporting moving exclusive fullscreen windows between displays on SDL3,
-        //    see commit https://github.com/libsdl-org/SDL/commit/3f5ef7dd422057edbcf3e736107e34be4b75d9ba
-        // 2. A workaround for SDL2 is leaving fullscreen, moving the window, then entering full screen again
+        // NOTE 1: SDL started supporting moving exclusive fullscreen windows between displays on SDL3,
+        // see commit https://github.com/libsdl-org/SDL/commit/3f5ef7dd422057edbcf3e736107e34be4b75d9ba
+        // NOTE 2: A workaround for SDL2 is leaving fullscreen, moving the window, then entering full screen again
         const bool wasFullscreen = (FLAG_IS_SET(CORE.Window.flags, FLAG_FULLSCREEN_MODE))? true : false;
 
         const int screenWidth = CORE.Window.screen.width;
@@ -857,14 +852,13 @@ void SetWindowMonitor(int monitor)
             // If the screen size is larger than the monitor usable area, anchor it on the top left corner, otherwise, center it
             if ((screenWidth >= usableBounds.w) || (screenHeight >= usableBounds.h))
             {
-                // NOTE:
-                // 1. There's a known issue where if the window larger than the target display bounds,
-                //    when moving the windows to that display, the window could be clipped back
-                //    ending up positioned partly outside the target display
-                // 2. The workaround for that is, previously to moving the window,
-                //    setting the window size to the target display size, so they match
-                // 3. It wasn't done here because we can't assume changing the window size automatically
-                //    is acceptable behavior by the user
+                // NOTE 1: There's a known issue where if the window larger than the target display bounds,
+                // when moving the windows to that display, the window could be clipped back
+                // ending up positioned partly outside the target display
+                // NOTE 2: The workaround for that is, previously to moving the window,
+                // setting the window size to the target display size, so they match
+                // NOTE 3: It wasn't done here because we can't assume changing the window size automatically
+                // is acceptable behavior by the user
                 SDL_SetWindowPosition(platform.window, usableBounds.x, usableBounds.y);
                 CORE.Window.position.x = usableBounds.x;
                 CORE.Window.position.y = usableBounds.y;
@@ -1253,7 +1247,7 @@ void DisableCursor(void)
 void SwapScreenBuffer(void)
 {
 #if defined(GRAPHICS_API_OPENGL_11_SOFTWARE)
-    // NOTE: We use a preprocessor condition here because `rlCopyFramebuffer` is only declared for software rendering
+    // NOTE: We use a preprocessor condition here because rlCopyFramebuffer() is only declared for software rendering
     SDL_Surface *surface = SDL_GetWindowSurface(platform.window);
     rlCopyFramebuffer(0, 0, CORE.Window.render.width, CORE.Window.render.height, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, surface->pixels);
     SDL_UpdateWindowSurface(platform.window);
@@ -1425,8 +1419,8 @@ void PollInputEvents(void)
 
                 #if defined(USING_VERSION_SDL3)
                     // const char *data;   // The text for SDL_EVENT_DROP_TEXT and the file name for SDL_EVENT_DROP_FILE, NULL for other events
-                    // Event memory is now managed by SDL, so you should not free the data in SDL_EVENT_DROP_FILE, 
-                    // and if you want to hold onto the text in SDL_EVENT_TEXT_EDITING and SDL_EVENT_TEXT_INPUT events, 
+                    // Event memory is now managed by SDL, so you should not free the data in SDL_EVENT_DROP_FILE,
+                    // and if you want to hold onto the text in SDL_EVENT_TEXT_EDITING and SDL_EVENT_TEXT_INPUT events,
                     // you should make a copy of it. SDL_TEXTINPUTEVENT_TEXT_SIZE is no longer necessary and has been removed
                     strncpy(CORE.Window.dropFilepaths[CORE.Window.dropFileCount], event.drop.data, MAX_FILEPATH_LENGTH - 1);
                 #else
@@ -1487,7 +1481,7 @@ void PollInputEvents(void)
                         CORE.Window.resizedLastFrame = true;
 
                         #ifndef USING_VERSION_SDL3
-                        // Manually detect if the window was maximized (due to SDL2 restore being unreliable on some platforms) 
+                        // Manually detect if the window was maximized (due to SDL2 restore being unreliable on some platforms)
                         // to remove the FLAG_WINDOW_MAXIMIZED accordingly
                         if (FLAG_IS_SET(CORE.Window.flags, FLAG_WINDOW_MAXIMIZED))
                         {
@@ -1620,7 +1614,7 @@ void PollInputEvents(void)
             case SDL_MOUSEBUTTONDOWN:
             {
                 // NOTE: SDL2 mouse button order is LEFT, MIDDLE, RIGHT, but raylib uses LEFT, RIGHT, MIDDLE like GLFW
-                //       The following conditions align SDL with raylib.h MouseButton enum order
+                // The following conditions align SDL with raylib.h MouseButton enum order
                 int btn = event.button.button - 1;
                 if (btn == 2) btn = 1;
                 else if (btn == 1) btn = 2;
@@ -1633,7 +1627,7 @@ void PollInputEvents(void)
             case SDL_MOUSEBUTTONUP:
             {
                 // NOTE: SDL2 mouse button order is LEFT, MIDDLE, RIGHT, but raylib uses LEFT, RIGHT, MIDDLE like GLFW
-                //       The following conditions align SDL with raylib.h MouseButton enum order
+                // The following conditions align SDL with raylib.h MouseButton enum order
                 int btn = event.button.button - 1;
                 if (btn == 2) btn = 1;
                 else if (btn == 1) btn = 2;
