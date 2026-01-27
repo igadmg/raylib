@@ -3881,6 +3881,11 @@ return {
       }
     },
     {
+      name = "GetTraceLogLevel",
+      description = "Get the current threshold (minimum) log level",
+      returnType = "int"
+    },
+    {
       name = "SetTraceLogLevel",
       description = "Set the current threshold (minimum) log level",
       returnType = "void",
