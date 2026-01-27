@@ -1104,6 +1104,7 @@ RLAPI void SetConfigFlags(unsigned int flags);                  // Setup init co
 RLAPI void OpenURL(const char *url);                            // Open URL with default system browser (if available)
 
 // Logging system
+RLAPI int GetTraceLogLevel();                                     // Get the current threshold (minimum) log level
 RLAPI void SetTraceLogLevel(int logLevel);                      // Set the current threshold (minimum) log level
 RLAPI void TraceLog(int logLevel, const char *text, ...);       // Show trace log messages (LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR...)
 RLAPI void SetTraceLogCallback(TraceLogCallback callback);      // Set custom trace log

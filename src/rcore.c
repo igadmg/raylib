@@ -1879,6 +1879,9 @@ void SetConfigFlags(unsigned int flags)
 //----------------------------------------------------------------------------------
 // Module Functions Definition: Logging system
 //----------------------------------------------------------------------------------
+// Get the current threshold (minimum) log level
+int GetTraceLogLevel() { return logTypeLevel; }
+
 // Set the current threshold (minimum) log level
 void SetTraceLogLevel(int logType) { logTypeLevel = logType; }
 
@@ -1940,7 +1943,7 @@ void TraceLog(int logType, const char *text, ...)
 
 // Set custom trace log
 void SetTraceLogCallback(TraceLogCallback callback)
-{ 
+{
     traceLog = callback;
 }
 
@@ -3638,13 +3641,13 @@ bool ExportAutomationEventList(AutomationEventList list, const char *fileName)
         int binarySize = 4 + sizeof(int) + sizeof(AutomationEvent)*list.count;
         unsigned char *binBuffer = (unsigned char *)RL_CALLOC(binarySize, 1);
         int offset = 0;
-        memcpy(binBuffer + offset, "rAE ", 4); 
+        memcpy(binBuffer + offset, "rAE ", 4);
         offset += 4;
-        memcpy(binBuffer + offset, &list.count, sizeof(int)); 
+        memcpy(binBuffer + offset, &list.count, sizeof(int));
         offset += sizeof(int);
         memcpy(binBuffer + offset, list.events, sizeof(AutomationEvent)*list.count);
         offset += sizeof(AutomationEvent)*list.count;
-        
+
         success = SaveFileData(TextFormat("%s.rae",fileName), binBuffer, binarySize);
         RL_FREE(binBuffer);
     }
@@ -4526,7 +4529,7 @@ static void RecordAutomationEvent(void)
 
         if (currentEventList->count == currentEventList->capacity) return;    // Security check
 
-        // Event type: INPUT_TOUCH_POSITION         
+        // Event type: INPUT_TOUCH_POSITION
         if (((int)CORE.Input.Touch.position[id].x != (int)CORE.Input.Touch.previousPosition[id].x) ||
             ((int)CORE.Input.Touch.position[id].y != (int)CORE.Input.Touch.previousPosition[id].y))
         {
@@ -4539,7 +4542,7 @@ static void RecordAutomationEvent(void)
             TRACELOG(LOG_INFO, "AUTOMATION: Frame: %i | Event type: INPUT_TOUCH_POSITION | Event parameters: %i, %i, %i", currentEventList->events[currentEventList->count].frame, currentEventList->events[currentEventList->count].params[0], currentEventList->events[currentEventList->count].params[1], currentEventList->events[currentEventList->count].params[2]);
             currentEventList->count++;
         }
-        
+
 
         if (currentEventList->count == currentEventList->capacity) return;    // Security check
     }
