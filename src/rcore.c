@@ -4029,6 +4029,26 @@ float GetGamepadAxisMovement(int gamepad, int axis)
 //void SetMousePosition(int x, int y)
 //void SetMouseCursor(int cursor)
 
+int GetMouseButtonDownCount(void)
+{
+    int value = 0;
+
+    for (int button = 0; button < MAX_MOUSE_BUTTONS; button++)
+    {
+        if (CORE.Input.Mouse.currentButtonState[button] == 1) value++;
+    }
+
+    // Ignore touches count only real mouse buttons
+    /*
+    for (int touch = 0; touch < MAX_TOUCH_POINTS; touch++)
+    {
+        if (CORE.Input.Touch.currentTouchState[touch] == 1) value++;
+    }
+    */
+
+    return value;
+}
+
 // Check if a mouse button has been pressed once
 bool IsMouseButtonPressed(int button)
 {

@@ -1184,12 +1184,12 @@ RLAPI void PlayAutomationEvent(AutomationEvent event);                          
 //------------------------------------------------------------------------------------
 
 // Input-related functions: keyboard
+RLAPI int GetKeyDownCount(void);                              // Get key count of currently pressed keys
 RLAPI bool IsKeyPressed(int key);                             // Check if a key has been pressed once
 RLAPI bool IsKeyPressedRepeat(int key);                       // Check if a key has been pressed again
 RLAPI bool IsKeyDown(int key);                                // Check if a key is being pressed
 RLAPI bool IsKeyReleased(int key);                            // Check if a key has been released once
 RLAPI bool IsKeyUp(int key);                                  // Check if a key is NOT being pressed
-RLAPI int GetKeyDownCount(void);                              // Get key count of currently pressed keys
 RLAPI int GetKeyPressed(void);                                // Get key pressed (keycode), call it multiple times for keys queued, returns 0 when the queue is empty
 RLAPI int GetCharPressed(void);                               // Get char pressed (unicode), call it multiple times for chars queued, returns 0 when the queue is empty
 RLAPI const char *GetKeyName(int key);                        // Get name of a QWERTY key on the current keyboard layout (eg returns string 'q' for KEY_A on an AZERTY keyboard)
@@ -1209,6 +1209,7 @@ RLAPI int SetGamepadMappings(const char *mappings);           // Set internal ga
 RLAPI void SetGamepadVibration(int gamepad, float leftMotor, float rightMotor, float duration); // Set gamepad vibration for both motors (duration in seconds)
 
 // Input-related functions: mouse
+RLAPI int GetMouseButtonDownCount(void);                      // Get buttons count of currently pressed mouse buttons. Doesn't count touches.
 RLAPI bool IsMouseButtonPressed(int button);                  // Check if a mouse button has been pressed once
 RLAPI bool IsMouseButtonDown(int button);                     // Check if a mouse button is being pressed
 RLAPI bool IsMouseButtonReleased(int button);                 // Check if a mouse button has been released once
