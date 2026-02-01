@@ -4386,6 +4386,11 @@ return {
       }
     },
     {
+      name = "GetKeyDownCount",
+      description = "Get key count of currently pressed keys",
+      returnType = "int"
+    },
+    {
       name = "IsKeyPressed",
       description = "Check if a key has been pressed once",
       returnType = "bool",
@@ -4424,11 +4429,6 @@ return {
       params = {
         {type = "int", name = "key"}
       }
-    },
-    {
-      name = "GetKeyDownCount",
-      description = "Get key count of currently pressed keys",
-      returnType = "int"
     },
     {
       name = "GetKeyPressed",
@@ -4548,6 +4548,11 @@ return {
         {type = "float", name = "rightMotor"},
         {type = "float", name = "duration"}
       }
+    },
+    {
+      name = "GetMouseButtonDownCount",
+      description = "Get buttons count of currently pressed mouse buttons. Doesn't count touches.",
+      returnType = "int"
     },
     {
       name = "IsMouseButtonPressed",

@@ -4968,6 +4968,11 @@
       ]
     },
     {
+      "name": "GetKeyDownCount",
+      "description": "Get key count of currently pressed keys",
+      "returnType": "int"
+    },
+    {
       "name": "IsKeyPressed",
       "description": "Check if a key has been pressed once",
       "returnType": "bool",
@@ -5021,11 +5026,6 @@
           "name": "key"
         }
       ]
-    },
-    {
-      "name": "GetKeyDownCount",
-      "description": "Get key count of currently pressed keys",
-      "returnType": "int"
     },
     {
       "name": "GetKeyPressed",
@@ -5205,6 +5205,11 @@
           "name": "duration"
         }
       ]
+    },
+    {
+      "name": "GetMouseButtonDownCount",
+      "description": "Get buttons count of currently pressed mouse buttons. Doesn't count touches.",
+      "returnType": "int"
     },
     {
       "name": "IsMouseButtonPressed",
