@@ -736,7 +736,8 @@ void SetWindowSize(int width, int height)
     CORE.Window.screen.width = width;
     CORE.Window.screen.height = height;
 
-    glfwSetWindowSize(platform.handle, width, height);
+    Vector2 scaleDpi = GetWindowScaleDPI();
+    glfwSetWindowSize(platform.handle, width * scaleDpi.x, height * scaleDpi.y);
 }
 
 // Set window opacity, value opacity is between 0.0 and 1.0
@@ -1027,6 +1028,15 @@ Vector2 GetWindowScaleDPI(void)
         glfwGetWindowContentScale(platform.handle, &scale.x, &scale.y);
     return scale;
 }
+
+// Get display scale DPI factor for current monitor
+Vector2 GetDisplayScaleDPI(void)
+{
+    Vector2 scale = { 1.0f, 1.0f };
+    glfwGetWindowContentScale(platform.handle, &scale.x, &scale.y);
+    return scale;
+}
+
 
 // Set clipboard text content
 void SetClipboardText(const char *text)
