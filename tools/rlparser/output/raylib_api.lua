@@ -3413,6 +3413,11 @@ return {
       returnType = "Vector2"
     },
     {
+      name = "GetDisplayScaleDPI",
+      description = "Get display scale DPI factor",
+      returnType = "Vector2"
+    },
+    {
       name = "GetMonitorName",
       description = "Get the human-readable, UTF-8 encoded name of the specified monitor",
       returnType = "const char *",
