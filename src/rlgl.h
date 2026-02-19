@@ -463,6 +463,8 @@ typedef enum {
     RL_PIXELFORMAT_UNCOMPRESSED_R16,               // 16 bpp (1 channel - half float)
     RL_PIXELFORMAT_UNCOMPRESSED_R16G16B16,         // 16*3 bpp (3 channels - half float)
     RL_PIXELFORMAT_UNCOMPRESSED_R16G16B16A16,      // 16*4 bpp (4 channels - half float)
+    RL_PIXELFORMAT_UNCOMPRESSED_R16UI,             // 16 bit per pixel (no alpha)
+    RL_PIXELFORMAT_UNCOMPRESSED_R32UI,             // 32 bit per pixel (no alpha)
     RL_PIXELFORMAT_COMPRESSED_DXT1_RGB,            // 4 bpp (no alpha)
     RL_PIXELFORMAT_COMPRESSED_DXT1_RGBA,           // 4 bpp (1 bit alpha)
     RL_PIXELFORMAT_COMPRESSED_DXT3_RGBA,           // 8 bpp
@@ -2994,7 +2996,7 @@ void rlDrawRenderBatch(rlRenderBatch *batch)
     {
         // Activate elements VAO
         if (RLGL.ExtSupported.vao) glBindVertexArray(batch->vertexBuffer[batch->currentBuffer].vaoId);
-        
+
         // TODO: If no data changed on the CPU arrays there is no need to re-upload data to GPU,
         // a flag can be used to detect changes but it would imply keeping a copy buffer and memcmp() both, does it worth it?
 
@@ -3648,6 +3650,8 @@ void rlGetGlTextureFormats(int format, unsigned int *glInternalFormat, unsigned 
         case RL_PIXELFORMAT_UNCOMPRESSED_R16: if (RLGL.ExtSupported.texFloat16) *glInternalFormat = GL_R16F; *glFormat = GL_RED; *glType = GL_HALF_FLOAT; break;
         case RL_PIXELFORMAT_UNCOMPRESSED_R16G16B16: if (RLGL.ExtSupported.texFloat16) *glInternalFormat = GL_RGB16F; *glFormat = GL_RGB; *glType = GL_HALF_FLOAT; break;
         case RL_PIXELFORMAT_UNCOMPRESSED_R16G16B16A16: if (RLGL.ExtSupported.texFloat16) *glInternalFormat = GL_RGBA16F; *glFormat = GL_RGBA; *glType = GL_HALF_FLOAT; break;
+        case RL_PIXELFORMAT_UNCOMPRESSED_R16UI: *glInternalFormat = GL_R16UI; *glFormat = GL_RED; *glType = GL_UNSIGNED_SHORT; break;
+        case RL_PIXELFORMAT_UNCOMPRESSED_R32UI: *glInternalFormat = GL_R32UI; *glFormat = GL_RED; *glType = GL_UNSIGNED_INT; break;
     #endif
     #if !defined(GRAPHICS_API_OPENGL_11)
         case RL_PIXELFORMAT_COMPRESSED_DXT1_RGB: if (RLGL.ExtSupported.texCompDXT) *glInternalFormat = GL_COMPRESSED_RGB_S3TC_DXT1_EXT; break;
@@ -4809,7 +4813,7 @@ Matrix rlGetMatrixTransform(void)
     // TODO: Consider possible transform matrices in the RLGL.State.stack
     //Matrix matStackTransform = rlMatrixIdentity();
     //for (int i = RLGL.State.stackCounter; i > 0; i--) matStackTransform = rlMatrixMultiply(RLGL.State.stack[i], matStackTransform);
-    
+
     mat = RLGL.State.transform;
 #endif
     return mat;
@@ -5006,6 +5010,8 @@ const char *rlGetPixelFormatName(unsigned int format)
         case RL_PIXELFORMAT_UNCOMPRESSED_R16: return "R16"; break;                     // 16 bpp (1 channel - half float)
         case RL_PIXELFORMAT_UNCOMPRESSED_R16G16B16: return "R16G16B16"; break;         // 16*3 bpp (3 channels - half float)
         case RL_PIXELFORMAT_UNCOMPRESSED_R16G16B16A16: return "R16G16B16A16"; break;   // 16*4 bpp (4 channels - half float)
+        case RL_PIXELFORMAT_UNCOMPRESSED_R16UI: return "R16UI"; break;                 // 16 bit per pixel (no alpha)
+        case RL_PIXELFORMAT_UNCOMPRESSED_R32UI: return "R32UI"; break;                 // 32 bit per pixel (no alpha)
         case RL_PIXELFORMAT_COMPRESSED_DXT1_RGB: return "DXT1_RGB"; break;             // 4 bpp (no alpha)
         case RL_PIXELFORMAT_COMPRESSED_DXT1_RGBA: return "DXT1_RGBA"; break;           // 4 bpp (1 bit alpha)
         case RL_PIXELFORMAT_COMPRESSED_DXT3_RGBA: return "DXT3_RGBA"; break;           // 8 bpp
